@@ -14,13 +14,11 @@
 #include "bsp.h"
 #include "Arduino.h"                                   // Arduino include file
 #include <Encoder.h>
-#include <SPI.h>
-#include <Mirf.h>
-#include <nRF24L01.h>
-#include <MirfHardwareSpiDriver.h>
-#include "RollingAverager.h"
 #include "radio.h"
-#include "Console.h"
+#include "console.h"
+#include "serial_api.h"
+#include "settings.h"
+#include "static.h"
 
 
 Q_DEFINE_THIS_FILE
@@ -35,234 +33,251 @@ Q_DEFINE_THIS_FILE
 #   error BSP_TICKS_PER_SEC too large
 #endif
 
-static Console console;
-static Radio radio(sizeof(Packet));
-static Encoder encoder(2,1);
+static Encoder encoder(2, 1);
 static int PrevButtonState = 0;
-static int PrevModeState = -1;  // force signal on startup with -1
+static int PrevModeState = -1;    // force signal on startup with -1
 static int PrevPositionState = 0; // position buttons
 
 #ifdef Q_SPY
 uint8_t l_TIMER2_COMPA;
 #endif
 
+#define RATE_MASK     0b00101000
+#define RATE_250KB    0b00100000
+#define RATE_1MB      0b00000000
+#define RATE_2MB      0b00001000
+#define PALEVEL_MASK  0b00000111
+#define PALEVEL_18    0b00000000
+#define PALEVEL_12    0b00000010
+#define PALEVEL_6     0b00000100
+#define PALEVEL_0     0b00000011
+
 // ISRs ----------------------------------------------------------------------
 ISR(TIMER4_COMPA_vect) {
-
     // No need to clear the interrupt source since the Timer4 compare
     // interrupt is automatically cleard in hardware when the ISR runs.
 
     QF::TICK(&l_TIMER2_COMPA);                // process all armed time events
-    
+
     // Check state of buttons
     int curButtonState = CALBUTTON_ON();
+
     if (curButtonState != PrevButtonState) {
-      if (curButtonState != 0) {
-        QF::PUBLISH(Q_NEW(QEvt, ENC_DOWN_SIG), &l_TIMER2_COMPA);
-      }
-      else {
-        QF::PUBLISH(Q_NEW(QEvt, ENC_UP_SIG), &l_TIMER2_COMPA);
-      }
-      PrevButtonState = curButtonState;
+        if (curButtonState != 0) {
+            QF::PUBLISH(Q_NEW(QEvt, ENC_DOWN_SIG), &l_TIMER2_COMPA);
+        } else {
+            QF::PUBLISH(Q_NEW(QEvt, ENC_UP_SIG), &l_TIMER2_COMPA);
+        }
+        PrevButtonState = curButtonState;
     }
-    
+
     // Check mode switches
     curButtonState = MODE_SWITCHES();
     if (curButtonState != PrevModeState) {
-      if (curButtonState & 0x10) {
-        QF::PUBLISH(Q_NEW(QEvt, Z_MODE_SIG), &l_TIMER2_COMPA);
-      } 
-      else if (curButtonState & 0x40) {
-        QF::PUBLISH(Q_NEW(QEvt, FREE_MODE_SIG), &l_TIMER2_COMPA);
-      }
-      else {
-        QF::PUBLISH(Q_NEW(QEvt, PLAY_MODE_SIG), &l_TIMER2_COMPA);
-      }
-      PrevModeState = curButtonState;
+        if (curButtonState & 0x10) {
+            QF::PUBLISH(Q_NEW(QEvt, Z_MODE_SIG), &l_TIMER2_COMPA);
+        } else if (curButtonState & 0x40) {
+            QF::PUBLISH(Q_NEW(QEvt, FREE_MODE_SIG), &l_TIMER2_COMPA);
+        } else {
+            QF::PUBLISH(Q_NEW(QEvt, PLAY_MODE_SIG), &l_TIMER2_COMPA);
+        }
+        PrevModeState = curButtonState;
     }
-    
+
     // Check position buttons
     curButtonState = PBUTTONS();
     if (curButtonState != PrevPositionState) {
-      // only look at buttons that have changed to the on state (might have pressed two at once)
-      int tempState = curButtonState ^ PrevPositionState;
-      tempState &= curButtonState;
-      PrevPositionState = curButtonState;
-      if (tempState != 0) {
-        PositionButtonEvt *evt = Q_NEW(PositionButtonEvt, POSITION_BUTTON_SIG);
-        if (tempState & 0x40) {
-          evt->ButtonNum = 0;
+        // only look at buttons that have changed to the on state (might have pressed two at once)
+        int tempState = curButtonState ^ PrevPositionState;
+        tempState &= curButtonState;
+        PrevPositionState = curButtonState;
+        if (tempState != 0) {
+            PositionButtonEvt *evt = Q_NEW(PositionButtonEvt,
+                                           POSITION_BUTTON_SIG);
+            if (tempState & 0x40) {
+                evt->ButtonNum = 0;
+            } else if (tempState & 0x20) {
+                evt->ButtonNum = 1;
+            } else if (tempState & 0x10) {
+                evt->ButtonNum = 2;
+            } else if (tempState & 0x02) {
+                evt->ButtonNum = 3;
+            }
+            QF::PUBLISH(evt, &l_TIMER2_COMPA);
         }
-        else if (tempState & 0x20) {
-          evt->ButtonNum = 1;
-        }
-        else if (tempState & 0x10) {
-          evt->ButtonNum = 2;
-        }
-        else if (tempState & 0x02) {
-          evt->ButtonNum = 3;
-        }
-        QF::PUBLISH(evt, &l_TIMER2_COMPA);
-      }      
     }
-    
-    console.Run();
+
+    console_run(get_console_state());
+    radio_run(get_radio_state());
 }
 
 //............................................................................
-void BSP_init(void) {
-  pinMode(ZMODE_SW, INPUT);
-  pinMode(FREE_SW, INPUT); 
-  pinMode(cBUTTON, INPUT);
-  pinMode(p1BUTTON, INPUT);
-  pinMode(p2BUTTON, INPUT);
-  pinMode(p3BUTTON, INPUT);
-  pinMode(p4BUTTON, INPUT);
-  pinMode(SPEED_LED1, OUTPUT);  
-  pinMode(SPEED_LED2, OUTPUT);
-  pinMode(SPEED_LED3, OUTPUT);
-  pinMode(SPEED_LED4, OUTPUT);
-  pinMode(GREEN_LED, OUTPUT);
-  pinMode(ENC_RED_LED, OUTPUT);
-  pinMode(ENC_GREEN_LED, OUTPUT);
-  
-  // todo: not sure why this is here, but I tried taking it out once
-  // and the program crashed
-  digitalWrite(A5, HIGH);
-  
-  // White LED stays on always
-  WHITE_LED_ON();    
-  
-  Serial.begin(9600);   // set the highest stanard baud rate of 115200 bps
-  console.Init();
+void BSP_init(void)
+{
+    pinMode(ZMODE_SW, INPUT);
+    pinMode(FREE_SW, INPUT);
+    pinMode(cBUTTON, INPUT);
+    pinMode(p1BUTTON, INPUT);
+    pinMode(p2BUTTON, INPUT);
+    pinMode(p3BUTTON, INPUT);
+    pinMode(p4BUTTON, INPUT);
+    pinMode(SPEED_LED1, OUTPUT);
+    pinMode(SPEED_LED2, OUTPUT);
+    pinMode(SPEED_LED3, OUTPUT);
+    pinMode(SPEED_LED4, OUTPUT);
+    pinMode(GREEN_LED, OUTPUT);
+    pinMode(ENC_RED_LED, OUTPUT);
+    pinMode(ENC_GREEN_LED, OUTPUT);
 
-  //if (QS_INIT((void *)0) == 0) {       // initialize the QS software tracing
-  //    Q_ERROR();
-  //}
+    // init Console
+    Serial.begin(57600);
+    get_console_state()->serial_state = get_serial_api_state();
+    get_radio_state()->serial_state = get_serial_api_state();
+    get_serial_api_state()->radio_state = get_radio_state();
 
-  //QS_OBJ_DICTIONARY(&l_SysTick_Handler);
+    radio_init(get_radio_state());
+
+    // todo: not sure why this is here, but I tried taking it out once
+    // and the program crashed
+    digitalWrite(A5, HIGH);
+
+    // White LED stays on always
+    WHITE_LED_ON();
+
+    //if (QS_INIT((void *)0) == 0) {       // initialize the QS software tracing
+    //    Q_ERROR();
+    //}
+
+    //QS_OBJ_DICTIONARY(&l_SysTick_Handler);
 }
 
 //............................................................................
-void QF::onStartup(void) {
-  // set Timer2 in CTC mode, 1/1024 prescaler, start the timer ticking
-  TCCR4A = (1 << WGM41) | (0 << WGM40);
-  TCCR4B = (1 << CS42 ) | (1 << CS41) | (1 << CS40);               // 1/2^10
-  //ASSR &= ~(1 << AS2);
-  TIMSK4 = (1 << OCIE4A);                 // Enable TIMER2 compare Interrupt
-  TCNT4 = 0;
-  OCR4A = TICK_DIVIDER;     // must be loaded last for Atmega168 and friends
+void QF::onStartup(void)
+{
+    // set Timer2 in CTC mode, 1/1024 prescaler, start the timer ticking
+    TCCR4A = (1 << WGM41) | (0 << WGM40);
+    TCCR4B = (1 << CS42) | (1 << CS41) | (1 << CS40); // 1/2^10
+    //ASSR &= ~(1 << AS2);
+    TIMSK4 = (1 << OCIE4A);                           // Enable TIMER2 compare Interrupt
+    TCNT4 = 0;
+    OCR4A = TICK_DIVIDER;                             // must be loaded last for Atmega168 and friends
 }
 
 //............................................................................
-void QF::onCleanup(void) {
+void QF::onCleanup(void)
+{
 }
 
 //............................................................................
-void QF::onIdle() {
-
+void QF::onIdle()
+{
     //GREEN_LED_ON();     // toggle the GREEN LED on Arduino on and off, see NOTE1
     //GREEN_LED_OFF();
 
 #ifdef SAVE_POWER
 
-  SMCR = (0 << SM0) | (1 << SE);  // idle sleep mode, adjust to your project
+    SMCR = (0 << SM0) | (1 << SE); // idle sleep mode, adjust to your project
 
-  // never separate the following two assembly instructions, see NOTE2
-  __asm__ __volatile__ ("sei" "\n\t" :: );
-  __asm__ __volatile__ ("sleep" "\n\t" :: );
+    // never separate the following two assembly instructions, see NOTE2
+    __asm__ __volatile__ ("sei" "\n\t" :: );
+    __asm__ __volatile__ ("sleep" "\n\t" :: );
 
-  SMCR = 0;                                              // clear the SE bit
+    SMCR = 0;                                            // clear the SE bit
 
 #else
-  QF_INT_ENABLE();
+    QF_INT_ENABLE();
 #endif
 }
 
-void BSP_UpdateRxProxy(Packet packet)
-{  
-  radio.SendPacket((byte *)&packet);
-}
-
-long BSP_GetEncoder()
+long BSP_get_encoder()
 {
-  return encoder.read();
+    return encoder.read();
 }
 
-int BSP_GetPot()
-{  
-  return analogRead(A0);
-}
-
-int BSP_GetMode()
+int BSP_get_pot()
 {
-  // basically duplicates what's in the ISR above, 
-  // but sharing the code wouldn't be so efficient in this case
-  int buttonState = MODE_SWITCHES();
-  if (buttonState & 0x10) {
-    return Z_MODE;
-  } 
-  else if (buttonState & 0x40) {
-    return FREE_MODE;
-  }
-  else {
-    return PLAYBACK_MODE;
-  }
+    return analogRead(A0);
 }
 
-void BSP_TurnOnSpeedLED(char num)
+int BSP_get_mode()
 {
-  switch (num) {
+    // basically duplicates what's in the ISR above,
+    // but sharing the code wouldn't be so efficient in this case
+    int buttonState = MODE_SWITCHES();
+
+    if (buttonState & 0x10) {
+        return Z_MODE;
+    } else if (buttonState & 0x40) {
+        return FREE_MODE;
+    } else {
+        return PLAYBACK_MODE;
+    }
+}
+
+void BSP_turn_on_speed_LED(char num)
+{
+    switch (num) {
     case 0:
-      RED_LED_ON();
-      break;
+        RED_LED_ON();
+        break;
     case 1:
-      analogWrite(SPEED_LED2, 255);
-      break;
+        analogWrite(SPEED_LED2, 255);
+        break;
     case 2:
-      analogWrite(SPEED_LED3, 255);
-      break;
+        analogWrite(SPEED_LED3, 255);
+        break;
     case 3:
-      GREEN_LED_ON();
-      break;
-  }
+        GREEN_LED_ON();
+        break;
+    }
 }
 
-void BSP_TurnOffSpeedLED(char num)
+void BSP_turn_off_speed_LED(char num)
 {
-  switch (num) {
+    switch (num) {
     case 0:
-      RED_LED_OFF();
-      break;
+        RED_LED_OFF();
+        break;
     case 1:
-      analogWrite(SPEED_LED2, 0);
-      break;
+        analogWrite(SPEED_LED2, 0);
+        break;
     case 2:
-      analogWrite(SPEED_LED3, 0);
-      break;
+        analogWrite(SPEED_LED3, 0);
+        break;
     case 3:
-      GREEN_LED_OFF();
-      break;
-  }
+        GREEN_LED_OFF();
+        break;
+    }
 }
 
-void BSP_UpdateRadioParams()
+bool BSP_serial_available()
 {
-  radio.ReloadSettings();
+    return Serial.available() > 0;
 }
 
-int BSP_IsRadioAlive()
+char BSP_serial_read()
 {
-  return radio.IsAlive();
+    return Serial.read();
+}
+
+int BSP_write_serial(char* buffer, int length)
+{
+    return Serial.write(buffer, length);
+}
+
+void BSP_assert(bool condition)
+{
+    Q_ASSERT(condition);
 }
 
 //............................................................................
-void Q_onAssert(char const Q_ROM * const Q_ROM_VAR file, int line) {
+void Q_onAssert(char const Q_ROM *const Q_ROM_VAR file, int line)
+{
     QF_INT_DISABLE();                                // disable all interrupts
     GREEN_LED_ON();                                  // GREEN LED permanently ON
     RED_LED_ON();
-    AMBER_LED_ON();
-    AMBER2_LED_ON();
+    // AMBER_LED_ON();
+    // AMBER2_LED_ON();
     asm volatile ("jmp 0x0000");    // perform a software reset of the Arduino
 }
 
@@ -288,4 +303,3 @@ void Q_onAssert(char const Q_ROM * const Q_ROM_VAR file, int line) {
 // executes ATOMICALLY, and so *no* interrupt can be serviced between these
 // instructins. You should NEVER separate these two lines.
 //
-

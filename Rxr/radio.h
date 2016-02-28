@@ -2,11 +2,12 @@
 #define radio_h
 
 #include "serial_api.h"
+#include "motorcontroller.h"
 
 const int RADIO_OUT_BUFFER_SIZE = 64;
 #define RF_DEFAULT    0b00100011  // 250kbps 0dB
-#define TRANSMIT_ADDRESS   "serv1"
-#define RECEIVE_ADDRESS    "clie1"
+#define TRANSMIT_ADDRESS   "clie1"
+#define RECEIVE_ADDRESS    "serv1"
 
 enum {
     PACKET_PRINT_VERSION,
@@ -34,6 +35,7 @@ enum {
     PACKET_SET_ACCEL_PERCENT,
 };
 
+
 struct typed_val_packet_t {
     char type;
     int val;
@@ -55,6 +57,7 @@ struct radio_packet_t {
 struct serial_api_state_t;
 
 struct radio_state_t {
+    lh::MotorController* motor_controller;
     serial_api_state_t* serial_state;
     radio_packet_t buffer[RADIO_OUT_BUFFER_SIZE];
     int write_index;
@@ -65,6 +68,5 @@ void radio_init(radio_state_t* state);
 void radio_run(radio_state_t* state);
 void radio_queue_message(radio_state_t* state, radio_packet_t packet);
 void radio_set_channel(int channel);
-bool radio_is_alive();
 
 #endif //radio_h

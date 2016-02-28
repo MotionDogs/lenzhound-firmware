@@ -1,16 +1,15 @@
 #ifndef lenzhound_constants_h
 #define lenzhound_constants_h
 
-const char kBitShift = 15;
-const int kSerialBaud = 9600;
+const int SERIAL_BAUD = 57600;
 
 // ISR constants
-const long kSecondsInMicroseconds = 1000000L;
-const long kIsrFrequency          = 6000L;
-const long kPeriod                = kSecondsInMicroseconds/kIsrFrequency;
+const long SECONDS_TO_MICROSECONDS = 1000000L;
+const long ISR_CALLS_PER_SECOND    = 6000L;
+const long ISR_PERIOD              = SECONDS_TO_MICROSECONDS/ISR_CALLS_PER_SECOND;
 
 // Motor constants
-const long kSleepThreshold        = kIsrFrequency * 5; // five seconds
+const long MOTOR_SLEEP_THRESHOLD   = ISR_CALLS_PER_SECOND * 5; // five seconds
 
 enum {
   FREE_MODE,

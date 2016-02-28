@@ -1,76 +1,152 @@
-#include <SPI.h>
-#include <Mirf.h>
-#include <MirfHardwareSpiDriver.h>
-#include <MirfSpiDriver.h>
-#include <nRF24L01.h>
 #include "Settings.h"
 #include "radio.h"
+#include "Arduino.h"
+#include <SPI.h>
+#include <Mirf.h>
+#include <nRF24L01.h>
+#include <MirfHardwareSpiDriver.h>
+#include "bsp.h"
+#include "version.h"
 
-#define RATE_MASK     0b00101000
-#define RATE_250KB    0b00100000
-#define RATE_1MB      0b00000000
-#define RATE_2MB      0b00001000
-#define PALEVEL_MASK  0b00000111
-#define PALEVEL_18    0b00000000
-#define PALEVEL_12    0b00000010
-#define PALEVEL_6     0b00000100
-#define PALEVEL_0     0b00000011
-
-#define RF_DEFAULT    0b00100000  // 250kbps -18dB
-
-const char rates[] =  { 0b00100000, 0b00000000, 0b00001000 };
-const char levels[] = { 0b00000000, 0b00000010, 0b00000100, 0b00000011 };
-
-Radio::Radio(int packetSize)
+bool _is_radio_available()
 {
-  Mirf.spi = &MirfHardwareSpi; 
-  Mirf.init(); // Setup pins / SPI
-  Mirf.setTADDR((byte *)"serv1");
-  Mirf.payload = packetSize; // Payload length
-  LoadSettings();
-  Mirf.config(); // Power up reciver
+    return !Mirf.isSending();
 }
 
-void Radio::LoadSettings()
+bool _get_radio_packet(void *buffer)
 {
-	// Get and apply settings if within allowable ranges
-  Settings settings;
-  byte reg[] =  {RF_DEFAULT,0}; 
-  int setting = settings.GetPALevel();
-  if (setting >= 0 && setting <= 3) {
-    reg[0] &= ~PALEVEL_MASK;
-    reg[0] |= levels[setting];
-  } 
-  setting = settings.GetDataRate(); 
-  if (setting >= 0 && setting <= 2) {
-    reg[0] &= ~RATE_MASK;
-    reg[0] |= rates[setting];
-  }    
-  setting = settings.GetChannel();
-  if (setting >= 1 && setting <= 82) {
-    Mirf.channel = setting;
-  }  
-  Mirf.writeRegister(RF_SETUP, (byte *)reg, 1);
+    if (!Mirf.isSending() && Mirf.dataReady()) {
+        uint8_t *buf = (uint8_t *)buffer;
+        Mirf.getData(buf);
+        return true;
+    } else {
+        return false;
+    }
 }
 
-void Radio::ReloadSettings()
+void _send_radio_packet(void *buffer)
 {
-  Mirf.powerDown();  // not sure if this is necessary
-  LoadSettings();
-  Mirf.config();
+    Mirf.setTADDR((uint8_t *)TRANSMIT_ADDRESS);
+    Mirf.send((uint8_t *)buffer);
+    while (Mirf.isSending()) {
+    }
 }
 
-void Radio::SendPacket(byte *message) 
+void _queue_print_val(radio_state_t *state, char type, long val)
 {
-  if (!Mirf.isSending()) {
-    Mirf.send(message);
-  }
+    char buffer[16];
+    sprintf(buffer, "%c=%ld", type, val);
+    serial_api_queue_output(state->serial_state, SERIAL_API_SRC_CONSOLE, buffer);
 }
 
-int Radio::IsAlive()
+void _process_packet(radio_state_t *state, radio_packet_t packet)
 {
-  uint8_t addr[mirf_ADDR_LEN];
-  uint8_t orig[mirf_ADDR_LEN] = {'s','e','r','v','1'};
-  Mirf.readRegister(TX_ADDR, addr, mirf_ADDR_LEN);
-  return memcmp(addr, orig, mirf_ADDR_LEN) == 0;
-}  
+    switch (packet.type) {
+    case (PACKET_PRINT_VERSION): {
+        char buffer[16];
+        int version = packet.typed_val.val;
+        sprintf(buffer, "%c=%d.%d",
+                SERIAL_API_CMD_REMOTE_VERSION,
+                high_byte(version),
+                low_byte(version));
+        serial_api_queue_output(state->serial_state, SERIAL_API_SRC_CONSOLE,
+                                buffer);
+    } break;
+    case (PACKET_PRINT_ROLE): {
+        _queue_print_val(state, SERIAL_API_CMD_REMOTE_ROLE, packet.typed_val.val);
+    } break;
+    case (PACKET_PRINT_MAX_VELOCITY): {
+        _queue_print_val(state, SERIAL_API_CMD_GET_MAX_VELOCITY, packet.typed_uval.val);
+    } break;
+    case (PACKET_PRINT_ACCEL): {
+        _queue_print_val(state, SERIAL_API_CMD_GET_ACCEL, packet.typed_uval.val);
+    } break;
+    case (PACKET_PRINT_Z_MAX_VELOCITY): {
+        _queue_print_val(state, SERIAL_API_CMD_GET_Z_MAX_VELOCITY, packet.typed_uval.val);
+    } break;
+    case (PACKET_PRINT_Z_ACCEL): {
+        _queue_print_val(state, SERIAL_API_CMD_GET_Z_ACCEL, packet.typed_uval.val);
+    } break;
+    case (PACKET_PRINT_CHANNEL): {
+    } break;
+    case (PACKET_GET_VERSION): {
+    } break;
+    case (PACKET_GET_ROLE): {
+    } break;
+    case (PACKET_GET_MAX_VELOCITY): {
+    } break;
+    case (PACKET_GET_ACCEL): {
+    } break;
+    case (PACKET_GET_CHANNEL): {
+    } break;
+    case (PACKET_SET_MAX_VELOCITY): {
+    } break;
+    case (PACKET_SET_ACCEL): {
+    } break;
+    case (PACKET_SET_CHANNEL): {
+    } break;
+    case (PACKET_SET_VELOCITY_PERCENT): {
+    } break;
+    case (PACKET_SET_ACCEL_PERCENT): {
+    } break;
+    }
+}
+
+void radio_queue_message(radio_state_t *state, radio_packet_t packet)
+{
+    state->buffer[state->write_index++] = packet;
+    state->write_index %= RADIO_OUT_BUFFER_SIZE;
+
+    // BSP_assert(state->write_index != state->read_index);
+}
+
+void radio_init(radio_state_t *state)
+{
+    Mirf.spi = &MirfHardwareSpi;
+    Mirf.init();
+    Mirf.setRADDR((uint8_t *)RECEIVE_ADDRESS);
+    Mirf.payload = sizeof(radio_packet_t);
+
+    int channel = settings_get_channel();
+    radio_set_channel(channel);
+}
+
+void radio_run(radio_state_t *state)
+{
+    radio_packet_t packet;
+
+    if (_get_radio_packet(&packet)) {
+        _process_packet(state, packet);
+    }
+
+    if (_is_radio_available() && state->read_index != state->write_index) {
+        radio_packet_t *out_packet = &state->buffer[state->read_index++];
+        state->read_index %= RADIO_OUT_BUFFER_SIZE;
+        if (out_packet->type != PACKET_SET_TARGET_POSITION) {
+            char buffer[16];
+            sprintf(buffer, "%u %u\n", out_packet->type, out_packet->typed_uval.val);
+            Serial.println(buffer);
+        }
+        _send_radio_packet(out_packet);
+    }
+}
+
+void radio_set_channel(int channel)
+{
+    char reg[] = { RF_DEFAULT, 0 };
+
+    if (channel >= 1 && channel <= 82) {
+        Mirf.channel = channel;
+    }
+
+    Mirf.writeRegister(RF_SETUP, (uint8_t *)reg, 1);
+    Mirf.config();
+}
+
+bool radio_is_alive()
+{
+    uint8_t addr[mirf_ADDR_LEN];
+
+    Mirf.readRegister(TX_ADDR, addr, mirf_ADDR_LEN);
+    return memcmp(addr, (uint8_t *)TRANSMIT_ADDRESS, mirf_ADDR_LEN) == 0;
+}

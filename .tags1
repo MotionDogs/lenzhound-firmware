@@ -1,0 +1,16 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	0	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+_is_radio_available	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Rxr\radio.cpp	/^bool _is_radio_available()$/;"	function	line:11	signature:()
+_get_radio_packet	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Rxr\radio.cpp	/^bool _get_radio_packet(void* buffer)$/;"	function	line:16	signature:(void* buffer)
+_send_radio_packet	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Rxr\radio.cpp	/^void _send_radio_packet(void* buffer)$/;"	function	line:27	signature:(void* buffer)
+_send_value	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Rxr\radio.cpp	/^void _send_value(radio_state_t* state, char type, int value)$/;"	function	line:34	signature:(radio_state_t* state, char type, int value)
+_process_packet	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Rxr\radio.cpp	/^void _process_packet(radio_state_t* state, radio_packet_t packet)$/;"	function	line:42	signature:(radio_state_t* state, radio_packet_t packet)
+radio_queue_message	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Rxr\radio.cpp	/^void radio_queue_message(radio_state_t* state, radio_packet_t packet)$/;"	function	line:106	signature:(radio_state_t* state, radio_packet_t packet)
+radio_init	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Rxr\radio.cpp	/^void radio_init(radio_state_t *state)$/;"	function	line:112	signature:(radio_state_t *state)
+radio_run	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Rxr\radio.cpp	/^void radio_run(radio_state_t *state)$/;"	function	line:123	signature:(radio_state_t *state)
+radio_set_channel	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Rxr\radio.cpp	/^void radio_set_channel(int channel)$/;"	function	line:146	signature:(int channel)
+radio_is_alive	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Rxr\radio.cpp	/^bool radio_is_alive()$/;"	function	line:157	signature:()

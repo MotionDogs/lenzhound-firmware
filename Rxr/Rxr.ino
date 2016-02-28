@@ -18,77 +18,71 @@
 #include <CmdMessenger.h>
 #include "NewTimerOne.h"
 #include "Settings.h"
-#include "Console.h"
+#include "console.h"
 #include "util.h"
 #include "constants.h"
 #include "macros.h"
 #include "motor.h"
 #include "motorcontroller.h"
-#include "receiver.h"
 #include "events.h"
+#include "serial_api.h"
+#include "radio.h"
 
+// Console console;
+static serial_api_state_t serial_api_state = { 0 };
+static console_state_t console_state = { 0 };
+static radio_state_t radio_state = { 0 };
+static lh::MotorController motor_controller = lh::MotorController();
 
-Console console;
-Settings settings;
-Receiver receiver;
-
-lh::MotorController motor_controller = lh::MotorController();
-
-void TimerISR() {
-  motor_controller.Run();
+void timer_interrupt()
+{
+    motor_controller.run();
 }
 
-void DirtyCheckSettings() {
-  long accel = settings.GetAcceleration();
-  long max_velocity = settings.GetMaxVelocity();
-  long z_max_velocity = settings.GetZModeMaxVelocity();
-  long z_max_accel = settings.GetZModeAcceleration();
-  motor_controller.Configure(accel, max_velocity, z_max_accel, z_max_velocity);
-  receiver.ReloadSettings();
+void setup()
+{
+    Serial.begin(SERIAL_BAUD);
+
+    SET_MODE(SLEEP_PIN, OUT);
+    SET_MODE(ENABLE_PIN, OUT);
+    SET_MODE(MS1_PIN, OUT);
+    SET_MODE(MS2_PIN, OUT);
+    SET_MODE(STEP_PIN, OUT);
+    SET_MODE(DIR_PIN, OUT);
+    SET_MODE(ANT_CTRL1, OUT);
+    SET_MODE(ANT_CTRL2, OUT);
+
+    SLEEP_PIN(SET);
+    ENABLE_PIN(CLR);
+    ANT_CTRL1(CLR);
+    ANT_CTRL2(SET);
+    MS1_PIN(SET);
+    MS2_PIN(SET);
+
+    radio_state.serial_state = &serial_api_state;
+    radio_state.motor_controller = &motor_controller;
+    radio_init(&radio_state);
+    console_state.serial_state = &serial_api_state;
+    serial_api_state.motor_controller = &motor_controller;
+
+    long accel = settings_get_accel();
+    long max_velocity = settings_get_max_velocity();
+    long z_max_velocity = settings_get_z_max_velocity();
+    long z_accel = settings_get_z_accel();
+
+    motor_controller.set_accel(accel);
+    motor_controller.set_velocity(max_velocity);
+    motor_controller.set_z_accel(z_accel);
+    motor_controller.set_z_velocity(z_max_velocity);
+    motor_controller.set_accel_percent(100);
+    motor_controller.set_velocity_percent(100);
+
+    Timer1.initialize();
+    Timer1.attachInterrupt(timer_interrupt, ISR_PERIOD);
 }
- 
-void setup() {
-  Serial.begin(kSerialBaud);
 
-  SET_MODE(SLEEP_PIN, OUT);
-  SET_MODE(ENABLE_PIN, OUT);
-  SET_MODE(MS1_PIN, OUT);
-  SET_MODE(MS2_PIN, OUT);
-  SET_MODE(STEP_PIN, OUT);
-  SET_MODE(DIR_PIN, OUT);
-  SET_MODE(ANT_CTRL1, OUT);
-  SET_MODE(ANT_CTRL2, OUT);
-
-  SLEEP_PIN(SET);
-  ENABLE_PIN(CLR);
-  ANT_CTRL1(SET);
-  ANT_CTRL1(CLR);
-  MS1_PIN(SET);
-  MS2_PIN(SET);
-
-  console.Init();
-  DirtyCheckSettings();
-
-  delay(250);
-  
-  while(receiver.Position()==SENTINEL_VALUE){ //Wait until the motor gets a signal before setting starting position
-    receiver.GetData();
-    console.Run();
-  }
-  motor_controller.set_motor_position(receiver.Position());
-  
-  Timer1.initialize();
-  Timer1.attachInterrupt(TimerISR, kPeriod);
-}
- 
-void loop() {
-  receiver.GetData();
-  motor_controller.set_observed_position(receiver.Position());
-  motor_controller.set_max_velocity(receiver.Velocity(), receiver.Mode());
-  motor_controller.set_accel(receiver.Acceleration(), receiver.Mode());
-  console.Run();
-  if (events::dirty()) {
-    events::set_dirty(false);
-    DirtyCheckSettings();
-  }
+void loop()
+{
+    radio_run(&radio_state);
+    console_run(&console_state);
 }

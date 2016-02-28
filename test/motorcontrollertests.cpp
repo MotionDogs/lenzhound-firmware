@@ -42,8 +42,8 @@ TEST(MotorController, HitsItsTarget) {
   long target = 5000;
 
   controller.Configure(50, 6000, 50, 6000);
-  controller.set_max_velocity(100, 0);
-  controller.set_observed_position(util::MakeFixed(target));
+  controller.set_velocity_percent(100, 0);
+  controller.move_to_position(i32_to_fixed(target));
 
   // make sure we don't go over target
   context.boundary_ = target;
@@ -59,8 +59,8 @@ TEST(MotorController, HandlesSlowSpeeds) {
   long target = 300;
 
   controller.Configure(50, 1, 50, 1);
-  controller.set_max_velocity(100, 0);
-  controller.set_observed_position(util::MakeFixed(target));
+  controller.set_velocity_percent(100, 0);
+  controller.move_to_position(i32_to_fixed(target));
 
   // make sure we don't go over target
   context.boundary_ = target;
@@ -76,9 +76,9 @@ TEST(MotorController, DoesNotChangeConcavity) {
   long target = 6000;
 
   controller.Configure(32, 48000, 32, 48000);
-  controller.set_max_velocity(100, FREE_MODE);
-  controller.set_accel(100, FREE_MODE);
-  controller.set_observed_position(util::MakeFixed(target));
+  controller.set_velocity_percent(100, FREE_MODE);
+  controller.set_accel_percent(100, FREE_MODE);
+  controller.move_to_position(i32_to_fixed(target));
 
   context.boundary_ = target;
 

@@ -1,7 +1,7 @@
 // 
 // Class used to track encoder position as it relates to setting
 // velocity in PlayBack mode
-// 
+//
 
 #include "EncVelManager.h"
 #include "Arduino.h"
@@ -20,13 +20,13 @@ void EncVelManager::Init(int startPercentage)
   // start at mid-speed
   mVelocityPercent = startPercentage;
   mPrevVelocityPercent = startPercentage;
-  mPrevEncPos = BSP_GetEncoder();
+  mPrevEncPos = BSP_get_encoder();
   SetLEDs(true);
 }
 
 int EncVelManager::GetVelocityPercent()
 {
-  long curEncPos = BSP_GetEncoder();
+  long curEncPos = BSP_get_encoder();
   mPrevVelocityPercent = mVelocityPercent;
   mVelocityPercent += (curEncPos - mPrevEncPos) / ENC_CNTS_TO_VEL_PERCENT;
   mPrevEncPos = curEncPos;
@@ -42,7 +42,7 @@ void EncVelManager::SetLEDs(char force)
     return;
   }
   // if we've left one of the boundaries, turn off boundary lights
-  else if (mPrevVelocityPercent == MIN_VELOCITY || 
+  else if (mPrevVelocityPercent == MIN_VELOCITY ||
            mPrevVelocityPercent == MAX_VELOCITY ||
            mPrevVelocityPercent == MID_VELOCITY ||
            force) {
@@ -55,7 +55,7 @@ void EncVelManager::SetLEDs(char force)
   else if (mPrevVelocityPercent < MID_VELOCITY ^ mVelocityPercent < MID_VELOCITY) {
     SetAllLEDsOff();
   }
-  
+
   if (mVelocityPercent == MID_VELOCITY) {
     SetAllLEDsOff();
     ENC_GREEN_LED_ON();
@@ -75,13 +75,13 @@ void EncVelManager::SetLEDs(char force)
       RED_LED_ON();
     }
   }
-  
+
 }
 
 void EncVelManager::SetAllLEDsOff()
 {
   RED_LED_OFF();
-  BSP_TurnOffSpeedLED(1);
-  BSP_TurnOffSpeedLED(2);
+  BSP_turn_off_speed_LED(1);
+  BSP_turn_off_speed_LED(2);
   GREEN_LED_OFF();
 }

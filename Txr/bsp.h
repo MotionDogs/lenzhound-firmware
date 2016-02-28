@@ -78,28 +78,20 @@ enum {
   PLAYBACK_MODE,
   Z_MODE
 };
-  
-struct Packet {
-  Packet() 
-  : position(0), velocity(0), acceleration(0), mode(0) {}
-  long position;
-  char velocity;
-  char acceleration;
-  char mode;
-};
 
 // Sys timer tick per seconds
 #define BSP_TICKS_PER_SEC    1024
 
 void BSP_init(void);
-void BSP_UpdateRxProxy(Packet packet);
-long BSP_GetEncoder();
-int  BSP_GetPot();
-int  BSP_GetMode();
-void BSP_TurnOnSpeedLED(char num);
-void BSP_TurnOffSpeedLED(char num);
-void BSP_UpdateRadioParams();
-int BSP_IsRadioAlive();
+long BSP_get_encoder();
+int BSP_get_pot();
+int BSP_get_mode();
+void BSP_turn_on_speed_LED(char num);
+void BSP_turn_off_speed_LED(char num);
+bool BSP_serial_available();
+char BSP_serial_read();
+int BSP_write_serial(char* buffer, int length);
+void BSP_assert(bool condition);
 
 /////////////////////////////////////////////////////////////////////
 // NOTE: The CPU clock frequency F_CPU is defined externally for each

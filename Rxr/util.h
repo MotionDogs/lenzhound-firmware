@@ -2,32 +2,36 @@
 #define lenzhound_util_h
 #include "constants.h"
 
-namespace util {
-inline long Abs(long a) {
+const int BIT_SHIFT = 15;
+
+inline long abs32(long a) {
   return (a < 0) ? -a : a;
 }
 
-inline long Max(long a, long b) {
+inline long max32(long a, long b) {
   return (a > b) ? a : b;
 }
 
-inline long Min(long a, long b) {
+inline long min32(long a, long b) {
   return (a < b) ? a : b;
 }
 
-inline long MakeFixed(long a) {
-  return a << kBitShift;
+inline long i16_to_fixed(int a) {
+  return ((long)a) << BIT_SHIFT;
 }
 
-inline long FixedMultiply(long a, long b) {
-  return (a * b) >> kBitShift;
+inline long i32_to_fixed(long a) {
+  return a << BIT_SHIFT;
 }
 
-inline long FixedDivide(long a, long b) {
-  return (a << kBitShift) / b;  
+inline long fixed_mult(long a, long b) {
+  return (a * b) >> BIT_SHIFT;
 }
 
-const long kFixedOne = MakeFixed(1L);
+inline long fixed_div(long a, long b) {
+  return (a << BIT_SHIFT) / b;
 }
+
+const long FIXED_ONE = i16_to_fixed(1);
 
 #endif // lenzhound_util_h
