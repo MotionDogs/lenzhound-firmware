@@ -51,3 +51,6 @@ Win32/
 */Release/
 *.dir
 *.opensdf
+
+
+.tags

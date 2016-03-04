@@ -4,13 +4,32 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
-_is_radio_available	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Rxr\radio.cpp	/^bool _is_radio_available()$/;"	function	line:11	signature:()
-_get_radio_packet	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Rxr\radio.cpp	/^bool _get_radio_packet(void* buffer)$/;"	function	line:16	signature:(void* buffer)
-_send_radio_packet	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Rxr\radio.cpp	/^void _send_radio_packet(void* buffer)$/;"	function	line:27	signature:(void* buffer)
-_send_value	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Rxr\radio.cpp	/^void _send_value(radio_state_t* state, char type, int value)$/;"	function	line:34	signature:(radio_state_t* state, char type, int value)
-_process_packet	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Rxr\radio.cpp	/^void _process_packet(radio_state_t* state, radio_packet_t packet)$/;"	function	line:42	signature:(radio_state_t* state, radio_packet_t packet)
-radio_queue_message	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Rxr\radio.cpp	/^void radio_queue_message(radio_state_t* state, radio_packet_t packet)$/;"	function	line:106	signature:(radio_state_t* state, radio_packet_t packet)
-radio_init	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Rxr\radio.cpp	/^void radio_init(radio_state_t *state)$/;"	function	line:112	signature:(radio_state_t *state)
-radio_run	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Rxr\radio.cpp	/^void radio_run(radio_state_t *state)$/;"	function	line:123	signature:(radio_state_t *state)
-radio_set_channel	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Rxr\radio.cpp	/^void radio_set_channel(int channel)$/;"	function	line:146	signature:(int channel)
-radio_is_alive	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Rxr\radio.cpp	/^bool radio_is_alive()$/;"	function	line:157	signature:()
+TICK_DIVIDER	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^#define TICK_DIVIDER /;"	macro	line:28	file:
+PrevButtonState	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^static int PrevButtonState = 0;$/;"	variable	line:37	file:
+PrevModeState	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^static int PrevModeState = -1;    \/\/ force signal on startup with -1$/;"	variable	line:38	file:
+PrevPositionState	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^static int PrevPositionState = 0; \/\/ position buttons$/;"	variable	line:39	file:
+l_TIMER2_COMPA	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^uint8_t l_TIMER2_COMPA;$/;"	variable	line:42
+RATE_MASK	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^#define RATE_MASK /;"	macro	line:45	file:
+RATE_250KB	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^#define RATE_250KB /;"	macro	line:46	file:
+RATE_1MB	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^#define RATE_1MB /;"	macro	line:47	file:
+RATE_2MB	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^#define RATE_2MB /;"	macro	line:48	file:
+PALEVEL_MASK	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^#define PALEVEL_MASK /;"	macro	line:49	file:
+PALEVEL_18	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^#define PALEVEL_18 /;"	macro	line:50	file:
+PALEVEL_12	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^#define PALEVEL_12 /;"	macro	line:51	file:
+PALEVEL_6	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^#define PALEVEL_6 /;"	macro	line:52	file:
+PALEVEL_0	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^#define PALEVEL_0 /;"	macro	line:53	file:
+ISR	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^ISR(TIMER4_COMPA_vect) {$/;"	function	line:56	signature:(TIMER4_COMPA_vect)
+BSP_init	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^void BSP_init(void)$/;"	function	line:115	signature:(void)
+onStartup	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^void QF::onStartup(void)$/;"	function	line:155	class:QF	signature:(void)
+onCleanup	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^void QF::onCleanup(void)$/;"	function	line:167	class:QF	signature:(void)
+onIdle	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^void QF::onIdle()$/;"	function	line:172	class:QF	signature:()
+BSP_get_encoder	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^long BSP_get_encoder()$/;"	function	line:192	signature:()
+BSP_get_pot	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^int BSP_get_pot()$/;"	function	line:197	signature:()
+BSP_get_mode	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^int BSP_get_mode()$/;"	function	line:202	signature:()
+BSP_turn_on_speed_LED	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^void BSP_turn_on_speed_LED(char num)$/;"	function	line:217	signature:(char num)
+BSP_turn_off_speed_LED	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^void BSP_turn_off_speed_LED(char num)$/;"	function	line:235	signature:(char num)
+BSP_serial_available	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^bool BSP_serial_available()$/;"	function	line:253	signature:()
+BSP_serial_read	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^char BSP_serial_read()$/;"	function	line:258	signature:()
+BSP_write_serial	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^int BSP_write_serial(char* buffer, int length)$/;"	function	line:263	signature:(char* buffer, int length)
+BSP_assert	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^void BSP_assert(bool condition)$/;"	function	line:268	signature:(bool condition)
+Q_onAssert	C:\Users\douglas.thayer\Documents\GitHub\Lenzhound-1.x\Txr\bsp.cpp	/^void Q_onAssert(char const Q_ROM *const Q_ROM_VAR file, int line)$/;"	function	line:274	signature:(char const Q_ROM *const Q_ROM_VAR file, int line)
