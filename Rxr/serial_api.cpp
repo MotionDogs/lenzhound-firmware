@@ -4,25 +4,24 @@
 #include "util.h"
 #include "Arduino.h"
 
-inline char *_serial_api_out(serial_api_state_t *state, int source, int index)
+inline char *_serial_api_out(serial_api_state_t *state, int index)
 {
-    return &state->out_buffer[source * SERIAL_API_OUT_BUFFER_SIZE + index];
+    return &state->out_buffer[index];
 }
 
-inline char *_serial_api_in(serial_api_state_t *state, int source, int index)
+inline char *_serial_api_in(serial_api_state_t *state, int index)
 {
-    return &state->in_buffer[source * SERIAL_API_IN_BUFFER_SIZE + index];
+    return &state->in_buffer[index];
 }
 
-inline void _serial_api_print(serial_api_state_t *state, int source,
-                              const char *in)
+inline void _serial_api_print(serial_api_state_t *state, const char *in)
 {
-    char *out = _serial_api_out(state, source, state->out_indices[source]);
+    char *out = _serial_api_out(state, state->out_index);
 
     while (*in) {
-        if (state->out_indices[source]++ > SERIAL_API_OUT_BUFFER_SIZE) {
-            state->out_indices[source] = 0;
-            out = _serial_api_out(state, source, 0);
+        if (state->out_index++ > SERIAL_API_OUT_BUFFER_SIZE) {
+            state->out_index = 0;
+            out = _serial_api_out(state, 0);
             in = (char *)MAX_RESPONSE_LENGTH_EXCEEDED;
         }
         *(out++) = *(in++);
@@ -30,66 +29,71 @@ inline void _serial_api_print(serial_api_state_t *state, int source,
 }
 
 inline void _serial_api_print_len(serial_api_state_t *state,
-                                  int source,
                                   char *in,
                                   int len)
 {
-    if (len + state->out_indices[source] > SERIAL_API_OUT_BUFFER_SIZE) {
-        _serial_api_print(state, source, MAX_RESPONSE_LENGTH_EXCEEDED);
+    if (len + state->out_index > SERIAL_API_OUT_BUFFER_SIZE) {
+        _serial_api_print(state, MAX_RESPONSE_LENGTH_EXCEEDED);
     } else {
-        char *out = _serial_api_out(state, source, state->out_indices[source]);
+        char *out = _serial_api_out(state, state->out_index);
 
         for (int i = 0; i < len; i++) {
             *(out++) = *(in++);
         }
 
-        state->out_indices[source] += len;
+        state->out_index += len;
     }
 }
 
-inline void _serial_api_end(serial_api_state_t *state, int source,
-                            const char *in)
+inline void _serial_api_end(serial_api_state_t *state, const char *in)
 {
-    _serial_api_print(state, source, in);
-    _serial_api_print(state, source, "\n");
+    _serial_api_print(state, in);
+    _serial_api_print(state, "\n");
 }
 
-inline void _serial_api_end_len(serial_api_state_t *state, int source,
-                                char *in, int len)
+inline void _serial_api_end_len(serial_api_state_t *state, char *in, int len)
 {
-    _serial_api_print_len(state, source, in, len);
-    _serial_api_print(state, source, "\n");
+    _serial_api_print_len(state, in, len);
+    _serial_api_print(state, "\n");
 }
 
-inline void _serial_api_reset_in_buffer(serial_api_state_t *state, int source)
+inline void _serial_api_reset_in_buffer(serial_api_state_t *state)
 {
-    state->indices[source] = 0;
-    state->escaped[source] = 0;
+    state->in_index = 0;
+    state->escaped = 0;
 }
 
-void _serial_api_process_command(serial_api_state_t *state, int source,
-                                 int length)
-{
-    char *in = _serial_api_in(state, source, 0);
 
-    switch (*in) {
+void _print_val(serial_api_state_t *state, char type, int val)
+{
+    char buffer[16];
+    sprintf(buffer, "%c=%d", type, val);
+    _serial_api_end(state, buffer);
+}
+
+void _serial_api_process_command(serial_api_state_t *state, int length)
+{
+    char *in = _serial_api_in(state, 0);
+    char cmd = *in;
+
+    switch (cmd) {
     case (SERIAL_API_CMD_ECHO): {
         if (length < 3) {
-            _serial_api_print(state, source, "f ");
-            _serial_api_end(state, source, MALFORMED_COMMAND);
+            _serial_api_print(state, "f ");
+            _serial_api_end(state, MALFORMED_COMMAND);
         } else {
-            _serial_api_print(state, source, "f ");
-            _serial_api_end_len(state, source, in + 2, length - 2);
+            _serial_api_print(state, "f ");
+            _serial_api_end_len(state, in + 2, length - 2);
         }
     } break;
-    // case (SERIAL_API_CMD_VERSION): {
-    //     _serial_api_print(state, source, "f ");
-    //     _serial_api_end(state, source, VERSION);
-    // } break;
-    // case (SERIAL_API_CMD_ROLE): {
-    //     _serial_api_print(state, source, "f ");
-    //     _serial_api_end(state, source, ROLE);
-    // } break;
+    case (SERIAL_API_CMD_VERSION): {
+        char buffer[16];
+        sprintf(buffer, "%c=%d.%d", cmd, VERSION_MAJOR, VERSION_MINOR);
+        _serial_api_end(state, buffer);
+    } break;
+    case (SERIAL_API_CMD_ROLE): {
+        _print_val(state, cmd, ROLE);
+    } break;
     case (SERIAL_API_CMD_SET_VALUE): {
         char type;
         long val;
@@ -118,64 +122,59 @@ void _serial_api_process_command(serial_api_state_t *state, int source,
         }
     } break;
     default: {
-        _serial_api_print(state, source, "f ");
-        _serial_api_end(state, source, UNKNOWN_COMMAND);
+        _serial_api_print(state, "f ");
+        _serial_api_end(state, UNKNOWN_COMMAND);
     } break;
     }
 }
 
 void _serial_api_inner_queue_byte(serial_api_state_t *state,
-                                  int source,
                                   char byte,
                                   int index)
 {
-    char *next = _serial_api_in(state, source, index);
+    char *next = _serial_api_in(state, index);
 
     if (byte == SERIAL_API_END_OF_COMMAND) {
         *next = 0;
         int len = index;
-        _serial_api_process_command(state, source, len);
-        _serial_api_reset_in_buffer(state, source);
+        _serial_api_process_command(state, len);
+        _serial_api_reset_in_buffer(state);
     } else {
         *next = byte;
     }
 }
 
-serial_api_response_t serial_api_read_response(serial_api_state_t *state,
-                                               int source)
+serial_api_response_t serial_api_read_response(serial_api_state_t *state)
 {
     serial_api_response_t result;
 
-    result.buffer = _serial_api_out(state, source, 0);
-    result.length = state->out_indices[source];
-    state->out_indices[source] = 0;
+    result.buffer = _serial_api_out(state, 0);
+    result.length = state->out_index;
+    state->out_index = 0;
     return result;
 }
 
-void serial_api_queue_byte(serial_api_state_t *state, int source, char byte)
+void serial_api_queue_byte(serial_api_state_t *state, char byte)
 {
-    int i = state->indices[source]++;
+    int i = state->in_index++;
 
     if (i < SERIAL_API_IN_BUFFER_SIZE) {
-        _serial_api_inner_queue_byte(state, source, byte, i);
+        _serial_api_inner_queue_byte(state, byte, i);
     } else {
-        _serial_api_print(state, source, "f ");
-        _serial_api_end(state, source, MAX_INPUT_LENGTH_EXCEEDED);
-        _serial_api_reset_in_buffer(state, source);
+        _serial_api_print(state, "f ");
+        _serial_api_end(state, MAX_INPUT_LENGTH_EXCEEDED);
+        _serial_api_reset_in_buffer(state);
     }
 }
 
-void serial_api_queue_output(serial_api_state_t *state,
-                             int source,
-                             const char *message)
+void serial_api_queue_output(serial_api_state_t *state, const char *message)
 {
-    _serial_api_end(state, source, message);
+    _serial_api_end(state, message);
 }
 
 void serial_api_queue_output_len(serial_api_state_t *state,
-                             int source,
                              char *message,
                              int length)
 {
-    _serial_api_end_len(state, source, message, length);
+    _serial_api_end_len(state, message, length);
 }

@@ -3,12 +3,6 @@
 
 #include "motorcontroller.h"
 
-enum {
-    SERIAL_API_SRC_CONSOLE,
-    SERIAL_API_SRC_RADIO,
-    SERIAL_API_SRC_COUNT,
-};
-
 const int SERIAL_API_IN_BUFFER_SIZE = 128;
 const int SERIAL_API_OUT_BUFFER_SIZE = 128;
 const char SERIAL_API_END_OF_RESPONSE = '\n';
@@ -22,11 +16,11 @@ const char SERIAL_API_ESCAPE = '\\';
 
 struct serial_api_state_t {
     lh::MotorController* motor_controller;
-    char in_buffer[SERIAL_API_SRC_COUNT * SERIAL_API_IN_BUFFER_SIZE];
-    char out_buffer[SERIAL_API_SRC_COUNT * SERIAL_API_OUT_BUFFER_SIZE];
-    int indices[SERIAL_API_SRC_COUNT];
-    int escaped[SERIAL_API_SRC_COUNT];
-    int out_indices[SERIAL_API_SRC_COUNT];
+    char in_buffer[SERIAL_API_IN_BUFFER_SIZE];
+    char out_buffer[SERIAL_API_OUT_BUFFER_SIZE];
+    int in_index;
+    int escaped;
+    int out_index;
 };
 
 enum {
@@ -55,10 +49,9 @@ struct serial_api_response_t {
     int length;
 };
 
-serial_api_response_t serial_api_read_response(serial_api_state_t *state,
-                                               int source);
-void serial_api_queue_byte(serial_api_state_t *state, int source, char byte);
-void serial_api_queue_output(serial_api_state_t *state, int source,
-                             char *message, int length);
+serial_api_response_t serial_api_read_response(serial_api_state_t *state);
+void serial_api_queue_byte(serial_api_state_t *state, char byte);
+void serial_api_queue_output(serial_api_state_t *state, char *message,
+    int length);
 
 #endif
