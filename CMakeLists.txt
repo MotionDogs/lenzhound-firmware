@@ -20,7 +20,7 @@ endif(WIN32)
 
 set(SKETCHBOOK ${CMAKE_SOURCE_DIR})
 set(OPTS 
-	--board ${BOARD} --port ${PORT} --pref sketchbook.path=${SKETCHBOOK})
+	--board ${BOARD} --verbose-build --preserve-temp-files --port ${PORT} --pref sketchbook.path=${SKETCHBOOK})
 
 add_custom_target(verify-rxr
 	${ARDUINO} --verify ${OPTS} ${CMAKE_SOURCE_DIR}/Rxr/Rxr.ino)
