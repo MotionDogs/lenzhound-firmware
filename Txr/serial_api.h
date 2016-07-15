@@ -31,13 +31,16 @@ struct serial_api_state_t {
 };
 
 enum {
-    SERIAL_API_CMD_ECHO = 'e',
+    SERIAL_API_CMD_ECHO = 'h',
     SERIAL_API_CMD_VERSION = 'v',
     SERIAL_API_CMD_ROLE = 'r',
     SERIAL_API_CMD_REMOTE_VERSION = 'w',
     SERIAL_API_CMD_REMOTE_ROLE = 's',
+    SERIAL_API_CMD_SAVE_CONFIG = 'u',
     SERIAL_API_CMD_GET_CHANNEL = 'c',
     SERIAL_API_CMD_SET_CHANNEL = 'C',
+    SERIAL_API_CMD_GET_REMOTE_CHANNEL = 'd',
+    SERIAL_API_CMD_SET_REMOTE_CHANNEL = 'D',
     SERIAL_API_CMD_GET_START_STATE = 't',
     SERIAL_API_CMD_SET_START_STATE = 'T',
     SERIAL_API_CMD_GET_MAX_VELOCITY = 'm',
@@ -50,6 +53,7 @@ enum {
     SERIAL_API_CMD_SET_Z_ACCEL = 'B',
     SERIAL_API_CMD_GET_POT = 'p',
     SERIAL_API_CMD_GET_ENCODER = 'e',
+    SERIAL_API_CMD_LEDS = 'l',
 };
 
 struct serial_api_echo_command_t {

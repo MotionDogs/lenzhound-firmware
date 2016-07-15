@@ -19,21 +19,23 @@ void reset_context() {
   context.pulses_.clear();
 }
 
-void lh::pulse_motor() {
+void motor_pulse() {
   context.position_ += context.direction_;
   ASSERT_LE(context.position_, context.boundary_);
   MotorPulse pulse = { context.run_count_, context.direction_ };
   context.pulses_.push_back(pulse);
 }
-void lh::set_motor_dir_forward() {
+void motor_set_dir_forward() {
   context.direction_ = 1;
 }
-void lh::set_motor_dir_backward() {
+void motor_set_dir_backward() {
   context.direction_ = -1;
 }
-void lh::sleep_motor() {
+void motor_sleep() {
 }
-void lh::wake_motor() {
+void motor_wake() {
+}
+void motor_set_steps(int steps) {
 }
 
 TEST(MotorController, HitsItsTarget) {
@@ -41,14 +43,15 @@ TEST(MotorController, HitsItsTarget) {
   lh::MotorController controller = lh::MotorController();
   long target = 5000;
 
-  controller.Configure(50, 6000, 50, 6000);
-  controller.set_velocity_percent(100, 0);
+  controller.set_accel(50);
+  controller.set_velocity(6000);
+  controller.set_velocity_percent(100);
   controller.move_to_position(i32_to_fixed(target));
 
   // make sure we don't go over target
   context.boundary_ = target;
   for (int i = 0; i < 35000; ++i) {
-    controller.Run();
+    controller.run();
   }
   EXPECT_EQ(context.position_, target);
 }
@@ -58,14 +61,15 @@ TEST(MotorController, HandlesSlowSpeeds) {
   lh::MotorController controller = lh::MotorController();
   long target = 300;
 
-  controller.Configure(50, 1, 50, 1);
-  controller.set_velocity_percent(100, 0);
+  controller.set_accel(50);
+  controller.set_velocity(1);
+  controller.set_velocity_percent(100);
   controller.move_to_position(i32_to_fixed(target));
 
   // make sure we don't go over target
   context.boundary_ = target;
   for (int i = 0; i < 10000000; ++i) {
-    controller.Run();
+    controller.run();
   }
   EXPECT_EQ(context.position_, target);
 }
@@ -75,15 +79,16 @@ TEST(MotorController, DoesNotChangeConcavity) {
   lh::MotorController controller = lh::MotorController();
   long target = 6000;
 
-  controller.Configure(32, 48000, 32, 48000);
-  controller.set_velocity_percent(100, FREE_MODE);
-  controller.set_accel_percent(100, FREE_MODE);
+  controller.set_accel(32);
+  controller.set_velocity(48000);
+  controller.set_velocity_percent(100);
+  controller.set_accel_percent(100);
   controller.move_to_position(i32_to_fixed(target));
 
   context.boundary_ = target;
 
   for (int i = 0; i < 60000; ++i) {
-    controller.Run();
+    controller.run();
     ++context.run_count_;
   }
 

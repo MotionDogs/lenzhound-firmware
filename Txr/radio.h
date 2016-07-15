@@ -32,6 +32,7 @@ enum {
     PACKET_SET_CHANNEL,
     PACKET_SET_VELOCITY_PERCENT,
     PACKET_SET_ACCEL_PERCENT,
+    PACKET_SAVE_CONFIG,
 };
 
 struct typed_val_packet_t {

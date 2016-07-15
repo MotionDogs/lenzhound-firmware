@@ -60,6 +60,7 @@
 #define ENC_GREEN_LED_TOGGLE() (PORTB ^= (1 << (6)))
 #define ENC_RED_LED_ON()       (PORTB |= (1 << (7)))
 #define ENC_RED_LED_OFF()      (PORTB &= ~(1 << (7)))
+#define ENC_RED_LED_TOGGLE()   (PORTB ^= (1 << (7)))
 
 // Inputs
 #define PBUTTON1_ON()     (PINF & 0x40)

@@ -68,21 +68,31 @@ inline void _serial_api_reset_in_buffer(serial_api_state_t *state, int source)
     state->escaped[source] = 0;
 }
 
-void _queue_get_radio_val(serial_api_state_t *state, char type)
+void _queue_radio_command(serial_api_state_t *state, char type)
 {
     radio_packet_t packet;
     packet.type = type;
     radio_queue_message(state->radio_state, packet);
 }
 
-void _parse_and_send_uval(serial_api_state_t *state, char* in, char type)
+void _send_uval(serial_api_state_t *state, unsigned int val, char type)
 {
-    unsigned int val;
-    sscanf(in + 2, "%u", &val);
     radio_packet_t packet;
     packet.type = type;
     packet.typed_uval.val = val;
     radio_queue_message(state->radio_state, packet);
+}
+
+unsigned int _parse_uval(char* in) {
+    unsigned int val;
+    sscanf(in + 2, "%u", &val);
+    return val;
+}
+
+void _parse_and_send_uval(serial_api_state_t *state, char* in, char type)
+{
+    unsigned int val = _parse_uval(in);
+    _send_uval(state, val, type);
 }
 
 void _print_val(serial_api_state_t *state, int source, char type, int val)
@@ -125,22 +135,22 @@ void _serial_api_process_command(serial_api_state_t *state, int source,
         _print_val(state, source, cmd, settings_get_start_in_calibration_mode());
     } break;
     case (SERIAL_API_CMD_REMOTE_VERSION): {
-        _queue_get_radio_val(state, PACKET_GET_VERSION);
+        _queue_radio_command(state, PACKET_GET_VERSION);
     } break;
     case (SERIAL_API_CMD_REMOTE_ROLE): {
-        _queue_get_radio_val(state, PACKET_GET_ROLE);
+        _queue_radio_command(state, PACKET_GET_ROLE);
     } break;
     case (SERIAL_API_CMD_GET_MAX_VELOCITY): {
-        _queue_get_radio_val(state, PACKET_GET_MAX_VELOCITY);
+        _queue_radio_command(state, PACKET_GET_MAX_VELOCITY);
     } break;
     case (SERIAL_API_CMD_GET_ACCEL): {
-        _queue_get_radio_val(state, PACKET_GET_ACCEL);
+        _queue_radio_command(state, PACKET_GET_ACCEL);
     } break;
     case (SERIAL_API_CMD_GET_Z_MAX_VELOCITY): {
-        _queue_get_radio_val(state, PACKET_GET_Z_MAX_VELOCITY);
+        _queue_radio_command(state, PACKET_GET_Z_MAX_VELOCITY);
     } break;
     case (SERIAL_API_CMD_GET_Z_ACCEL): {
-        _queue_get_radio_val(state, PACKET_GET_Z_ACCEL);
+        _queue_radio_command(state, PACKET_GET_Z_ACCEL);
     } break;
     case (SERIAL_API_CMD_SET_MAX_VELOCITY): {
         _parse_and_send_uval(state, in, PACKET_SET_MAX_VELOCITY);
@@ -153,6 +163,27 @@ void _serial_api_process_command(serial_api_state_t *state, int source,
     } break;
     case (SERIAL_API_CMD_SET_Z_ACCEL): {
         _parse_and_send_uval(state, in, PACKET_SET_Z_ACCEL);
+    } break;
+    case (SERIAL_API_CMD_SAVE_CONFIG): {
+        _queue_radio_command(state, PACKET_SAVE_CONFIG);
+    } break;
+    case (SERIAL_API_CMD_SET_CHANNEL): {
+        unsigned int channel = _parse_uval(in);
+        _send_uval(state, channel, PACKET_SET_CHANNEL);
+        settings_set_channel(channel);
+        radio_set_channel(channel);
+    } break;
+    case (SERIAL_API_CMD_GET_REMOTE_CHANNEL): {
+        _queue_radio_command(state, PACKET_GET_CHANNEL);
+    } break;
+    case (SERIAL_API_CMD_SET_REMOTE_CHANNEL): {
+        _serial_api_end(state, source, UNKNOWN_COMMAND);
+    } break;
+    case (SERIAL_API_CMD_GET_POT): {
+        _serial_api_end(state, source, UNKNOWN_COMMAND);
+    } break;
+    case (SERIAL_API_CMD_GET_ENCODER): {
+        _serial_api_end(state, source, UNKNOWN_COMMAND);
     } break;
     default: {
         _serial_api_end(state, source, UNKNOWN_COMMAND);

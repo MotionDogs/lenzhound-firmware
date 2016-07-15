@@ -17,7 +17,7 @@
 #include <EEPROM.h>
 #include <CmdMessenger.h>
 #include "NewTimerOne.h"
-#include "Settings.h"
+#include "settings.h"
 #include "console.h"
 #include "util.h"
 #include "constants.h"
@@ -52,12 +52,8 @@ void setup()
     SET_MODE(ANT_CTRL1, OUT);
     SET_MODE(ANT_CTRL2, OUT);
 
-    SLEEP_PIN(SET);
-    ENABLE_PIN(CLR);
     ANT_CTRL1(CLR);
     ANT_CTRL2(SET);
-    MS1_PIN(SET);
-    MS2_PIN(SET);
 
     radio_state.serial_state = &serial_api_state;
     radio_state.motor_controller = &motor_controller;

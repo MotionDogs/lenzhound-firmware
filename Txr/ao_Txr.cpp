@@ -82,12 +82,96 @@ void UpdatePositionZMode(Txr *const me);
 void UpdatePositionPlayBack(Txr *const me);
 void UpdateCalibrationMultiplier(int setting);
 void LogValue(char key, long value);
+void SetLEDStatus(int led, int status);
 void QueueRadioValue(char key, long value);
 };
 
 
 static Txr l_Txr;                   // the single instance of Txr active object (local)
 QActive *const AO_Txr = &l_Txr;     // the global opaque pointer
+
+enum {
+    LED_OFF,
+    LED_ON,
+    LED_TOGGLE
+};
+
+void Txr::SetLEDStatus(int led, int status)
+{
+    if (status == LED_ON) {
+        switch (led) {
+        case SPEED_LED1: {
+            RED_LED_ON();
+        } break;
+        case SPEED_LED2: {
+            AMBER_LED_ON();
+        } break;
+        case SPEED_LED3: {
+            AMBER2_LED_ON();
+        } break;
+        case SPEED_LED4: {
+            GREEN_LED_ON();
+        } break;
+        case GREEN_LED: {
+            GREEN2_LED_ON();
+        } break;
+        case ENC_RED_LED: {
+            ENC_RED_LED_ON();
+        } break;
+        case ENC_GREEN_LED: {
+            ENC_GREEN_LED_ON();
+        } break;
+        }
+    } else if (status == LED_OFF) {
+        switch (led) {
+        case SPEED_LED1: {
+            RED_LED_OFF();
+        } break;
+        case SPEED_LED2: {
+            AMBER_LED_OFF();
+        } break;
+        case SPEED_LED3: {
+            AMBER2_LED_OFF();
+        } break;
+        case SPEED_LED4: {
+            GREEN_LED_OFF();
+        } break;
+        case GREEN_LED: {
+            GREEN2_LED_OFF();
+        } break;
+        case ENC_RED_LED: {
+            ENC_RED_LED_OFF();
+        } break;
+        case ENC_GREEN_LED: {
+            ENC_GREEN_LED_OFF();
+        } break;
+        }
+    } else if (status == LED_TOGGLE) {
+        switch (led) {
+        case SPEED_LED1: {
+            RED_LED_TOGGLE();
+        } break;
+        case SPEED_LED2: {
+            AMBER_LED_TOGGLE();
+        } break;
+        case SPEED_LED3: {
+            AMBER2_LED_TOGGLE();
+        } break;
+        case SPEED_LED4: {
+            GREEN_LED_TOGGLE();
+        } break;
+        case GREEN_LED: {
+            GREEN2_LED_TOGGLE();
+        } break;
+        case ENC_RED_LED: {
+            ENC_RED_LED_TOGGLE();
+        } break;
+        case ENC_GREEN_LED: {
+            ENC_GREEN_LED_TOGGLE();
+        } break;
+        }
+    }
+}
 
 void Txr::LogValue(char key, long value)
 {
@@ -233,9 +317,9 @@ QP::QState Txr::on(Txr *const me, QP::QEvt const *const e)
     case ALIVE_SIG:
     {
         if (radio_is_alive()) {
-            GREEN2_LED_OFF();
+            me->SetLEDStatus(GREEN_LED, LED_OFF);
         } else {
-            GREEN2_LED_ON();
+            me->SetLEDStatus(GREEN_LED, LED_ON);
         }
         status_ = Q_HANDLED();
         break;
@@ -263,8 +347,8 @@ QP::QState Txr::uncalibrated(Txr *const me, QP::QEvt const *const e)
     switch (e->sig) {
     case Q_ENTRY_SIG:
     {
-        ENC_RED_LED_ON();
-        ENC_GREEN_LED_OFF();
+        me->SetLEDStatus(ENC_RED_LED, LED_ON);
+        me->SetLEDStatus(ENC_GREEN_LED, LED_OFF);
         me->Txr::QueueRadioValue(PACKET_SET_MODE, FREE_MODE);
         me->mPrevEncoderCnt = BSP_get_encoder();
         me->UpdateCalibrationMultiplier(BSP_get_mode());
@@ -393,8 +477,8 @@ QP::QState Txr::flashing(Txr *const me, QP::QEvt const *const e)
     switch (e->sig) {
     case Q_ENTRY_SIG:
     {
-        ENC_RED_LED_OFF();
-        ENC_GREEN_LED_TOGGLE();
+        me->SetLEDStatus(ENC_RED_LED, LED_ON);
+        me->SetLEDStatus(ENC_GREEN_LED, LED_TOGGLE);
         me->mFlashTimeout.postEvery(me, FLASH_RATE_TOUT);
         me->mCalibrationTimeout.postIn(me, FLASH_DURATION_TOUT);
         ledCnt = 0;
@@ -413,8 +497,8 @@ QP::QState Txr::flashing(Txr *const me, QP::QEvt const *const e)
     case Q_EXIT_SIG:
     {
         me->mFlashTimeout.disarm();
-        ENC_RED_LED_ON();
-        ENC_GREEN_LED_OFF();
+        me->SetLEDStatus(ENC_RED_LED, LED_ON);
+        me->SetLEDStatus(ENC_GREEN_LED, LED_OFF);
         status_ = Q_HANDLED();
         break;
     }
@@ -436,7 +520,7 @@ QP::QState Txr::flashing(Txr *const me, QP::QEvt const *const e)
     }
     case FLASH_RATE_SIG:
     {
-        ENC_GREEN_LED_TOGGLE();
+        me->SetLEDStatus(ENC_GREEN_LED, LED_TOGGLE);
         status_ = Q_HANDLED();
         break;
     }
@@ -462,7 +546,7 @@ QP::QState Txr::freeRun(Txr *const me, QP::QEvt const *const e)
     switch (e->sig) {
     case Q_ENTRY_SIG:
     {
-        ENC_RED_LED_OFF();
+        me->SetLEDStatus(ENC_RED_LED, LED_ON);
         analogWrite(ENC_GREEN_LED, 15);
 
         me->QueueRadioValue(PACKET_SET_MODE, FREE_MODE);
@@ -520,8 +604,8 @@ QP::QState Txr::playBack(Txr *const me, QP::QEvt const *const e)
     switch (e->sig) {
     case Q_ENTRY_SIG:
     {
-        ENC_GREEN_LED_ON();
-        ENC_RED_LED_ON();
+        me->SetLEDStatus(ENC_GREEN_LED, LED_ON);
+        me->SetLEDStatus(ENC_RED_LED, LED_ON);
         me->QueueRadioValue(PACKET_SET_MODE, PLAYBACK_MODE);
         me->QueueRadioValue(PACKET_SET_TARGET_POSITION, me->mCurPos);
         me->mVelocityManager.Init(50); // init at 50% speed
@@ -564,8 +648,8 @@ QP::QState Txr::zmode(Txr *const me, QP::QEvt const *const e)
     switch (e->sig) {
     case Q_ENTRY_SIG:
     {
-        ENC_GREEN_LED_ON();
-        ENC_RED_LED_ON();
+        me->SetLEDStatus(ENC_GREEN_LED, LED_ON);
+        me->SetLEDStatus(ENC_RED_LED, LED_ON);
 
         me->QueueRadioValue(PACKET_SET_MODE, Z_MODE);
         me->QueueRadioValue(PACKET_SET_TARGET_POSITION, me->mCurPos);

@@ -1,7 +1,6 @@
 #include "motorcontroller.h"
 #include "constants.h"
 #include "util.h"
-#include "Arduino.h"
 
 #define CONVERSION_FACTOR .01
 
@@ -21,6 +20,8 @@ MotorController::MotorController() :
     sleeping_(true),
     initial_position_set_(false)
 {
+    sleep();
+    motor_set_steps(EIGHTH_STEPS);
 }
 
 bool MotorController::is_position_initialized()
@@ -134,13 +135,13 @@ void MotorController::sleep()
 {
     sleeping_ = true;
     run_count_ = 0;
-    sleep_motor();
+    motor_sleep();
 }
 
 void MotorController::wake_up()
 {
     sleeping_ = false;
-    wake_motor();
+    motor_wake();
 }
 
 bool MotorController::try_sleep()
@@ -177,11 +178,11 @@ void MotorController::run()
         if ((motor_position_ < calculated_position_) &&
             (motor_position_ != observed_position_)) {
             motor_position_ += FIXED_ONE;
-            pulse_motor();
+            motor_pulse();
         }
         if (velocity_ < 0) {
             direction_ = 0;
-            set_motor_dir_backward();
+            motor_set_dir_backward();
         }
     } else {
         if ((calculated_position_ < observed_position_) ||
@@ -194,11 +195,11 @@ void MotorController::run()
         if (motor_position_ > calculated_position_ &&
             motor_position_ != observed_position_) {
             motor_position_ -= FIXED_ONE;
-            pulse_motor();
+            motor_pulse();
         }
         if (velocity_ > 0) {
             direction_ = 1;
-            set_motor_dir_forward();
+            motor_set_dir_forward();
         }
     }
 }

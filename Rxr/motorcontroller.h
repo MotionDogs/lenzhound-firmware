@@ -8,7 +8,6 @@ namespace lh {
 class MotorController {
 public:
   MotorController();
-  void configure(long accel, long max_velocity, long z_accel, long z_velocity);
   void run();
   void move_to_position(long position);
   void initialize_position(long position);

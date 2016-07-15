@@ -15,9 +15,16 @@ void console_run(console_state_t *state)
         state->serial_state,
         SERIAL_API_SRC_CONSOLE);
 
-    if (response.length) {
-        int written = BSP_write_serial(response.buffer, response.length);
+    int write_index = 0;
+    int remaining = response.length;
 
-        // BSP_assert(written == response.length);
+    for (int i = 0; i < 3; ++i)
+    {
+        int written = Serial.write(response.buffer + write_index, remaining);
+        write_index += written;
+        remaining -= written;
+        if (remaining <= 0) {
+            break;
+        }
     }
 }

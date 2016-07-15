@@ -1,7 +1,7 @@
 #include "version.h"
 #include "serial_api.h"
 #include "radio.h"
-#include "util.h"
+#include "settings.h"
 #include "Arduino.h"
 
 inline char *_serial_api_out(serial_api_state_t *state, int index)
@@ -45,13 +45,15 @@ inline void _serial_api_print_len(serial_api_state_t *state,
     }
 }
 
-inline void _serial_api_end(serial_api_state_t *state, const char *in)
+inline void _serial_api_end(serial_api_state_t *state,
+                            const char *in)
 {
     _serial_api_print(state, in);
     _serial_api_print(state, "\n");
 }
 
-inline void _serial_api_end_len(serial_api_state_t *state, char *in, int len)
+inline void _serial_api_end_len(serial_api_state_t *state,
+                                char *in, int len)
 {
     _serial_api_print_len(state, in, len);
     _serial_api_print(state, "\n");
@@ -63,6 +65,32 @@ inline void _serial_api_reset_in_buffer(serial_api_state_t *state)
     state->escaped = 0;
 }
 
+void _queue_radio_command(serial_api_state_t *state, char type)
+{
+    radio_packet_t packet;
+    packet.type = type;
+    radio_queue_message(state->radio_state, packet);
+}
+
+void _send_uval(serial_api_state_t *state, unsigned int val, char type)
+{
+    radio_packet_t packet;
+    packet.type = type;
+    packet.typed_uval.val = val;
+    radio_queue_message(state->radio_state, packet);
+}
+
+unsigned int _parse_uval(char* in) {
+    unsigned int val;
+    sscanf(in + 2, "%u", &val);
+    return val;
+}
+
+void _parse_and_send_uval(serial_api_state_t *state, char* in, char type)
+{
+    unsigned int val = _parse_uval(in);
+    _send_uval(state, val, type);
+}
 
 void _print_val(serial_api_state_t *state, char type, int val)
 {
@@ -71,18 +99,16 @@ void _print_val(serial_api_state_t *state, char type, int val)
     _serial_api_end(state, buffer);
 }
 
-void _serial_api_process_command(serial_api_state_t *state, int length)
+void _serial_api_process_command(serial_api_state_t *state,
+                                 int length)
 {
     char *in = _serial_api_in(state, 0);
     char cmd = *in;
-
     switch (cmd) {
     case (SERIAL_API_CMD_ECHO): {
         if (length < 3) {
-            _serial_api_print(state, "f ");
             _serial_api_end(state, MALFORMED_COMMAND);
         } else {
-            _serial_api_print(state, "f ");
             _serial_api_end_len(state, in + 2, length - 2);
         }
     } break;
@@ -94,35 +120,66 @@ void _serial_api_process_command(serial_api_state_t *state, int length)
     case (SERIAL_API_CMD_ROLE): {
         _print_val(state, cmd, ROLE);
     } break;
-    case (SERIAL_API_CMD_SET_VALUE): {
-        char type;
-        long val;
-        sscanf(in, "s %c=%ld", &type, &val);
-        switch (type) {
-            case ('o'): {
-                long transformed = i32_to_fixed(val);
-                if (state->motor_controller->is_position_initialized()) {
-                    state->motor_controller->move_to_position(transformed);
-                } else {
-                    state->motor_controller->initialize_position(transformed);
-                }
-            } break;
-            case ('v'): {
-                state->motor_controller->set_velocity_percent((int)val);
-            } break;
-            case ('a'): {
-                state->motor_controller->set_accel_percent((int)val);
-            } break;
-            case ('V'): {
-                state->motor_controller->set_velocity(val);
-            } break;
-            case ('A'): {
-                state->motor_controller->set_accel(val);
-            } break;
-        }
+    case (SERIAL_API_CMD_GET_CHANNEL): {
+        _print_val(state, cmd, settings_get_channel());
+    } break;
+    case (SERIAL_API_CMD_GET_MAX_VELOCITY): {
+        unsigned int max_vel = state->motor_controller->get_velocity();
+        _print_val(state, cmd, max_vel);
+    } break;
+    case (SERIAL_API_CMD_GET_ACCEL): {
+        unsigned int accel = state->motor_controller->get_accel();
+        _print_val(state, cmd, accel);
+    } break;
+    case (SERIAL_API_CMD_REMOTE_VERSION): {
+        _queue_radio_command(state, PACKET_GET_VERSION);
+    } break;
+    case (SERIAL_API_CMD_REMOTE_ROLE): {
+        _queue_radio_command(state, PACKET_GET_ROLE);
+    } break;
+    case (SERIAL_API_CMD_SET_MAX_VELOCITY): {
+        unsigned int max_vel = _parse_uval(in);
+        state->motor_controller->set_velocity((long)max_vel);
+    } break;
+    case (SERIAL_API_CMD_SET_ACCEL): {
+        unsigned int accel = _parse_uval(in);
+        state->motor_controller->set_accel((long)accel);
+    } break;
+    case (SERIAL_API_CMD_SAVE_CONFIG): {
+        unsigned int max_vel = state->motor_controller->get_velocity();
+        unsigned int accel = state->motor_controller->get_accel();
+        settings_set_max_velocity(max_vel);
+        settings_set_accel(accel);
+    } break;
+    case (SERIAL_API_CMD_SET_CHANNEL): {
+        unsigned int channel = _parse_uval(in);
+        settings_set_channel(channel);
+        radio_set_channel(channel);
+    } break;
+    case (SERIAL_API_CMD_SET_REMOTE_CHANNEL): {
+        unsigned int channel = _parse_uval(in);
+        _send_uval(state, channel, PACKET_SET_CHANNEL);
+    } break;
+    case (SERIAL_API_CMD_GET_REMOTE_CHANNEL): {
+        _queue_radio_command(state, PACKET_GET_CHANNEL);
+    } break;
+    case (SERIAL_API_CMD_GET_START_STATE): {
+    } break;
+    case (SERIAL_API_CMD_GET_Z_MAX_VELOCITY): {
+    } break;
+    case (SERIAL_API_CMD_GET_Z_ACCEL): {
+    } break;
+    case (SERIAL_API_CMD_SET_Z_MAX_VELOCITY): {
+    } break;
+    case (SERIAL_API_CMD_SET_Z_ACCEL): {
+    } break;
+    case (SERIAL_API_CMD_GET_POT): {
+    } break;
+    case (SERIAL_API_CMD_GET_ENCODER): {
+    } break;
+    case (SERIAL_API_CMD_SET_START_STATE): {
     } break;
     default: {
-        _serial_api_print(state, "f ");
         _serial_api_end(state, UNKNOWN_COMMAND);
     } break;
     }
@@ -161,13 +218,13 @@ void serial_api_queue_byte(serial_api_state_t *state, char byte)
     if (i < SERIAL_API_IN_BUFFER_SIZE) {
         _serial_api_inner_queue_byte(state, byte, i);
     } else {
-        _serial_api_print(state, "f ");
         _serial_api_end(state, MAX_INPUT_LENGTH_EXCEEDED);
         _serial_api_reset_in_buffer(state);
     }
 }
 
-void serial_api_queue_output(serial_api_state_t *state, const char *message)
+void serial_api_queue_output(serial_api_state_t *state,
+                             const char *message)
 {
     _serial_api_end(state, message);
 }

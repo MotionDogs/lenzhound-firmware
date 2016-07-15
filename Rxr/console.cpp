@@ -15,9 +15,13 @@ void console_run(console_state_t *state)
     int write_index = 0;
     int remaining = response.length;
 
-    while (remaining > 0) {
+    for (int i = 0; i < 3; ++i)
+    {
         int written = Serial.write(response.buffer + write_index, remaining);
         write_index += written;
         remaining -= written;
+        if (remaining <= 0) {
+            break;
+        }
     }
 }
