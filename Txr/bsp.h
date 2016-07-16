@@ -91,7 +91,7 @@ void BSP_turn_on_speed_LED(char num);
 void BSP_turn_off_speed_LED(char num);
 bool BSP_serial_available();
 char BSP_serial_read();
-int BSP_write_serial(char* buffer, int length);
+int BSP_serial_write(char* buffer, int length);
 void BSP_assert(bool condition);
 
 /////////////////////////////////////////////////////////////////////

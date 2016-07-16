@@ -54,6 +54,11 @@ uint8_t l_TIMER2_COMPA;
 
 // ISRs ----------------------------------------------------------------------
 ISR(TIMER4_COMPA_vect) {
+    RED_LED_OFF();
+    AMBER_LED_OFF();
+    AMBER2_LED_OFF();
+    GREEN_LED_OFF();
+
     // No need to clear the interrupt source since the Timer4 compare
     // interrupt is automatically cleard in hardware when the ISR runs.
 
@@ -260,7 +265,7 @@ char BSP_serial_read()
     return Serial.read();
 }
 
-int BSP_write_serial(char* buffer, int length)
+int BSP_serial_write(char* buffer, int length)
 {
     return Serial.write(buffer, length);
 }
