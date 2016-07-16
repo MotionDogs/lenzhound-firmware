@@ -34,9 +34,9 @@ Q_DEFINE_THIS_FILE
 #endif
 
 static Encoder encoder(2, 1);
-static int PrevButtonState = 0;
-static int PrevModeState = -1;    // force signal on startup with -1
-static int PrevPositionState = 0; // position buttons
+static int prev_button_state_ = 0;
+static int prev_mode_state_ = -1;    // force signal on startup with -1
+static int prev_position_state_ = 0; // position buttons
 
 #ifdef Q_SPY
 uint8_t l_TIMER2_COMPA;
@@ -54,48 +54,43 @@ uint8_t l_TIMER2_COMPA;
 
 // ISRs ----------------------------------------------------------------------
 ISR(TIMER4_COMPA_vect) {
-    RED_LED_OFF();
-    AMBER_LED_OFF();
-    AMBER2_LED_OFF();
-    GREEN_LED_OFF();
-
     // No need to clear the interrupt source since the Timer4 compare
     // interrupt is automatically cleard in hardware when the ISR runs.
 
     QF::TICK(&l_TIMER2_COMPA);                // process all armed time events
 
     // Check state of buttons
-    int curButtonState = CALBUTTON_ON();
+    int button_state = CALBUTTON_ON();
 
-    if (curButtonState != PrevButtonState) {
-        if (curButtonState != 0) {
+    if (button_state != prev_button_state_) {
+        if (button_state != 0) {
             QF::PUBLISH(Q_NEW(QEvt, ENC_DOWN_SIG), &l_TIMER2_COMPA);
         } else {
             QF::PUBLISH(Q_NEW(QEvt, ENC_UP_SIG), &l_TIMER2_COMPA);
         }
-        PrevButtonState = curButtonState;
+        prev_button_state_ = button_state;
     }
 
     // Check mode switches
-    curButtonState = MODE_SWITCHES();
-    if (curButtonState != PrevModeState) {
-        if (curButtonState & 0x10) {
+    button_state = MODE_SWITCHES();
+    if (button_state != prev_mode_state_) {
+        if (button_state & 0x10) {
             QF::PUBLISH(Q_NEW(QEvt, Z_MODE_SIG), &l_TIMER2_COMPA);
-        } else if (curButtonState & 0x40) {
-            QF::PUBLISH(Q_NEW(QEvt, FREE_MODE_SIG), &l_TIMER2_COMPA);
+        } else if (button_state & 0x40) {
+            QF::PUBLISH(Q_NEW(QEvt, FREE_RUN_MODE_SIG), &l_TIMER2_COMPA);
         } else {
-            QF::PUBLISH(Q_NEW(QEvt, PLAY_MODE_SIG), &l_TIMER2_COMPA);
+            QF::PUBLISH(Q_NEW(QEvt, PLAY_BACK_MODE_SIG), &l_TIMER2_COMPA);
         }
-        PrevModeState = curButtonState;
+        prev_mode_state_ = button_state;
     }
 
     // Check position buttons
-    curButtonState = PBUTTONS();
-    if (curButtonState != PrevPositionState) {
+    button_state = PBUTTONS();
+    if (button_state != prev_position_state_) {
         // only look at buttons that have changed to the on state (might have pressed two at once)
-        int tempState = curButtonState ^ PrevPositionState;
-        tempState &= curButtonState;
-        PrevPositionState = curButtonState;
+        int tempState = button_state ^ prev_position_state_;
+        tempState &= button_state;
+        prev_position_state_ = button_state;
         if (tempState != 0) {
             PositionButtonEvt *evt = Q_NEW(PositionButtonEvt,
                                            POSITION_BUTTON_SIG);

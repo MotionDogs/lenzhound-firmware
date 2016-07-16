@@ -16,8 +16,8 @@ using namespace QP;
 enum PelicanSignals {
     ENC_DOWN_SIG = Q_USER_SIG,
     ENC_UP_SIG,
-    PLAY_MODE_SIG,
-    FREE_MODE_SIG,
+    PLAY_BACK_MODE_SIG,
+    FREE_RUN_MODE_SIG,
     Z_MODE_SIG,
     POSITION_BUTTON_SIG,
     UPDATE_PARAMS_SIG,
