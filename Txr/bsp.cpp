@@ -123,8 +123,8 @@ void BSP_init(void)
     pinMode(p4BUTTON, INPUT);
     pinMode(SPEED_LED1, OUTPUT);
     pinMode(SPEED_LED2, OUTPUT);
-    pinMode(SPEED_LED3, OUTPUT);
     pinMode(SPEED_LED4, OUTPUT);
+    pinMode(SPEED_LED5, OUTPUT);
     pinMode(GREEN_LED, OUTPUT);
     pinMode(ENC_RED_LED, OUTPUT);
     pinMode(ENC_GREEN_LED, OUTPUT);
@@ -224,7 +224,7 @@ void BSP_turn_on_speed_LED(char num)
         analogWrite(SPEED_LED2, 255);
         break;
     case 2:
-        analogWrite(SPEED_LED3, 255);
+        analogWrite(SPEED_LED4, 255);
         break;
     case 3:
         GREEN_LED_ON();
@@ -242,7 +242,7 @@ void BSP_turn_off_speed_LED(char num)
         analogWrite(SPEED_LED2, 0);
         break;
     case 2:
-        analogWrite(SPEED_LED3, 0);
+        analogWrite(SPEED_LED4, 0);
         break;
     case 3:
         GREEN_LED_OFF();

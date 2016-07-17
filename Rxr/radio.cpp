@@ -113,7 +113,11 @@ void _process_packet(radio_state_t* state, radio_packet_t packet)
         } break;
         case (PACKET_SET_TARGET_POSITION): {
             long position = i16_to_fixed(packet.typed_val.val);
-            state->motor_controller->move_to_position(position);
+            if (state->motor_controller->is_position_initialized()) {
+                state->motor_controller->move_to_position(position);
+            } else {
+                state->motor_controller->initialize_position(position);
+            }
         } break;
         case (PACKET_SAVE_CONFIG): {
             int max_velocity = state->motor_controller->get_velocity();

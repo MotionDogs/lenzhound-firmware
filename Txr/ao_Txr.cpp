@@ -12,7 +12,6 @@
 #include "qp_port.h"
 #include "bsp.h"
 #include "Txr.h"
-#include "EncVelManager.h"
 #include "Arduino.h" // if I start having problems with RF24, consider removing this
 #include "serial_api.h"
 #include "console.h"
@@ -21,6 +20,13 @@
 
 Q_DEFINE_THIS_FILE
 
+// These are percentages
+#define MAX_VELOCITY  100
+#define MID_VELOCITY  50
+#define MIN_VELOCITY  1
+
+#define ENCODER_COUNTS_PER_SPEED_PERCENT  4
+#define SPEED_PERCENT_SLOP 2
 
 // various timeouts in ticks
 enum TxrTimeouts {
@@ -42,6 +48,16 @@ long map(long x, long in_min, long in_max, long out_min, long out_max)
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+long clamp(long x, long min, long max)
+{
+	return (x < min) ? min : ((x > max) ? max : x);
+}
+
+long distance(long a, long b)
+{
+	return abs(a - b);
+}
+
 
 class Txr : public QP::QActive {
 private:
@@ -61,10 +77,10 @@ private:
     char enc_pushes_;
     char calibration_multiplier_;
     long saved_positions_[NUM_POSITION_BUTTONS];
-    EncVelManager velocity_manager_;
     unsigned char prev_position_button_pressed_;
     char z_mode_saved_velocity_;
     char z_mode_saved_acceleration_;
+    long encoder_base_;
 
 public:
     Txr() :
@@ -94,6 +110,10 @@ protected:
     void log_value(char key, long value);
     void set_LED_status(int led, int status);
     void queue_radio_value(char key, long value);
+    void init_speed_percent(int start_percentage);
+    int get_speed_percent();
+    void update_speed_LEDs(int speed_percent);
+    void set_speed_LEDs_off();
 };
 
 
@@ -116,10 +136,10 @@ void Txr::set_LED_status(int led, int status)
         case SPEED_LED2: {
             AMBER_LED_ON();
         } break;
-        case SPEED_LED3: {
+        case SPEED_LED4: {
             AMBER2_LED_ON();
         } break;
-        case SPEED_LED4: {
+        case SPEED_LED5: {
             GREEN_LED_ON();
         } break;
         case GREEN_LED: {
@@ -140,10 +160,10 @@ void Txr::set_LED_status(int led, int status)
         case SPEED_LED2: {
             AMBER_LED_OFF();
         } break;
-        case SPEED_LED3: {
+        case SPEED_LED4: {
             AMBER2_LED_OFF();
         } break;
-        case SPEED_LED4: {
+        case SPEED_LED5: {
             GREEN_LED_OFF();
         } break;
         case GREEN_LED: {
@@ -164,10 +184,10 @@ void Txr::set_LED_status(int led, int status)
         case SPEED_LED2: {
             AMBER_LED_TOGGLE();
         } break;
-        case SPEED_LED3: {
+        case SPEED_LED4: {
             AMBER2_LED_TOGGLE();
         } break;
-        case SPEED_LED4: {
+        case SPEED_LED5: {
             GREEN_LED_TOGGLE();
         } break;
         case GREEN_LED: {
@@ -181,6 +201,58 @@ void Txr::set_LED_status(int led, int status)
         } break;
         }
     }
+}
+
+void Txr::init_speed_percent(int start_percentage)
+{
+	long encoder_pos = BSP_get_encoder();
+	encoder_base_ = encoder_pos -
+		(start_percentage * ENCODER_COUNTS_PER_SPEED_PERCENT);
+}
+
+int Txr::get_speed_percent()
+{
+	long encoder_pos = BSP_get_encoder();
+	long speed_percent = (encoder_pos - encoder_base_) /
+		ENCODER_COUNTS_PER_SPEED_PERCENT;
+
+	if (speed_percent < -SPEED_PERCENT_SLOP) {
+		encoder_base_ = speed_percent * ENCODER_COUNTS_PER_SPEED_PERCENT;
+	} else if (speed_percent > (100 + SPEED_PERCENT_SLOP)) {
+		encoder_base_ = speed_percent - 100 - (2 * SPEED_PERCENT_SLOP);
+	}
+
+	return clamp(speed_percent, 1, 100);
+}
+
+void Txr::update_speed_LEDs(int speed_percent)
+{
+    #define MAP_LED(x,n) x == n ? \
+    	255 :\
+    	map(clamp(distance(x, n), 0, 24), 0, 24, 50, 0)
+
+    int led_1 = MAP_LED(speed_percent, 1);
+    int led_2 = MAP_LED(speed_percent, 25);
+    int led_3 = MAP_LED(speed_percent, 50);
+    int led_4 = MAP_LED(speed_percent, 75);
+    int led_5 = MAP_LED(speed_percent, 100);
+
+	#undef MAP_LED
+
+    analogWrite(SPEED_LED1, led_1);
+    analogWrite(SPEED_LED2, led_2);
+    analogWrite(SPEED_LED3_1, led_3);
+    analogWrite(SPEED_LED3_2, led_3);
+    analogWrite(SPEED_LED4, led_4);
+    analogWrite(SPEED_LED5, led_5);
+}
+
+void Txr::set_speed_LEDs_off()
+{
+    RED_LED_OFF();
+    BSP_turn_off_speed_LED(1);
+    BSP_turn_off_speed_LED(2);
+    GREEN_LED_OFF();
 }
 
 void Txr::log_value(char key, long value)
@@ -224,10 +296,10 @@ void Txr::update_position_calibration()
 
 void Txr::update_position_freerun()
 {
-    int velocity_percent = velocity_manager_.GetVelocityPercent();
-    queue_radio_value(PACKET_SET_VELOCITY_PERCENT, velocity_percent);
-    velocity_manager_.SetLEDs(false);
-    
+    int speed_percent = get_speed_percent();
+    queue_radio_value(PACKET_SET_VELOCITY_PERCENT, speed_percent);
+    update_speed_LEDs(speed_percent);
+
     long new_pos = BSP_get_pot();
 
     // only update the current position if it's not jittering between two values
@@ -253,10 +325,11 @@ void Txr::update_position_z_mode()
 
 void Txr::update_position_playback()
 {
-    int velocity_percent = velocity_manager_.GetVelocityPercent();
+    int speed_percent = get_speed_percent();
+    queue_radio_value(PACKET_SET_VELOCITY_PERCENT, speed_percent);
+    update_speed_LEDs(speed_percent);
+
     queue_radio_value(PACKET_SET_TARGET_POSITION, cur_pos_);
-    queue_radio_value(PACKET_SET_VELOCITY_PERCENT, velocity_percent);
-    velocity_manager_.SetLEDs(false);
 }
 
 void Txr::update_calibration_multiplier(int setting)
@@ -511,6 +584,9 @@ QP::QState Txr::free_run_mode(Txr *const me, QP::QEvt const *const e)
             me->set_LED_status(ENC_RED_LED, LED_OFF);
 
             me->queue_radio_value(PACKET_SET_MODE, FREE_MODE);
+
+            me->init_speed_percent(50);
+            
             status = Q_HANDLED();
         } break;
         case Q_EXIT_SIG: {
@@ -557,11 +633,11 @@ QP::QState Txr::play_back_mode(Txr *const me, QP::QEvt const *const e)
             me->set_LED_status(ENC_RED_LED, LED_OFF);
             me->queue_radio_value(PACKET_SET_MODE, PLAYBACK_MODE);
             me->queue_radio_value(PACKET_SET_TARGET_POSITION, me->cur_pos_);
-            me->velocity_manager_.Init(50); // init at 50% speed
+            me->init_speed_percent(50);
             status = Q_HANDLED();
         } break;
         case Q_EXIT_SIG: {
-            me->velocity_manager_.SetAllLEDsOff();
+            me->set_speed_LEDs_off();
             status = Q_HANDLED();
         } break;
         case SEND_TIMEOUT_SIG: {
@@ -593,12 +669,12 @@ QP::QState Txr::z_mode(Txr *const me, QP::QEvt const *const e)
             me->queue_radio_value(PACKET_SET_MODE, Z_MODE);
             me->queue_radio_value(PACKET_SET_TARGET_POSITION, me->cur_pos_);
             me->queue_radio_value(PACKET_SET_ACCEL_PERCENT, me->z_mode_saved_acceleration_);
-            me->velocity_manager_.Init(me->z_mode_saved_velocity_);
+            me->init_speed_percent(50);
             status = Q_HANDLED();
         } break;
         case Q_EXIT_SIG: {
-            me->velocity_manager_.SetAllLEDsOff();
-            me->z_mode_saved_velocity_ = me->velocity_manager_.GetVelocityPercent();
+            me->set_speed_LEDs_off();
+            me->z_mode_saved_velocity_ = me->get_speed_percent();
             status = Q_HANDLED();
         } break;
         case SEND_TIMEOUT_SIG: {

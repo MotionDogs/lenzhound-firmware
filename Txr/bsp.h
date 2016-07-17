@@ -30,8 +30,10 @@
 // LEDs
 #define SPEED_LED1       3  // Red LED
 #define SPEED_LED2       5  // Amber #1 LED
-#define SPEED_LED3       6  // Amber #2 LED
-#define SPEED_LED4       9  // Green LED
+#define SPEED_LED3_1     11 // enc RED
+#define SPEED_LED3_2     10 // red GREEN (mix with red for amber)
+#define SPEED_LED4       6  // Green LED
+#define SPEED_LED5       9  // Green LED
 #define GREEN_LED        0  // Green #2 LED
 #define ENC_RED_LED      11 // Start record mode, red LED built into rotary encoder
 #define ENC_GREEN_LED    10 // Green led in record mode, green LED built into rotary encoder
