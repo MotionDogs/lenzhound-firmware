@@ -270,6 +270,11 @@ void BSP_assert(bool condition)
     Q_ASSERT(condition);
 }
 
+unsigned long BSP_millis()
+{
+    return millis();
+}
+
 //............................................................................
 void Q_onAssert(char const Q_ROM *const Q_ROM_VAR file, int line)
 {

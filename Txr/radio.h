@@ -60,6 +60,8 @@ struct radio_state_t {
     radio_packet_t buffer[RADIO_OUT_BUFFER_SIZE];
     int write_index;
     int read_index;
+    long heartbeat_sent_timestamp;
+    long heartbeat_received_timestamp;
 };
 
 void radio_init(radio_state_t* state);

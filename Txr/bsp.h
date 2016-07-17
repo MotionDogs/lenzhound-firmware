@@ -95,6 +95,7 @@ bool BSP_serial_available();
 char BSP_serial_read();
 int BSP_serial_write(char* buffer, int length);
 void BSP_assert(bool condition);
+unsigned long BSP_millis();
 
 /////////////////////////////////////////////////////////////////////
 // NOTE: The CPU clock frequency F_CPU is defined externally for each

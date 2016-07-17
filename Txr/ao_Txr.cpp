@@ -559,7 +559,9 @@ QP::QState Txr::flashing(Txr *const me, QP::QEvt const *const e)
             }
         } break;
         case FLASH_RATE_SIG: {
-            me->set_LED_status(ENC_RED_LED, LED_TOGGLE);
+        	static int red_on = 0;
+            analogWrite(SPEED_LED3_1, red_on ? 0xff : 0x00);
+            red_on = !red_on;
             status = Q_HANDLED();
         } break;
         case ENC_DOWN_SIG: {
@@ -586,7 +588,7 @@ QP::QState Txr::free_run_mode(Txr *const me, QP::QEvt const *const e)
             me->queue_radio_value(PACKET_SET_MODE, FREE_MODE);
 
             me->init_speed_percent(50);
-            
+
             status = Q_HANDLED();
         } break;
         case Q_EXIT_SIG: {

@@ -8,6 +8,8 @@
 #include "bsp.h"
 #include "version.h"
 
+#define HEARTBEAT_INTERVAL_MILLIS 2000
+
 bool _is_radio_available()
 {
     return !Mirf.isSending();
@@ -147,6 +149,7 @@ void radio_run(radio_state_t *state)
         }
         _send_radio_packet(out_packet);
     }
+
 }
 
 void radio_set_channel(int channel)
