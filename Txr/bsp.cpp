@@ -18,7 +18,6 @@
 #include "console.h"
 #include "serial_api.h"
 #include "settings.h"
-#include "static.h"
 
 
 Q_DEFINE_THIS_FILE
@@ -87,7 +86,8 @@ ISR(TIMER4_COMPA_vect) {
     // Check position buttons
     button_state = PBUTTONS();
     if (button_state != prev_position_state_) {
-        // only look at buttons that have changed to the on state (might have pressed two at once)
+        // only look at buttons that have changed to the on state (might have
+        // pressed two at once)
         int tempState = button_state ^ prev_position_state_;
         tempState &= button_state;
         prev_position_state_ = button_state;
@@ -107,8 +107,8 @@ ISR(TIMER4_COMPA_vect) {
         }
     }
 
-    console_run(get_console_state());
-    radio_run(get_radio_state());
+    console_run();
+    radio_run();
 }
 
 //............................................................................
@@ -131,11 +131,10 @@ void BSP_init(void)
 
     // init Console
     Serial.begin(57600);
-    get_console_state()->serial_state = get_serial_api_state();
-    get_radio_state()->serial_state = get_serial_api_state();
-    get_serial_api_state()->radio_state = get_radio_state();
 
-    radio_init(get_radio_state());
+    settings_init();
+
+    radio_init();
 
     // todo: not sure why this is here, but I tried taking it out once
     // and the program crashed
@@ -158,9 +157,9 @@ void QF::onStartup(void)
     TCCR4A = (1 << WGM41) | (0 << WGM40);
     TCCR4B = (1 << CS42) | (1 << CS41) | (1 << CS40); // 1/2^10
     //ASSR &= ~(1 << AS2);
-    TIMSK4 = (1 << OCIE4A);                           // Enable TIMER2 compare Interrupt
+    TIMSK4 = (1 << OCIE4A);   // Enable TIMER2 compare Interrupt
     TCNT4 = 0;
-    OCR4A = TICK_DIVIDER;                             // must be loaded last for Atmega168 and friends
+    OCR4A = TICK_DIVIDER;     // must be loaded last for Atmega168 and friends
 }
 
 //............................................................................
@@ -267,7 +266,14 @@ int BSP_serial_write(char* buffer, int length)
 
 void BSP_assert(bool condition)
 {
-    Q_ASSERT(condition);
+    if (!condition)
+    {
+        QF_INT_DISABLE();                                // disable all interrupts
+        AMBER_LED_ON();                                  // GREEN LED permanently ON
+        // AMBER_LED_ON();
+        // AMBER2_LED_ON();
+        asm volatile ("jmp 0x0000"); 
+    }
 }
 
 unsigned long BSP_millis()

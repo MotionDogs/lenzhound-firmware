@@ -1,53 +1,17 @@
 !_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
 !_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
 !_TAG_PROGRAM_VERSION	5.8	//
-console_run	Console.cpp	/^void console_run(console_state_t *state)$/;"	f
-console_h	Console.h	2;"	d
-console_state_t	Console.h	/^struct console_state_t {$/;"	s
-serial_state	Console.h	/^    serial_api_state_t* serial_state;$/;"	m	struct:console_state_t
 !_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
-ENC_CNTS_TO_VEL_PERCENT	EncVelManager.cpp	15;"	d	file:
-GetVelocityPercent	EncVelManager.cpp	/^int EncVelManager::GetVelocityPercent()$/;"	f	class:EncVelManager
-Init	EncVelManager.cpp	/^void EncVelManager::Init(int startPercentage)$/;"	f	class:EncVelManager
-MAX_VELOCITY	EncVelManager.cpp	11;"	d	file:
-MID_VELOCITY	EncVelManager.cpp	12;"	d	file:
-MIN_VELOCITY	EncVelManager.cpp	13;"	d	file:
-SetAllLEDsOff	EncVelManager.cpp	/^void EncVelManager::SetAllLEDsOff()$/;"	f	class:EncVelManager
-SetLEDs	EncVelManager.cpp	/^void EncVelManager::SetLEDs(char force)$/;"	f	class:EncVelManager
-EncVelManager	EncVelManager.h	/^class EncVelManager$/;"	c
-_ENCVELMANAGER_h	EncVelManager.h	3;"	d
-mPrevEncPos	EncVelManager.h	/^  long mPrevEncPos;$/;"	m	class:EncVelManager
-mPrevVelocityPercent	EncVelManager.h	/^  int mPrevVelocityPercent;$/;"	m	class:EncVelManager
-mVelocityPercent	EncVelManager.h	/^  int mVelocityPercent;$/;"	m	class:EncVelManager
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
-CAL_POS_1_LOC	Settings.h	9;"	d
-CAL_POS_2_LOC	Settings.h	10;"	d
-CHANNEL_LOC	Settings.h	7;"	d
-DATA_RATE_LOC	Settings.h	8;"	d
-SAVED_POS_ARR_LOC	Settings.h	11;"	d
-START_IN_CAL_LOC	Settings.h	12;"	d
-get_int_16	Settings.h	/^inline int get_int_16(int loc) {$/;"	f
-set_int_16	Settings.h	/^inline void set_int_16(int loc, int val)$/;"	f
-settings_get_calibration_position_1	Settings.h	/^inline int settings_get_calibration_position_1()$/;"	f
-settings_get_calibration_position_2	Settings.h	/^inline int settings_get_calibration_position_2()$/;"	f
-settings_get_channel	Settings.h	/^inline int settings_get_channel()$/;"	f
-settings_get_saved_position	Settings.h	/^inline int settings_get_saved_position(int index)$/;"	f
-settings_get_start_in_calibration_mode	Settings.h	/^inline bool settings_get_start_in_calibration_mode()$/;"	f
-settings_h	Settings.h	2;"	d
-settings_set_calibration_position_1	Settings.h	/^inline void settings_set_calibration_position_1(int val)$/;"	f
-settings_set_calibration_position_2	Settings.h	/^inline void settings_set_calibration_position_2(int val)$/;"	f
-settings_set_channel	Settings.h	/^inline void settings_set_channel(int val)$/;"	f
-settings_set_saved_position	Settings.h	/^inline void settings_set_saved_position(int index, int val)$/;"	f
-settings_set_start_in_calibration_mode	Settings.h	/^inline void settings_set_start_in_calibration_mode(bool val)$/;"	f
 ALIVE_SIG	Txr.h	/^    ALIVE_SIG,$/;"	e	enum:PelicanSignals
 ButtonNum	Txr.h	/^  char ButtonNum;$/;"	m	struct:PositionButtonEvt
 CALIBRATION_SIG	Txr.h	/^    CALIBRATION_SIG$/;"	e	enum:PelicanSignals
 ENC_DOWN_SIG	Txr.h	/^    ENC_DOWN_SIG = Q_USER_SIG,$/;"	e	enum:PelicanSignals
 ENC_UP_SIG	Txr.h	/^    ENC_UP_SIG,$/;"	e	enum:PelicanSignals
 FLASH_RATE_SIG	Txr.h	/^    FLASH_RATE_SIG,$/;"	e	enum:PelicanSignals
-FREE_MODE_SIG	Txr.h	/^    FREE_MODE_SIG,$/;"	e	enum:PelicanSignals
+FREE_RUN_MODE_SIG	Txr.h	/^    FREE_RUN_MODE_SIG,$/;"	e	enum:PelicanSignals
 MAX_PUB_SIG	Txr.h	/^    MAX_PUB_SIG,  \/\/ the last published signal$/;"	e	enum:PelicanSignals
-PLAY_MODE_SIG	Txr.h	/^    PLAY_MODE_SIG,$/;"	e	enum:PelicanSignals
+PLAY_BACK_MODE_SIG	Txr.h	/^    PLAY_BACK_MODE_SIG,$/;"	e	enum:PelicanSignals
 POSITION_BUTTON_SIG	Txr.h	/^    POSITION_BUTTON_SIG,$/;"	e	enum:PelicanSignals
 PelicanSignals	Txr.h	/^enum PelicanSignals {$/;"	g
 PositionButtonEvt	Txr.h	/^struct PositionButtonEvt : public QP::QEvt$/;"	s
@@ -55,68 +19,85 @@ SEND_TIMEOUT_SIG	Txr.h	/^    SEND_TIMEOUT_SIG,$/;"	e	enum:PelicanSignals
 Txr_h	Txr.h	12;"	d
 UPDATE_PARAMS_SIG	Txr.h	/^    UPDATE_PARAMS_SIG,$/;"	e	enum:PelicanSignals
 Z_MODE_SIG	Txr.h	/^    Z_MODE_SIG,$/;"	e	enum:PelicanSignals
-ALIVE_DURATION_TOUT	ao_Txr.cpp	/^    ALIVE_DURATION_TOUT = BSP_TICKS_PER_SEC * 5     \/\/ how often to check that transmitter is still powered (in case of low battery)$/;"	e	enum:TxrTimeouts	file:
+ALIVE_DURATION_TOUT	ao_Txr.cpp	/^    ALIVE_DURATION_TOUT = BSP_TICKS_PER_SEC * 5$/;"	e	enum:TxrTimeouts	file:
 AO_Txr	ao_Txr.cpp	/^QActive *const AO_Txr = &l_Txr;     \/\/ the global opaque pointer$/;"	v
-ENTER_CALIBRATION_TOUT	ao_Txr.cpp	/^    ENTER_CALIBRATION_TOUT = BSP_TICKS_PER_SEC * 2, \/\/ how long to hold calibration button before reentering calibration$/;"	e	enum:TxrTimeouts	file:
-FLASH_DURATION_TOUT	ao_Txr.cpp	/^    FLASH_DURATION_TOUT = BSP_TICKS_PER_SEC * 2,    \/\/ how long to flash LED for$/;"	e	enum:TxrTimeouts	file:
-FLASH_RATE_TOUT	ao_Txr.cpp	/^    FLASH_RATE_TOUT = BSP_TICKS_PER_SEC \/ 2,        \/\/ how quick to flash LED$/;"	e	enum:TxrTimeouts	file:
-LogValue	ao_Txr.cpp	/^void Txr::LogValue(char key, long value)$/;"	f	class:Txr
-QueueRadioValue	ao_Txr.cpp	/^void Txr::QueueRadioValue(char type, long value)$/;"	f	class:Txr
-SEND_ENCODER_TOUT	ao_Txr.cpp	/^    SEND_ENCODER_TOUT  = BSP_TICKS_PER_SEC \/ 100,   \/\/ how often to send encoder position$/;"	e	enum:TxrTimeouts	file:
-Txr	ao_Txr.cpp	/^Txr() :$/;"	f	class:Txr
-Txr	ao_Txr.cpp	/^class Txr :$/;"	c	file:
+ENCODER_COUNTS_PER_SPEED_PERCENT	ao_Txr.cpp	28;"	d	file:
+ENTER_CALIBRATION_TOUT	ao_Txr.cpp	/^    ENTER_CALIBRATION_TOUT = BSP_TICKS_PER_SEC \/ 2,$/;"	e	enum:TxrTimeouts	file:
+FLASH_DURATION_TOUT	ao_Txr.cpp	/^    FLASH_DURATION_TOUT = BSP_TICKS_PER_SEC \/ 4,$/;"	e	enum:TxrTimeouts	file:
+FLASH_RATE_TOUT	ao_Txr.cpp	/^    FLASH_RATE_TOUT = BSP_TICKS_PER_SEC \/ 16,$/;"	e	enum:TxrTimeouts	file:
+LED_OFF	ao_Txr.cpp	/^    LED_OFF,$/;"	e	enum:__anon4	file:
+LED_ON	ao_Txr.cpp	/^    LED_ON,$/;"	e	enum:__anon4	file:
+LED_TOGGLE	ao_Txr.cpp	/^    LED_TOGGLE$/;"	e	enum:__anon4	file:
+MAP_LED	ao_Txr.cpp	230;"	d	file:
+MAP_LED	ao_Txr.cpp	240;"	d	file:
+MAX_VELOCITY	ao_Txr.cpp	24;"	d	file:
+MID_VELOCITY	ao_Txr.cpp	25;"	d	file:
+MIN_VELOCITY	ao_Txr.cpp	26;"	d	file:
+SEND_ENCODER_TOUT	ao_Txr.cpp	/^    SEND_ENCODER_TOUT  = BSP_TICKS_PER_SEC \/ 100,$/;"	e	enum:TxrTimeouts	file:
+SPEED_PERCENT_SLOP	ao_Txr.cpp	29;"	d	file:
+Txr	ao_Txr.cpp	/^    Txr() :$/;"	f	class:Txr
+Txr	ao_Txr.cpp	/^class Txr : public QP::QActive {$/;"	c	file:
 TxrTimeouts	ao_Txr.cpp	/^enum TxrTimeouts {$/;"	g	file:
-UpdateCalibrationMultiplier	ao_Txr.cpp	/^void Txr::UpdateCalibrationMultiplier(int setting)$/;"	f	class:Txr
-UpdatePosition	ao_Txr.cpp	/^void Txr::UpdatePosition(Txr *const me)$/;"	f	class:Txr
-UpdatePositionCalibration	ao_Txr.cpp	/^void Txr::UpdatePositionCalibration(Txr *const me)$/;"	f	class:Txr
-UpdatePositionPlayBack	ao_Txr.cpp	/^void Txr::UpdatePositionPlayBack(Txr *const me)$/;"	f	class:Txr
-UpdatePositionZMode	ao_Txr.cpp	/^void Txr::UpdatePositionZMode(Txr *const me)$/;"	f	class:Txr
+alive_timeout_	ao_Txr.cpp	/^    QTimeEvt alive_timeout_;$/;"	m	class:Txr	file:
 calibrated	ao_Txr.cpp	/^QP::QState Txr::calibrated(Txr *const me, QP::QEvt const *const e)$/;"	f	class:Txr
+calibration_multiplier_	ao_Txr.cpp	/^    char calibration_multiplier_;$/;"	m	class:Txr	file:
+calibration_pos_1_	ao_Txr.cpp	/^    long calibration_pos_1_;$/;"	m	class:Txr	file:
+calibration_pos_2_	ao_Txr.cpp	/^    long calibration_pos_2_;$/;"	m	class:Txr	file:
+calibration_timeout_	ao_Txr.cpp	/^    QTimeEvt calibration_timeout_;$/;"	m	class:Txr	file:
+clamp	ao_Txr.cpp	/^long clamp(long x, long min, long max)$/;"	f
+cur_pos_	ao_Txr.cpp	/^    float cur_pos_;    \/\/ float to save partial moves needed by encoder resolution division$/;"	m	class:Txr	file:
+distance	ao_Txr.cpp	/^long distance(long a, long b)$/;"	f
+enc_pushes_	ao_Txr.cpp	/^    char enc_pushes_;$/;"	m	class:Txr	file:
+encoder_base_	ao_Txr.cpp	/^    long encoder_base_;$/;"	m	class:Txr	file:
+flash_timeout_	ao_Txr.cpp	/^    QTimeEvt flash_timeout_;$/;"	m	class:Txr	file:
 flashing	ao_Txr.cpp	/^QP::QState Txr::flashing(Txr *const me, QP::QEvt const *const e)$/;"	f	class:Txr
-freeRun	ao_Txr.cpp	/^QP::QState Txr::freeRun(Txr *const me, QP::QEvt const *const e)$/;"	f	class:Txr
+free_run_mode	ao_Txr.cpp	/^QP::QState Txr::free_run_mode(Txr *const me, QP::QEvt const *const e)$/;"	f	class:Txr
+get_speed_percent	ao_Txr.cpp	/^int Txr::get_speed_percent()$/;"	f	class:Txr
+init_speed_percent	ao_Txr.cpp	/^void Txr::init_speed_percent(int start_percentage)$/;"	f	class:Txr
 initial	ao_Txr.cpp	/^QP::QState Txr::initial(Txr *const me, QP::QEvt const *const e)$/;"	f	class:Txr
 l_Txr	ao_Txr.cpp	/^static Txr l_Txr;                   \/\/ the single instance of Txr active object (local)$/;"	v	file:
-mAliveTimeout	ao_Txr.cpp	/^QTimeEvt mAliveTimeout;$/;"	m	class:Txr	file:
-mCalibrationMultiplier	ao_Txr.cpp	/^char mCalibrationMultiplier;$/;"	m	class:Txr	file:
-mCalibrationPos1	ao_Txr.cpp	/^long mCalibrationPos1;$/;"	m	class:Txr	file:
-mCalibrationPos2	ao_Txr.cpp	/^long mCalibrationPos2;$/;"	m	class:Txr	file:
-mCalibrationTimeout	ao_Txr.cpp	/^QTimeEvt mCalibrationTimeout;$/;"	m	class:Txr	file:
-mCurPos	ao_Txr.cpp	/^float mCurPos;    \/\/ float to save partial moves needed by encoder resolution division$/;"	m	class:Txr	file:
-mEncPushes	ao_Txr.cpp	/^char mEncPushes;$/;"	m	class:Txr	file:
-mFlashTimeout	ao_Txr.cpp	/^QTimeEvt mFlashTimeout;$/;"	m	class:Txr	file:
-mPrevEncoderCnt	ao_Txr.cpp	/^long mPrevEncoderCnt;$/;"	m	class:Txr	file:
-mPrevPos1	ao_Txr.cpp	/^long mPrevPos1;   \/\/ used to prevent jitter$/;"	m	class:Txr	file:
-mPrevPos2	ao_Txr.cpp	/^long mPrevPos2;   \/\/ used to prevent jitter$/;"	m	class:Txr	file:
-mPrevPositionButtonPressed	ao_Txr.cpp	/^unsigned char mPrevPositionButtonPressed;$/;"	m	class:Txr	file:
-mSavedPositions	ao_Txr.cpp	/^long mSavedPositions[NUM_POSITION_BUTTONS];$/;"	m	class:Txr	file:
-mSendTimeout	ao_Txr.cpp	/^QTimeEvt mSendTimeout;$/;"	m	class:Txr	file:
-mVelocityManager	ao_Txr.cpp	/^EncVelManager mVelocityManager;$/;"	m	class:Txr	file:
-mZModeSavedAcceleration	ao_Txr.cpp	/^char mZModeSavedAcceleration;$/;"	m	class:Txr	file:
-mZModeSavedVelocity	ao_Txr.cpp	/^char mZModeSavedVelocity;$/;"	m	class:Txr	file:
+log_value	ao_Txr.cpp	/^void Txr::log_value(char key, long value)$/;"	f	class:Txr
 map	ao_Txr.cpp	/^long map(long x, long in_min, long in_max, long out_min, long out_max)$/;"	f
 on	ao_Txr.cpp	/^QP::QState Txr::on(Txr *const me, QP::QEvt const *const e)$/;"	f	class:Txr
-playBack	ao_Txr.cpp	/^QP::QState Txr::playBack(Txr *const me, QP::QEvt const *const e)$/;"	f	class:Txr
+play_back_mode	ao_Txr.cpp	/^QP::QState Txr::play_back_mode(Txr *const me, QP::QEvt const *const e)$/;"	f	class:Txr
+prev_encoder_count_	ao_Txr.cpp	/^    long prev_encoder_count_;$/;"	m	class:Txr	file:
+prev_pos_1_	ao_Txr.cpp	/^    long prev_pos_1_;   \/\/ used to prevent jitter$/;"	m	class:Txr	file:
+prev_pos_2_	ao_Txr.cpp	/^    long prev_pos_2_;   \/\/ used to prevent jitter$/;"	m	class:Txr	file:
+prev_position_button_pressed_	ao_Txr.cpp	/^    unsigned char prev_position_button_pressed_;$/;"	m	class:Txr	file:
+queue_radio_value	ao_Txr.cpp	/^void Txr::queue_radio_value(char type, long value)$/;"	f	class:Txr
+radio_state_	ao_Txr.cpp	/^    radio_state_t* radio_state_;$/;"	m	class:Txr	file:
+saved_positions_	ao_Txr.cpp	/^    long saved_positions_[NUM_POSITION_BUTTONS];$/;"	m	class:Txr	file:
+send_timeout_	ao_Txr.cpp	/^    QTimeEvt send_timeout_;$/;"	m	class:Txr	file:
+serial_api_state_	ao_Txr.cpp	/^    serial_api_state_t* serial_api_state_;$/;"	m	class:Txr	file:
+set_LED_status	ao_Txr.cpp	/^void Txr::set_LED_status(int led, int status)$/;"	f	class:Txr
+set_speed_LEDs_off	ao_Txr.cpp	/^void Txr::set_speed_LEDs_off()$/;"	f	class:Txr
 uncalibrated	ao_Txr.cpp	/^QP::QState Txr::uncalibrated(Txr *const me, QP::QEvt const *const e)$/;"	f	class:Txr
-zmode	ao_Txr.cpp	/^QP::QState Txr::zmode(Txr *const me, QP::QEvt const *const e)$/;"	f	class:Txr
+update_calibration_multiplier	ao_Txr.cpp	/^void Txr::update_calibration_multiplier(int setting)$/;"	f	class:Txr
+update_position_calibration	ao_Txr.cpp	/^void Txr::update_position_calibration()$/;"	f	class:Txr
+update_position_freerun	ao_Txr.cpp	/^void Txr::update_position_freerun()$/;"	f	class:Txr
+update_position_playback	ao_Txr.cpp	/^void Txr::update_position_playback()$/;"	f	class:Txr
+update_position_z_mode	ao_Txr.cpp	/^void Txr::update_position_z_mode()$/;"	f	class:Txr
+update_speed_LEDs	ao_Txr.cpp	/^void Txr::update_speed_LEDs(int speed_percent)$/;"	f	class:Txr
+z_mode	ao_Txr.cpp	/^QP::QState Txr::z_mode(Txr *const me, QP::QEvt const *const e)$/;"	f	class:Txr
+z_mode_saved_acceleration_	ao_Txr.cpp	/^    char z_mode_saved_acceleration_;$/;"	m	class:Txr	file:
+z_mode_saved_velocity_	ao_Txr.cpp	/^    char z_mode_saved_velocity_;$/;"	m	class:Txr	file:
 BSP_assert	bsp.cpp	/^void BSP_assert(bool condition)$/;"	f
 BSP_get_encoder	bsp.cpp	/^long BSP_get_encoder()$/;"	f
 BSP_get_mode	bsp.cpp	/^int BSP_get_mode()$/;"	f
 BSP_get_pot	bsp.cpp	/^int BSP_get_pot()$/;"	f
 BSP_init	bsp.cpp	/^void BSP_init(void)$/;"	f
+BSP_millis	bsp.cpp	/^unsigned long BSP_millis()$/;"	f
 BSP_serial_available	bsp.cpp	/^bool BSP_serial_available()$/;"	f
 BSP_serial_read	bsp.cpp	/^char BSP_serial_read()$/;"	f
+BSP_serial_write	bsp.cpp	/^int BSP_serial_write(char* buffer, int length)$/;"	f
 BSP_turn_off_speed_LED	bsp.cpp	/^void BSP_turn_off_speed_LED(char num)$/;"	f
 BSP_turn_on_speed_LED	bsp.cpp	/^void BSP_turn_on_speed_LED(char num)$/;"	f
-BSP_write_serial	bsp.cpp	/^int BSP_write_serial(char* buffer, int length)$/;"	f
 ISR	bsp.cpp	/^ISR(TIMER4_COMPA_vect) {$/;"	f
 PALEVEL_0	bsp.cpp	53;"	d	file:
 PALEVEL_12	bsp.cpp	51;"	d	file:
 PALEVEL_18	bsp.cpp	50;"	d	file:
 PALEVEL_6	bsp.cpp	52;"	d	file:
 PALEVEL_MASK	bsp.cpp	49;"	d	file:
-PrevButtonState	bsp.cpp	/^static int PrevButtonState = 0;$/;"	v	file:
-PrevModeState	bsp.cpp	/^static int PrevModeState = -1;    \/\/ force signal on startup with -1$/;"	v	file:
-PrevPositionState	bsp.cpp	/^static int PrevPositionState = 0; \/\/ position buttons$/;"	v	file:
 Q_onAssert	bsp.cpp	/^void Q_onAssert(char const Q_ROM *const Q_ROM_VAR file, int line)$/;"	f
 RATE_1MB	bsp.cpp	47;"	d	file:
 RATE_250KB	bsp.cpp	46;"	d	file:
@@ -127,53 +108,59 @@ l_TIMER2_COMPA	bsp.cpp	/^uint8_t l_TIMER2_COMPA;$/;"	v
 onCleanup	bsp.cpp	/^void QF::onCleanup(void)$/;"	f	class:QF
 onIdle	bsp.cpp	/^void QF::onIdle()$/;"	f	class:QF
 onStartup	bsp.cpp	/^void QF::onStartup(void)$/;"	f	class:QF
-AMBER2_LED_OFF	bsp.h	50;"	d
-AMBER2_LED_ON	bsp.h	49;"	d
-AMBER2_LED_TOGGLE	bsp.h	51;"	d
-AMBER_LED_OFF	bsp.h	53;"	d
-AMBER_LED_ON	bsp.h	52;"	d
-AMBER_LED_TOGGLE	bsp.h	54;"	d
-BSP_TICKS_PER_SEC	bsp.h	83;"	d
-CALBUTTON_ON	bsp.h	70;"	d
-ENC_GREEN_LED	bsp.h	37;"	d
-ENC_GREEN_LED_OFF	bsp.h	59;"	d
-ENC_GREEN_LED_ON	bsp.h	58;"	d
-ENC_GREEN_LED_TOGGLE	bsp.h	60;"	d
-ENC_RED_LED	bsp.h	36;"	d
-ENC_RED_LED_OFF	bsp.h	62;"	d
-ENC_RED_LED_ON	bsp.h	61;"	d
-FREESWITCH_ON	bsp.h	72;"	d
+prev_button_state_	bsp.cpp	/^static int prev_button_state_ = 0;$/;"	v	file:
+prev_mode_state_	bsp.cpp	/^static int prev_mode_state_ = -1;    \/\/ force signal on startup with -1$/;"	v	file:
+prev_position_state_	bsp.cpp	/^static int prev_position_state_ = 0; \/\/ position buttons$/;"	v	file:
+AMBER2_LED_OFF	bsp.h	52;"	d
+AMBER2_LED_ON	bsp.h	51;"	d
+AMBER2_LED_TOGGLE	bsp.h	53;"	d
+AMBER_LED_OFF	bsp.h	55;"	d
+AMBER_LED_ON	bsp.h	54;"	d
+AMBER_LED_TOGGLE	bsp.h	56;"	d
+BSP_TICKS_PER_SEC	bsp.h	86;"	d
+CALBUTTON_ON	bsp.h	73;"	d
+ENC_GREEN_LED	bsp.h	39;"	d
+ENC_GREEN_LED_OFF	bsp.h	61;"	d
+ENC_GREEN_LED_ON	bsp.h	60;"	d
+ENC_GREEN_LED_TOGGLE	bsp.h	62;"	d
+ENC_RED_LED	bsp.h	38;"	d
+ENC_RED_LED_OFF	bsp.h	64;"	d
+ENC_RED_LED_ON	bsp.h	63;"	d
+ENC_RED_LED_TOGGLE	bsp.h	65;"	d
+FREESWITCH_ON	bsp.h	75;"	d
 FREE_MODE	bsp.h	/^  FREE_MODE,$/;"	e	enum:__anon1
 FREE_SW	bsp.h	23;"	d
-GREEN2_LED_OFF	bsp.h	44;"	d
-GREEN2_LED_ON	bsp.h	43;"	d
-GREEN2_LED_TOGGLE	bsp.h	45;"	d
-GREEN_LED	bsp.h	35;"	d
-GREEN_LED_OFF	bsp.h	41;"	d
-GREEN_LED_ON	bsp.h	40;"	d
-GREEN_LED_TOGGLE	bsp.h	42;"	d
+GREEN2_LED_OFF	bsp.h	46;"	d
+GREEN2_LED_ON	bsp.h	45;"	d
+GREEN2_LED_TOGGLE	bsp.h	47;"	d
+GREEN_LED	bsp.h	37;"	d
+GREEN_LED_OFF	bsp.h	43;"	d
+GREEN_LED_ON	bsp.h	42;"	d
+GREEN_LED_TOGGLE	bsp.h	44;"	d
 MAX_POT_VAL	bsp.h	17;"	d
 MIN_POT_VAL	bsp.h	18;"	d
-MODE_SWITCHES	bsp.h	73;"	d
+MODE_SWITCHES	bsp.h	76;"	d
 NUM_POSITION_BUTTONS	bsp.h	19;"	d
-PBUTTON1_ON	bsp.h	65;"	d
-PBUTTON2_ON	bsp.h	66;"	d
-PBUTTON3_ON	bsp.h	67;"	d
-PBUTTON4_ON	bsp.h	68;"	d
-PBUTTONS	bsp.h	69;"	d
+PBUTTON1_ON	bsp.h	68;"	d
+PBUTTON2_ON	bsp.h	69;"	d
+PBUTTON3_ON	bsp.h	70;"	d
+PBUTTON4_ON	bsp.h	71;"	d
+PBUTTONS	bsp.h	72;"	d
 PLAYBACK_MODE	bsp.h	/^  PLAYBACK_MODE,$/;"	e	enum:__anon1
-RED_LED_OFF	bsp.h	56;"	d
-RED_LED_ON	bsp.h	55;"	d
-RED_LED_TOGGLE	bsp.h	57;"	d
+RED_LED_OFF	bsp.h	58;"	d
+RED_LED_ON	bsp.h	57;"	d
+RED_LED_TOGGLE	bsp.h	59;"	d
 SPEED_LED1	bsp.h	31;"	d
 SPEED_LED2	bsp.h	32;"	d
-SPEED_LED3	bsp.h	33;"	d
-SPEED_LED4	bsp.h	34;"	d
-WHITE_LED_OFF	bsp.h	47;"	d
-WHITE_LED_ON	bsp.h	46;"	d
-WHITE_LED_TOGGLE	bsp.h	48;"	d
+SPEED_LED3_1	bsp.h	33;"	d
+SPEED_LED3_2	bsp.h	34;"	d
+SPEED_LED4	bsp.h	35;"	d
+SPEED_LED5	bsp.h	36;"	d
+WHITE_LED_OFF	bsp.h	49;"	d
+WHITE_LED_ON	bsp.h	48;"	d
+WHITE_LED_TOGGLE	bsp.h	50;"	d
 ZMODE_SW	bsp.h	22;"	d
-ZSWITCH_ON	bsp.h	71;"	d
+ZSWITCH_ON	bsp.h	74;"	d
 Z_MODE	bsp.h	/^  Z_MODE$/;"	e	enum:__anon1
 bsp_h	bsp.h	13;"	d
 cBUTTON	bsp.h	24;"	d
@@ -181,25 +168,32 @@ p1BUTTON	bsp.h	25;"	d
 p2BUTTON	bsp.h	26;"	d
 p3BUTTON	bsp.h	27;"	d
 p4BUTTON	bsp.h	28;"	d
-IsAddrOK	eepromImpl.cpp	/^char eeprom::IsAddrOK(int addr) {$/;"	f	class:eeprom
-ReadBytes	eepromImpl.cpp	/^char eeprom::ReadBytes(int startAddr, char array[], int numBytes) {$/;"	f	class:eeprom
-ReadChar	eepromImpl.cpp	/^char eeprom::ReadChar(int addr, char* value) {$/;"	f	class:eeprom
-ReadInt16	eepromImpl.cpp	/^char eeprom::ReadInt16(int addr, int* value) {$/;"	f	class:eeprom
-ReadInt32	eepromImpl.cpp	/^char eeprom::ReadInt32(int addr, long* value) {$/;"	f	class:eeprom
-WriteBytes	eepromImpl.cpp	/^char eeprom::WriteBytes(int startAddr, const char* array, int numBytes) {$/;"	f	class:eeprom
-WriteChar	eepromImpl.cpp	/^char eeprom::WriteChar(int addr, char value) {$/;"	f	class:eeprom
-WriteInt16	eepromImpl.cpp	/^char eeprom::WriteInt16(int addr, int value) {$/;"	f	class:eeprom
-WriteInt32	eepromImpl.cpp	/^char eeprom::WriteInt32(int addr, long value) {$/;"	f	class:eeprom
-EEPROM_MAX_ADDR	eepromImpl.h	/^  static const int EEPROM_MAX_ADDR = 1023;$/;"	m	class:eeprom
-EEPROM_MIN_ADDR	eepromImpl.h	/^  static const int EEPROM_MIN_ADDR = 0;$/;"	m	class:eeprom
-eeprom	eepromImpl.h	/^class eeprom$/;"	c
-eepromImpl_h	eepromImpl.h	3;"	d
+console_run	console.cpp	/^void console_run(console_state_t *state)$/;"	f
+console_h	console.h	2;"	d
+console_state_t	console.h	/^struct console_state_t {$/;"	s
+failing_to_write	console.h	/^    int failing_to_write;$/;"	m	struct:console_state_t
+serial_state	console.h	/^    serial_api_state_t* serial_state;$/;"	m	struct:console_state_t
+_eeprom_read_bytes	eeprom_helpers.cpp	/^void _eeprom_read_bytes(int start, char* buffer, int count)$/;"	f
+_eeprom_write_bytes	eeprom_helpers.cpp	/^void _eeprom_write_bytes(int start, char* buffer, int count)$/;"	f
+eeprom_read_char	eeprom_helpers.cpp	/^char eeprom_read_char(int addr)$/;"	f
+eeprom_read_int16	eeprom_helpers.cpp	/^int eeprom_read_int16(int addr)$/;"	f
+eeprom_read_int32	eeprom_helpers.cpp	/^long eeprom_read_int32(int addr)$/;"	f
+eeprom_read_uint16	eeprom_helpers.cpp	/^unsigned int eeprom_read_uint16(int addr)$/;"	f
+eeprom_read_uint32	eeprom_helpers.cpp	/^unsigned long eeprom_read_uint32(int addr)$/;"	f
+eeprom_write_char	eeprom_helpers.cpp	/^void eeprom_write_char(int addr, char value)$/;"	f
+eeprom_write_int16	eeprom_helpers.cpp	/^void eeprom_write_int16(int addr, int value)$/;"	f
+eeprom_write_int32	eeprom_helpers.cpp	/^void eeprom_write_int32(int addr, long value)$/;"	f
+eeprom_write_uint16	eeprom_helpers.cpp	/^void eeprom_write_uint16(int addr, unsigned int value)$/;"	f
+eeprom_write_uint32	eeprom_helpers.cpp	/^void eeprom_write_uint32(int addr, unsigned long value)$/;"	f
+eeprom_helpers_h	eeprom_helpers.h	3;"	d
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+HEARTBEAT_INTERVAL_MILLIS	radio.cpp	11;"	d	file:
 _get_radio_packet	radio.cpp	/^bool _get_radio_packet(void *buffer)$/;"	f
 _is_radio_available	radio.cpp	/^bool _is_radio_available()$/;"	f
 _process_packet	radio.cpp	/^void _process_packet(radio_state_t *state, radio_packet_t packet)$/;"	f
 _queue_print_val	radio.cpp	/^void _queue_print_val(radio_state_t *state, char type, long val)$/;"	f
 _send_radio_packet	radio.cpp	/^void _send_radio_packet(void *buffer)$/;"	f
+_send_value	radio.cpp	/^void _send_value(radio_state_t* state, char type, int value)$/;"	f
 radio_init	radio.cpp	/^void radio_init(radio_state_t *state)$/;"	f
 radio_is_alive	radio.cpp	/^bool radio_is_alive()$/;"	f
 radio_queue_message	radio.cpp	/^void radio_queue_message(radio_state_t *state, radio_packet_t packet)$/;"	f
@@ -234,6 +228,8 @@ RECEIVE_ADDRESS	radio.h	9;"	d
 RF_DEFAULT	radio.h	7;"	d
 TRANSMIT_ADDRESS	radio.h	8;"	d
 buffer	radio.h	/^    radio_packet_t buffer[RADIO_OUT_BUFFER_SIZE];$/;"	m	struct:radio_state_t
+heartbeat_received_timestamp	radio.h	/^    long heartbeat_received_timestamp;$/;"	m	struct:radio_state_t
+heartbeat_sent_timestamp	radio.h	/^    long heartbeat_sent_timestamp;$/;"	m	struct:radio_state_t
 radio_h	radio.h	2;"	d
 radio_packet_t	radio.h	/^struct radio_packet_t {$/;"	s
 radio_state_t	radio.h	/^struct radio_state_t {$/;"	s
@@ -250,8 +246,10 @@ val	radio.h	/^    int val;$/;"	m	struct:typed_val_packet_t
 val	radio.h	/^    unsigned int val;$/;"	m	struct:typed_uval_packet_t
 write_index	radio.h	/^    int write_index;$/;"	m	struct:radio_state_t
 _parse_and_send_uval	serial_api.cpp	/^void _parse_and_send_uval(serial_api_state_t *state, char* in, char type)$/;"	f
+_parse_uval	serial_api.cpp	/^unsigned int _parse_uval(char* in) {$/;"	f
 _print_val	serial_api.cpp	/^void _print_val(serial_api_state_t *state, int source, char type, int val)$/;"	f
 _queue_radio_command	serial_api.cpp	/^void _queue_radio_command(serial_api_state_t *state, char type)$/;"	f
+_send_uval	serial_api.cpp	/^void _send_uval(serial_api_state_t *state, unsigned int val, char type)$/;"	f
 _serial_api_end	serial_api.cpp	/^inline void _serial_api_end(serial_api_state_t *state, int source,$/;"	f
 _serial_api_end_len	serial_api.cpp	/^inline void _serial_api_end_len(serial_api_state_t *state, int source,$/;"	f
 _serial_api_in	serial_api.cpp	/^inline char *_serial_api_in(serial_api_state_t *state, int source, int index)$/;"	f
@@ -268,37 +266,40 @@ serial_api_read_response	serial_api.cpp	/^serial_api_response_t serial_api_read_
 MALFORMED_COMMAND	serial_api.h	20;"	d
 MAX_INPUT_LENGTH_EXCEEDED	serial_api.h	18;"	d
 MAX_RESPONSE_LENGTH_EXCEEDED	serial_api.h	17;"	d
-SERIAL_API_CMD_ECHO	serial_api.h	/^    SERIAL_API_CMD_ECHO = 'e',$/;"	e	enum:__anon6
-SERIAL_API_CMD_GET_ACCEL	serial_api.h	/^    SERIAL_API_CMD_GET_ACCEL = 'a',$/;"	e	enum:__anon6
-SERIAL_API_CMD_GET_CHANNEL	serial_api.h	/^    SERIAL_API_CMD_GET_CHANNEL = 'c',$/;"	e	enum:__anon6
-SERIAL_API_CMD_GET_ENCODER	serial_api.h	/^    SERIAL_API_CMD_GET_ENCODER = 'e',$/;"	e	enum:__anon6
-SERIAL_API_CMD_GET_MAX_VELOCITY	serial_api.h	/^    SERIAL_API_CMD_GET_MAX_VELOCITY = 'm',$/;"	e	enum:__anon6
-SERIAL_API_CMD_GET_POT	serial_api.h	/^    SERIAL_API_CMD_GET_POT = 'p',$/;"	e	enum:__anon6
-SERIAL_API_CMD_GET_START_STATE	serial_api.h	/^    SERIAL_API_CMD_GET_START_STATE = 't',$/;"	e	enum:__anon6
-SERIAL_API_CMD_GET_Z_ACCEL	serial_api.h	/^    SERIAL_API_CMD_GET_Z_ACCEL = 'b',$/;"	e	enum:__anon6
-SERIAL_API_CMD_GET_Z_MAX_VELOCITY	serial_api.h	/^    SERIAL_API_CMD_GET_Z_MAX_VELOCITY = 'n',$/;"	e	enum:__anon6
-SERIAL_API_CMD_REMOTE_ROLE	serial_api.h	/^    SERIAL_API_CMD_REMOTE_ROLE = 's',$/;"	e	enum:__anon6
-SERIAL_API_CMD_REMOTE_VERSION	serial_api.h	/^    SERIAL_API_CMD_REMOTE_VERSION = 'w',$/;"	e	enum:__anon6
-SERIAL_API_CMD_ROLE	serial_api.h	/^    SERIAL_API_CMD_ROLE = 'r',$/;"	e	enum:__anon6
-SERIAL_API_CMD_SAVE_CONFIGS	serial_api.h	/^    SERIAL_API_CMD_SAVE_CONFIGS = 'u',$/;"	e	enum:__anon6
-SERIAL_API_CMD_SET_ACCEL	serial_api.h	/^    SERIAL_API_CMD_SET_ACCEL = 'A',$/;"	e	enum:__anon6
-SERIAL_API_CMD_SET_CHANNEL	serial_api.h	/^    SERIAL_API_CMD_SET_CHANNEL = 'C',$/;"	e	enum:__anon6
-SERIAL_API_CMD_SET_MAX_VELOCITY	serial_api.h	/^    SERIAL_API_CMD_SET_MAX_VELOCITY = 'M',$/;"	e	enum:__anon6
-SERIAL_API_CMD_SET_START_STATE	serial_api.h	/^    SERIAL_API_CMD_SET_START_STATE = 'T',$/;"	e	enum:__anon6
-SERIAL_API_CMD_SET_Z_ACCEL	serial_api.h	/^    SERIAL_API_CMD_SET_Z_ACCEL = 'B',$/;"	e	enum:__anon6
-SERIAL_API_CMD_SET_Z_MAX_VELOCITY	serial_api.h	/^    SERIAL_API_CMD_SET_Z_MAX_VELOCITY = 'N',$/;"	e	enum:__anon6
-SERIAL_API_CMD_VERSION	serial_api.h	/^    SERIAL_API_CMD_VERSION = 'v',$/;"	e	enum:__anon6
+SERIAL_API_CMD_ECHO	serial_api.h	/^    SERIAL_API_CMD_ECHO = 'h',$/;"	e	enum:__anon7
+SERIAL_API_CMD_GET_ACCEL	serial_api.h	/^    SERIAL_API_CMD_GET_ACCEL = 'a',$/;"	e	enum:__anon7
+SERIAL_API_CMD_GET_CHANNEL	serial_api.h	/^    SERIAL_API_CMD_GET_CHANNEL = 'c',$/;"	e	enum:__anon7
+SERIAL_API_CMD_GET_ENCODER	serial_api.h	/^    SERIAL_API_CMD_GET_ENCODER = 'e',$/;"	e	enum:__anon7
+SERIAL_API_CMD_GET_MAX_VELOCITY	serial_api.h	/^    SERIAL_API_CMD_GET_MAX_VELOCITY = 'm',$/;"	e	enum:__anon7
+SERIAL_API_CMD_GET_POT	serial_api.h	/^    SERIAL_API_CMD_GET_POT = 'p',$/;"	e	enum:__anon7
+SERIAL_API_CMD_GET_REMOTE_CHANNEL	serial_api.h	/^    SERIAL_API_CMD_GET_REMOTE_CHANNEL = 'd',$/;"	e	enum:__anon7
+SERIAL_API_CMD_GET_START_STATE	serial_api.h	/^    SERIAL_API_CMD_GET_START_STATE = 't',$/;"	e	enum:__anon7
+SERIAL_API_CMD_GET_Z_ACCEL	serial_api.h	/^    SERIAL_API_CMD_GET_Z_ACCEL = 'b',$/;"	e	enum:__anon7
+SERIAL_API_CMD_GET_Z_MAX_VELOCITY	serial_api.h	/^    SERIAL_API_CMD_GET_Z_MAX_VELOCITY = 'n',$/;"	e	enum:__anon7
+SERIAL_API_CMD_LEDS	serial_api.h	/^    SERIAL_API_CMD_LEDS = 'l',$/;"	e	enum:__anon7
+SERIAL_API_CMD_REMOTE_ROLE	serial_api.h	/^    SERIAL_API_CMD_REMOTE_ROLE = 's',$/;"	e	enum:__anon7
+SERIAL_API_CMD_REMOTE_VERSION	serial_api.h	/^    SERIAL_API_CMD_REMOTE_VERSION = 'w',$/;"	e	enum:__anon7
+SERIAL_API_CMD_ROLE	serial_api.h	/^    SERIAL_API_CMD_ROLE = 'r',$/;"	e	enum:__anon7
+SERIAL_API_CMD_SAVE_CONFIG	serial_api.h	/^    SERIAL_API_CMD_SAVE_CONFIG = 'u',$/;"	e	enum:__anon7
+SERIAL_API_CMD_SET_ACCEL	serial_api.h	/^    SERIAL_API_CMD_SET_ACCEL = 'A',$/;"	e	enum:__anon7
+SERIAL_API_CMD_SET_CHANNEL	serial_api.h	/^    SERIAL_API_CMD_SET_CHANNEL = 'C',$/;"	e	enum:__anon7
+SERIAL_API_CMD_SET_MAX_VELOCITY	serial_api.h	/^    SERIAL_API_CMD_SET_MAX_VELOCITY = 'M',$/;"	e	enum:__anon7
+SERIAL_API_CMD_SET_REMOTE_CHANNEL	serial_api.h	/^    SERIAL_API_CMD_SET_REMOTE_CHANNEL = 'D',$/;"	e	enum:__anon7
+SERIAL_API_CMD_SET_START_STATE	serial_api.h	/^    SERIAL_API_CMD_SET_START_STATE = 'T',$/;"	e	enum:__anon7
+SERIAL_API_CMD_SET_Z_ACCEL	serial_api.h	/^    SERIAL_API_CMD_SET_Z_ACCEL = 'B',$/;"	e	enum:__anon7
+SERIAL_API_CMD_SET_Z_MAX_VELOCITY	serial_api.h	/^    SERIAL_API_CMD_SET_Z_MAX_VELOCITY = 'N',$/;"	e	enum:__anon7
+SERIAL_API_CMD_VERSION	serial_api.h	/^    SERIAL_API_CMD_VERSION = 'v',$/;"	e	enum:__anon7
 SERIAL_API_END_OF_COMMAND	serial_api.h	/^const char SERIAL_API_END_OF_COMMAND = '\\n';$/;"	v
 SERIAL_API_END_OF_RESPONSE	serial_api.h	/^const char SERIAL_API_END_OF_RESPONSE = '\\n';$/;"	v
 SERIAL_API_ESCAPE	serial_api.h	/^const char SERIAL_API_ESCAPE = '\\\\';$/;"	v
 SERIAL_API_H	serial_api.h	2;"	d
 SERIAL_API_IN_BUFFER_SIZE	serial_api.h	/^const int SERIAL_API_IN_BUFFER_SIZE = 128;$/;"	v
 SERIAL_API_OUT_BUFFER_SIZE	serial_api.h	/^const int SERIAL_API_OUT_BUFFER_SIZE = 128;$/;"	v
-SERIAL_API_SRC_CONSOLE	serial_api.h	/^    SERIAL_API_SRC_CONSOLE,$/;"	e	enum:__anon5
-SERIAL_API_SRC_COUNT	serial_api.h	/^    SERIAL_API_SRC_COUNT,$/;"	e	enum:__anon5
+SERIAL_API_SRC_CONSOLE	serial_api.h	/^    SERIAL_API_SRC_CONSOLE,$/;"	e	enum:__anon6
+SERIAL_API_SRC_COUNT	serial_api.h	/^    SERIAL_API_SRC_COUNT,$/;"	e	enum:__anon6
 UNKNOWN_COMMAND	serial_api.h	19;"	d
 buffer	serial_api.h	/^    char *buffer;$/;"	m	struct:serial_api_response_t
-echo	serial_api.h	/^        serial_api_echo_command_t echo;$/;"	m	union:serial_api_command_t::__anon7
+echo	serial_api.h	/^        serial_api_echo_command_t echo;$/;"	m	union:serial_api_command_t::__anon8
 escaped	serial_api.h	/^    int escaped[SERIAL_API_SRC_COUNT];$/;"	m	struct:serial_api_state_t
 in_buffer	serial_api.h	/^    char in_buffer[SERIAL_API_SRC_COUNT * SERIAL_API_IN_BUFFER_SIZE];$/;"	m	struct:serial_api_state_t
 indices	serial_api.h	/^    int indices[SERIAL_API_SRC_COUNT];$/;"	m	struct:serial_api_state_t
@@ -312,8 +313,27 @@ serial_api_command_t	serial_api.h	/^struct serial_api_command_t {$/;"	s
 serial_api_echo_command_t	serial_api.h	/^struct serial_api_echo_command_t {$/;"	s
 serial_api_response_t	serial_api.h	/^struct serial_api_response_t {$/;"	s
 serial_api_state_t	serial_api.h	/^struct serial_api_state_t {$/;"	s
-type	serial_api.h	/^        char type;$/;"	m	union:serial_api_command_t::__anon7
+type	serial_api.h	/^        char type;$/;"	m	union:serial_api_command_t::__anon8
 type	serial_api.h	/^    char type;$/;"	m	struct:serial_api_echo_command_t
+serial_assert	serial_assert.cpp	/^void serial_assert(bool condition, int code)$/;"	f
+serial_assert_h	serial_assert.h	2;"	d
+CAL_POS_1_LOC	settings.h	9;"	d
+CAL_POS_2_LOC	settings.h	10;"	d
+CHANNEL_LOC	settings.h	7;"	d
+DATA_RATE_LOC	settings.h	8;"	d
+SAVED_POS_ARR_LOC	settings.h	11;"	d
+START_IN_CAL_LOC	settings.h	12;"	d
+settings_get_calibration_position_1	settings.h	/^inline int settings_get_calibration_position_1()$/;"	f
+settings_get_calibration_position_2	settings.h	/^inline int settings_get_calibration_position_2()$/;"	f
+settings_get_channel	settings.h	/^inline int settings_get_channel()$/;"	f
+settings_get_saved_position	settings.h	/^inline int settings_get_saved_position(int index)$/;"	f
+settings_get_start_in_calibration_mode	settings.h	/^inline bool settings_get_start_in_calibration_mode()$/;"	f
+settings_h	settings.h	2;"	d
+settings_set_calibration_position_1	settings.h	/^inline void settings_set_calibration_position_1(int val)$/;"	f
+settings_set_calibration_position_2	settings.h	/^inline void settings_set_calibration_position_2(int val)$/;"	f
+settings_set_channel	settings.h	/^inline void settings_set_channel(int val)$/;"	f
+settings_set_saved_position	settings.h	/^inline void settings_set_saved_position(int index, int val)$/;"	f
+settings_set_start_in_calibration_mode	settings.h	/^inline void settings_set_start_in_calibration_mode(bool val)$/;"	f
 console_state	static.cpp	/^static console_state_t console_state = {0};$/;"	v	file:
 get_console_state	static.cpp	/^console_state_t* get_console_state()$/;"	f
 get_radio_state	static.cpp	/^radio_state_t* get_radio_state()$/;"	f
@@ -322,12 +342,12 @@ radio_state	static.cpp	/^static radio_state_t radio_state = {0};$/;"	v	file:
 serial_api_state	static.cpp	/^static serial_api_state_t serial_api_state = {0};$/;"	v	file:
 static_h	static.h	2;"	d
 ROLE	version.h	/^const int ROLE = ROLE_PAW;$/;"	v
-ROLE_COUNT	version.h	/^    ROLE_COUNT$/;"	e	enum:__anon4
-ROLE_DOGBONE	version.h	/^    ROLE_DOGBONE,$/;"	e	enum:__anon4
-ROLE_PAW	version.h	/^    ROLE_PAW,$/;"	e	enum:__anon4
+ROLE_COUNT	version.h	/^    ROLE_COUNT$/;"	e	enum:__anon5
+ROLE_DOGBONE	version.h	/^    ROLE_DOGBONE,$/;"	e	enum:__anon5
+ROLE_PAW	version.h	/^    ROLE_PAW,$/;"	e	enum:__anon5
 VERSION	version.h	/^const int VERSION = (VERSION_MAJOR << 8) | VERSION_MINOR;$/;"	v
 VERSION_H	version.h	2;"	d
 VERSION_MAJOR	version.h	/^const int VERSION_MAJOR = 0x02;$/;"	v
-VERSION_MINOR	version.h	/^const int VERSION_MINOR = 0x00;$/;"	v
+VERSION_MINOR	version.h	/^const int VERSION_MINOR = 0x04;$/;"	v
 high_byte	version.h	/^inline int high_byte(int val)$/;"	f
 low_byte	version.h	/^inline int low_byte(int val)$/;"	f

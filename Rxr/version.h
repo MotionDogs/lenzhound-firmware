@@ -2,14 +2,12 @@
 #define VERSION_H
 
 enum {
-    ROLE_PAW,
-    ROLE_DOGBONE,
-    ROLE_COUNT
+    ROLE_PAW        = 0,
+    ROLE_DOGBONE    = 1,
+    ROLE_COUNT      = 2
 };
 
-const int VERSION_MAJOR = 0x02;
-const int VERSION_MINOR = 0x04;
-const int VERSION = (VERSION_MAJOR << 8) | VERSION_MINOR;
-const int ROLE = ROLE_DOGBONE;
+#define VERSION     "2.5"
+#define ROLE        ROLE_DOGBONE
 
 #endif

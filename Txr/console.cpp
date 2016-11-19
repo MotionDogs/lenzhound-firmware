@@ -2,23 +2,21 @@
 #include "serial_api.h"
 #include "bsp.h"
 
-void console_run(console_state_t *state)
+console_state_t console_state;
+
+void console_run()
 {
     while (BSP_serial_available() > 0) {
-        serial_api_queue_byte(state->serial_state,
-                              SERIAL_API_SRC_CONSOLE,
-                              (char)BSP_serial_read());
-        state->failing_to_write = 0;
+        serial_api_queue_byte((char)BSP_serial_read());
+        console_state.failing_to_write = 0;
     }
 
-    serial_api_response_t response = serial_api_read_response(
-        state->serial_state,
-        SERIAL_API_SRC_CONSOLE);
+    serial_api_response_t response = serial_api_read_response();
 
     int index = 0;
     int remaining = response.length;
 
-    if (remaining && !state->failing_to_write) {
+    if (remaining && !console_state.failing_to_write) {
         for (int i = 0; i < 3; ++i)
         {
             int written = BSP_serial_write(response.buffer + index, remaining);
@@ -29,7 +27,7 @@ void console_run(console_state_t *state)
             }
         }
         if (!index) {
-            state->failing_to_write = 1;
+            console_state.failing_to_write = 1;
         }
     }
 }

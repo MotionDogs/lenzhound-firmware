@@ -24,6 +24,14 @@ inline long i32_to_fixed(long a) {
   return a << BIT_SHIFT;
 }
 
+inline int fixed_to_i16(long a) {
+  return (int)(a >> BIT_SHIFT);
+}
+
+inline long fixed_to_i32(long a) {
+  return a >> BIT_SHIFT;
+}
+
 inline long fixed_mult(long a, long b) {
   return (a * b) >> BIT_SHIFT;
 }

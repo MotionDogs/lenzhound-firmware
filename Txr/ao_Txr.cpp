@@ -13,17 +13,17 @@
 #include "bsp.h"
 #include "Txr.h"
 #include "Arduino.h" // if I start having problems with RF24, consider removing this
+#include "radio.h"
 #include "serial_api.h"
 #include "console.h"
 #include "settings.h"
-#include "static.h"
 
 Q_DEFINE_THIS_FILE
 
 // These are percentages
-#define MAX_VELOCITY  100
-#define MID_VELOCITY  50
-#define MIN_VELOCITY  1
+#define MAX_SPEED  100
+#define MID_SPEED  50
+#define MIN_SPEED  1
 
 #define ENCODER_COUNTS_PER_SPEED_PERCENT  4
 #define SPEED_PERCENT_SLOP 2
@@ -39,7 +39,9 @@ enum TxrTimeouts {
     // how long to hold calibration button before reentering calibration
     ENTER_CALIBRATION_TOUT = BSP_TICKS_PER_SEC / 2,
     // how often to check that transmitter is still powered (in case of low battery)
-    ALIVE_DURATION_TOUT = BSP_TICKS_PER_SEC * 5
+    ALIVE_DURATION_TOUT = BSP_TICKS_PER_SEC * 5,
+
+    SEND_SPEED_AND_ACCEL_TOUT = BSP_TICKS_PER_SEC * 5,
 };
 
 // todo: move this somewhere else or do differently
@@ -61,13 +63,11 @@ long distance(long a, long b)
 
 class Txr : public QP::QActive {
 private:
-    radio_state_t* radio_state_;
-    serial_api_state_t* serial_api_state_;
-
     QTimeEvt alive_timeout_;
     QTimeEvt flash_timeout_;
     QTimeEvt send_timeout_;
     QTimeEvt calibration_timeout_;
+    long playback_target_pos_;
     float cur_pos_;    // float to save partial moves needed by encoder resolution division
     long prev_pos_1_;   // used to prevent jitter
     long prev_pos_2_;   // used to prevent jitter
@@ -78,18 +78,18 @@ private:
     char calibration_multiplier_;
     long saved_positions_[NUM_POSITION_BUTTONS];
     unsigned char prev_position_button_pressed_;
-    char z_mode_saved_velocity_;
+    char z_mode_saved_speed_;
     char z_mode_saved_acceleration_;
     long encoder_base_;
+    int previous_speed_percent_;
 
 public:
     Txr() :
         QActive((QStateHandler) & Txr::initial),
         flash_timeout_(FLASH_RATE_SIG), send_timeout_(SEND_TIMEOUT_SIG),
-        calibration_timeout_(CALIBRATION_SIG), alive_timeout_(ALIVE_SIG)
+        calibration_timeout_(CALIBRATION_SIG), alive_timeout_(ALIVE_SIG),
+        previous_speed_percent_(-1), playback_target_pos_(0)
     {
-        radio_state_ = get_radio_state();
-        serial_api_state_ = get_serial_api_state();
     }
 
 protected:
@@ -109,9 +109,8 @@ protected:
     void update_calibration_multiplier(int setting);
     void log_value(char key, long value);
     void set_LED_status(int led, int status);
-    void queue_radio_value(char key, long value);
     void init_speed_percent(int start_percentage);
-    int get_speed_percent();
+    int get_speed_percent_if_changed();
     void update_speed_LEDs(int speed_percent);
     void set_speed_LEDs_off();
 };
@@ -126,6 +125,9 @@ enum {
     LED_TOGGLE
 };
 
+
+// NOTE(doug): this exists to make it easier in the future to shoot out events
+// for these LEDs to the API, to make the UI prettier if we want to.
 void Txr::set_LED_status(int led, int status)
 {
     if (status == LED_ON) {
@@ -210,7 +212,7 @@ void Txr::init_speed_percent(int start_percentage)
 		(start_percentage * ENCODER_COUNTS_PER_SPEED_PERCENT);
 }
 
-int Txr::get_speed_percent()
+int Txr::get_speed_percent_if_changed()
 {
 	long encoder_pos = BSP_get_encoder();
 	long speed_percent = (encoder_pos - encoder_base_) /
@@ -222,7 +224,13 @@ int Txr::get_speed_percent()
 		encoder_base_ = speed_percent - 100 - (2 * SPEED_PERCENT_SLOP);
 	}
 
-	return clamp(speed_percent, 1, 100);
+	int result = clamp(speed_percent, 1, 100);
+    if (result != previous_speed_percent_) {
+        previous_speed_percent_ = result;
+        return result;
+    } else {
+        return -1;
+    }
 }
 
 void Txr::update_speed_LEDs(int speed_percent)
@@ -258,20 +266,9 @@ void Txr::set_speed_LEDs_off()
 void Txr::log_value(char key, long value)
 {
     char buffer[32];
-    sprintf(buffer, "%c=%d", key, value);
+    sprintf(buffer, "%c=%ld", key, value);
 
-    serial_api_queue_output(serial_api_state_,
-        SERIAL_API_SRC_CONSOLE, buffer);
-}
-
-void Txr::queue_radio_value(char type, long value)
-{
-    radio_packet_t packet;
-    // BSP_assert(value < (1 << 15) && value > (-1 << 15));
-    int val16 = (int)value;
-    packet.typed_val.type = type;
-    packet.typed_val.val = val16;
-    radio_queue_message(radio_state_, packet);
+    serial_api_queue_output(buffer);
 }
 
 void Txr::update_position_calibration()
@@ -279,7 +276,7 @@ void Txr::update_position_calibration()
     long cur_encoder_count = BSP_get_encoder();
 
     if (cur_encoder_count != prev_encoder_count_) {
-        log_value(SERIAL_API_CMD_GET_ENCODER, cur_encoder_count);
+        log_value(SERIAL_ENCODER_GET, cur_encoder_count);
     }
 
     // since it's 4 counts per detent, let's make it a detent per motor count
@@ -291,31 +288,33 @@ void Txr::update_position_calibration()
     cur_pos_ += amount_to_move;
     prev_encoder_count_ = cur_encoder_count;
 
-    queue_radio_value(PACKET_SET_TARGET_POSITION, cur_pos_);
+    if (amount_to_move != 0) {
+        PACKET_SEND(PACKET_TARGET_POSITION_SET, target_position_set, cur_pos_);
+    }
 }
 
 void Txr::update_position_freerun()
 {
-    int speed_percent = get_speed_percent();
-    queue_radio_value(PACKET_SET_VELOCITY_PERCENT, speed_percent);
-    update_speed_LEDs(speed_percent);
+    int speed_percent = get_speed_percent_if_changed();
+    if (speed_percent != -1) {
+        PACKET_SEND(PACKET_SPEED_PERCENT_SET, speed_percent_set, speed_percent);
+        update_speed_LEDs(speed_percent);   
+    }
 
     long new_pos = BSP_get_pot();
 
     // only update the current position if it's not jittering between two values
     if (new_pos != prev_pos_1_ && new_pos != prev_pos_2_) {
-        log_value(SERIAL_API_CMD_GET_POT, new_pos);
+        log_value(SERIAL_POT_GET, new_pos);
 
         prev_pos_1_ = prev_pos_2_;
         prev_pos_2_ = new_pos;
         cur_pos_ = map(new_pos, MIN_POT_VAL, MAX_POT_VAL,
                           calibration_pos_1_, calibration_pos_2_);
+
+        PACKET_SEND(PACKET_TARGET_POSITION_SET, target_position_set, cur_pos_);
     }
 
-    // this still needs to be updated and sent so that velocity changes happen
-    // (for ZMode) and possibly other cases
-
-    queue_radio_value(PACKET_SET_TARGET_POSITION, cur_pos_);
 }
 
 void Txr::update_position_z_mode()
@@ -325,11 +324,16 @@ void Txr::update_position_z_mode()
 
 void Txr::update_position_playback()
 {
-    int speed_percent = get_speed_percent();
-    queue_radio_value(PACKET_SET_VELOCITY_PERCENT, speed_percent);
-    update_speed_LEDs(speed_percent);
+    int speed_percent = get_speed_percent_if_changed();
+    if (speed_percent != -1) {
+        PACKET_SEND(PACKET_SPEED_PERCENT_SET, speed_percent_set, speed_percent);
+        update_speed_LEDs(speed_percent);   
+    }
 
-    queue_radio_value(PACKET_SET_TARGET_POSITION, cur_pos_);
+    if (playback_target_pos_ != cur_pos_) {
+        cur_pos_ = playback_target_pos_;
+        PACKET_SEND(PACKET_TARGET_POSITION_SET, target_position_set, cur_pos_);
+    }
 }
 
 void Txr::update_calibration_multiplier(int setting)
@@ -353,8 +357,8 @@ QP::QState Txr::initial(Txr *const me, QP::QEvt const *const e)
     me->calibration_multiplier_ = 1;
     me->cur_pos_ = 0;
     me->prev_encoder_count_ = 0;
-    me->queue_radio_value(PACKET_SET_TARGET_POSITION, 0);
-    me->z_mode_saved_velocity_ = 50;
+    PACKET_SEND(PACKET_TARGET_POSITION_SET, target_position_set, 0);
+    me->z_mode_saved_speed_ = 50;
     me->z_mode_saved_acceleration_ = 100;
     me->prev_pos_1_ = -1;
     me->prev_pos_2_ = -1;
@@ -403,6 +407,10 @@ QP::QState Txr::on(Txr *const me, QP::QEvt const *const e)
             } else {
                 me->set_LED_status(GREEN_LED, LED_ON);
             }
+            PACKET_SEND(PACKET_MAX_SPEED_SET, max_speed_set,
+                settings_get_max_speed());
+            PACKET_SEND(PACKET_ACCEL_SET, accel_set,
+                settings_get_max_accel());
             status = Q_HANDLED();
         } break;
         case UPDATE_PARAMS_SIG: {
@@ -425,7 +433,6 @@ QP::QState Txr::uncalibrated(Txr *const me, QP::QEvt const *const e)
         case Q_ENTRY_SIG: {
             me->set_LED_status(ENC_RED_LED, LED_ON);
             me->set_LED_status(ENC_GREEN_LED, LED_OFF);
-            me->queue_radio_value(PACKET_SET_MODE, FREE_MODE);
             me->prev_encoder_count_ = BSP_get_encoder();
             me->update_calibration_multiplier(BSP_get_mode());
             status = Q_HANDLED();
@@ -585,8 +592,6 @@ QP::QState Txr::free_run_mode(Txr *const me, QP::QEvt const *const e)
             me->set_LED_status(ENC_GREEN_LED, LED_ON);
             me->set_LED_status(ENC_RED_LED, LED_OFF);
 
-            me->queue_radio_value(PACKET_SET_MODE, FREE_MODE);
-
             me->init_speed_percent(50);
 
             status = Q_HANDLED();
@@ -631,10 +636,10 @@ QP::QState Txr::play_back_mode(Txr *const me, QP::QEvt const *const e)
 
     switch (e->sig) {
         case Q_ENTRY_SIG: {
+            me->playback_target_pos_ = me->cur_pos_;
             me->set_LED_status(ENC_GREEN_LED, LED_ON);
             me->set_LED_status(ENC_RED_LED, LED_OFF);
-            me->queue_radio_value(PACKET_SET_MODE, PLAYBACK_MODE);
-            me->queue_radio_value(PACKET_SET_TARGET_POSITION, me->cur_pos_);
+            PACKET_SEND(PACKET_TARGET_POSITION_SET, target_position_set, me->cur_pos_);
             me->init_speed_percent(50);
             status = Q_HANDLED();
         } break;
@@ -647,9 +652,9 @@ QP::QState Txr::play_back_mode(Txr *const me, QP::QEvt const *const e)
             status = Q_HANDLED();
         } break;
         case POSITION_BUTTON_SIG: {
-            int buttonNum = ((PositionButtonEvt *)e)->ButtonNum;
-            Q_REQUIRE(buttonNum < NUM_POSITION_BUTTONS);
-            me->cur_pos_ = me->saved_positions_[buttonNum];
+            int button_num = ((PositionButtonEvt *)e)->ButtonNum;
+            Q_REQUIRE(button_num < NUM_POSITION_BUTTONS);
+            me->playback_target_pos_ = me->saved_positions_[button_num];
             status = Q_HANDLED();
         } break;
         default: {
@@ -668,15 +673,10 @@ QP::QState Txr::z_mode(Txr *const me, QP::QEvt const *const e)
             me->set_LED_status(ENC_GREEN_LED, LED_ON);
             me->set_LED_status(ENC_RED_LED, LED_ON);
 
-            me->queue_radio_value(PACKET_SET_MODE, Z_MODE);
-            me->queue_radio_value(PACKET_SET_TARGET_POSITION, me->cur_pos_);
-            me->queue_radio_value(PACKET_SET_ACCEL_PERCENT, me->z_mode_saved_acceleration_);
-            me->init_speed_percent(50);
             status = Q_HANDLED();
         } break;
         case Q_EXIT_SIG: {
             me->set_speed_LEDs_off();
-            me->z_mode_saved_velocity_ = me->get_speed_percent();
             status = Q_HANDLED();
         } break;
         case SEND_TIMEOUT_SIG: {
@@ -684,11 +684,17 @@ QP::QState Txr::z_mode(Txr *const me, QP::QEvt const *const e)
             status = Q_HANDLED();
         } break;
         case POSITION_BUTTON_SIG: {
-            int buttonNum = ((PositionButtonEvt *)e)->ButtonNum;
-            Q_REQUIRE(buttonNum < NUM_POSITION_BUTTONS);
-            // 25, 50, 75, or 100%
-            me->z_mode_saved_acceleration_ = (buttonNum + 1) * 25;
-            me->queue_radio_value(PACKET_SET_ACCEL_PERCENT, me->z_mode_saved_acceleration_);
+            int button_index = ((PositionButtonEvt *)e)->ButtonNum;
+            Q_REQUIRE(button_index < NUM_POSITION_BUTTONS);
+
+            settings_set_preset_index(button_index);
+            radio_set_channel(settings_get_channel());
+            PACKET_SEND(PACKET_MAX_SPEED_SET, max_speed_set,
+                settings_get_max_speed());
+            PACKET_SEND(PACKET_ACCEL_SET, accel_set, settings_get_max_accel());
+
+            me->log_value(SERIAL_PRESET_INDEX_GET, button_index);
+
             status = Q_HANDLED();
         } break;
         default: {

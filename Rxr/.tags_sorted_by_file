@@ -1,0 +1,408 @@
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_PROGRAM_VERSION	5.8	//
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+CMAKE_BINARY_DIR	Makefile	/^CMAKE_BINARY_DIR = \/home\/doug\/Lenzhound-1.x$/;"	m
+CMAKE_COMMAND	Makefile	/^CMAKE_COMMAND = \/usr\/bin\/cmake$/;"	m
+CMAKE_SOURCE_DIR	Makefile	/^CMAKE_SOURCE_DIR = \/home\/doug\/Lenzhound-1.x$/;"	m
+EQUALS	Makefile	/^EQUALS = =$/;"	m
+RM	Makefile	/^RM = \/usr\/bin\/cmake -E remove -f$/;"	m
+SHELL	Makefile	/^SHELL = \/bin\/sh$/;"	m
+SUFFIXES	Makefile	/^SUFFIXES =$/;"	m
+ISR	NewTimerOne.cpp	/^ISR(TIMER1_OVF_vect)$/;"	f
+Timer1	NewTimerOne.cpp	/^TimerOne Timer1;              \/\/ preinstatiate$/;"	v
+clockSelectBits	NewTimerOne.cpp	/^unsigned char TimerOne::clockSelectBits = 0;$/;"	m	class:TimerOne	file:
+pwmPeriod	NewTimerOne.cpp	/^unsigned int TimerOne::pwmPeriod = 0;$/;"	m	class:TimerOne	file:
+NewTimerOne_h_	NewTimerOne.h	16;"	d
+TIMER1_A_PIN	NewTimerOne.h	26;"	d
+TIMER1_B_PIN	NewTimerOne.h	27;"	d
+TIMER1_CLK_PIN	NewTimerOne.h	30;"	d
+TIMER1_C_PIN	NewTimerOne.h	28;"	d
+TIMER1_ICP_PIN	NewTimerOne.h	29;"	d
+TIMER1_RESOLUTION	NewTimerOne.h	35;"	d
+TIMER3_A_PIN	NewTimerOne.h	31;"	d
+TIMER3_ICP_PIN	NewTimerOne.h	32;"	d
+TimerOne	NewTimerOne.h	/^class TimerOne$/;"	c
+attachInterrupt	NewTimerOne.h	/^    void attachInterrupt(void (*isr)()) __attribute__((always_inline)) {$/;"	f	class:TimerOne
+attachInterrupt	NewTimerOne.h	/^    void attachInterrupt(void (*isr)(), unsigned long microseconds) __attribute__((always_inline)) {$/;"	f	class:TimerOne
+clockSelectBits	NewTimerOne.h	/^    static unsigned char clockSelectBits;$/;"	m	class:TimerOne
+detachInterrupt	NewTimerOne.h	/^    void detachInterrupt() __attribute__((always_inline)) {$/;"	f	class:TimerOne
+disablePwm	NewTimerOne.h	/^    void disablePwm(char pin) __attribute__((always_inline)) {$/;"	f	class:TimerOne
+initialize	NewTimerOne.h	/^    void initialize(unsigned long microseconds=1000000) __attribute__((always_inline)) {$/;"	f	class:TimerOne
+isrCallback	NewTimerOne.h	/^    void (*isrCallback)();$/;"	m	class:TimerOne
+pwm	NewTimerOne.h	/^    void pwm(char pin, unsigned int duty) __attribute__((always_inline)) {$/;"	f	class:TimerOne
+pwm	NewTimerOne.h	/^    void pwm(char pin, unsigned int duty, unsigned long microseconds) __attribute__((always_inline)) {$/;"	f	class:TimerOne
+pwmPeriod	NewTimerOne.h	/^    static unsigned int pwmPeriod;$/;"	m	class:TimerOne
+restart	NewTimerOne.h	/^    void restart() __attribute__((always_inline)) {$/;"	f	class:TimerOne
+resume	NewTimerOne.h	/^    void resume() __attribute__((always_inline)) {$/;"	f	class:TimerOne
+setPeriod	NewTimerOne.h	/^    void setPeriod(unsigned long microseconds) __attribute__((always_inline)) {$/;"	f	class:TimerOne
+setPwmDuty	NewTimerOne.h	/^    void setPwmDuty(char pin, unsigned int duty) __attribute__((always_inline)) {$/;"	f	class:TimerOne
+start	NewTimerOne.h	/^    void start() __attribute__((always_inline)) {$/;"	f	class:TimerOne
+stop	NewTimerOne.h	/^    void stop() __attribute__((always_inline)) {$/;"	f	class:TimerOne
+console_run	console.cpp	/^void console_run()$/;"	f
+console_state	console.cpp	/^console_state_t console_state = {0};$/;"	v
+console_h	console.h	2;"	d
+console_state_t	console.h	/^struct console_state_t {$/;"	s
+failing_to_write	console.h	/^    int failing_to_write;$/;"	m	struct:console_state_t
+FREE_MODE	constants.h	/^  FREE_MODE,$/;"	e	enum:__anon2
+ISR_CALLS_PER_SECOND	constants.h	/^const long ISR_CALLS_PER_SECOND    = 6000L;$/;"	v
+ISR_PERIOD	constants.h	/^const long ISR_PERIOD              = SECONDS_TO_MICROSECONDS\/ISR_CALLS_PER_SECOND;$/;"	v
+MOTOR_SLEEP_THRESHOLD	constants.h	/^const long MOTOR_SLEEP_THRESHOLD   = ISR_CALLS_PER_SECOND * 5; \/\/ five seconds$/;"	v
+PLAYBACK_MODE	constants.h	/^  PLAYBACK_MODE,$/;"	e	enum:__anon2
+SECONDS_TO_MICROSECONDS	constants.h	/^const long SECONDS_TO_MICROSECONDS = 1000000L;$/;"	v
+SERIAL_BAUD	constants.h	/^const int SERIAL_BAUD = 57600;$/;"	v
+Z_MODE	constants.h	/^  Z_MODE$/;"	e	enum:__anon2
+lenzhound_constants_h	constants.h	2;"	d
+CONVERSION_FACTOR	controller.cpp	5;"	d	file:
+_controller_sleep	controller.cpp	/^void _controller_sleep()$/;"	f
+_controller_wake_up	controller.cpp	/^void _controller_wake_up()$/;"	f
+controller_get_accel	controller.cpp	/^long controller_get_accel()$/;"	f
+controller_get_decel_threshold	controller.cpp	/^long controller_get_decel_threshold()$/;"	f
+controller_get_speed	controller.cpp	/^long controller_get_speed()$/;"	f
+controller_get_target_position	controller.cpp	/^long controller_get_target_position()$/;"	f
+controller_init	controller.cpp	/^void controller_init()$/;"	f
+controller_initialize_position	controller.cpp	/^void controller_initialize_position(long position)$/;"	f
+controller_is_position_initialized	controller.cpp	/^bool controller_is_position_initialized()$/;"	f
+controller_move_to_position	controller.cpp	/^void controller_move_to_position(long position)$/;"	f
+controller_refresh_accel	controller.cpp	/^void controller_refresh_accel()$/;"	f
+controller_refresh_speed	controller.cpp	/^void controller_refresh_speed()$/;"	f
+controller_run	controller.cpp	/^void controller_run()$/;"	f
+controller_set_accel	controller.cpp	/^void controller_set_accel(long accel)$/;"	f
+controller_set_accel_percent	controller.cpp	/^void controller_set_accel_percent(int accel)$/;"	f
+controller_set_mode	controller.cpp	/^void controller_set_mode(int mode)$/;"	f
+controller_set_speed	controller.cpp	/^void controller_set_speed(long speed)$/;"	f
+controller_set_speed_percent	controller.cpp	/^void controller_set_speed_percent(int speed)$/;"	f
+controller_try_sleep	controller.cpp	/^bool controller_try_sleep()$/;"	f
+state	controller.cpp	/^controller_state_t state = {0};$/;"	v
+accel	controller.h	/^  long accel;$/;"	m	struct:controller_state_t
+accel_percent	controller.h	/^  int accel_percent;$/;"	m	struct:controller_state_t
+calculated_position	controller.h	/^  long calculated_position;$/;"	m	struct:controller_state_t
+controller_state_t	controller.h	/^struct controller_state_t {$/;"	s
+current_speed_cap	controller.h	/^  long current_speed_cap;$/;"	m	struct:controller_state_t
+decel_denominator	controller.h	/^  long decel_denominator;$/;"	m	struct:controller_state_t
+direction	controller.h	/^  bool direction;$/;"	m	struct:controller_state_t
+initial_position_set	controller.h	/^  bool initial_position_set;$/;"	m	struct:controller_state_t
+lenzhound_motor_controller_h	controller.h	2;"	d
+max_accel	controller.h	/^  long max_accel;$/;"	m	struct:controller_state_t
+max_decel_denominator	controller.h	/^  long max_decel_denominator;$/;"	m	struct:controller_state_t
+max_speed	controller.h	/^  long max_speed;$/;"	m	struct:controller_state_t
+mode	controller.h	/^  int mode;$/;"	m	struct:controller_state_t
+motor_position	controller.h	/^  long motor_position;$/;"	m	struct:controller_state_t
+run_count	controller.h	/^  long run_count;$/;"	m	struct:controller_state_t
+sleeping	controller.h	/^  long sleeping;$/;"	m	struct:controller_state_t
+speed_percent	controller.h	/^  int speed_percent;$/;"	m	struct:controller_state_t
+target_position	controller.h	/^  long target_position;$/;"	m	struct:controller_state_t
+velocity	controller.h	/^  long velocity;$/;"	m	struct:controller_state_t
+eeprom_assert	eeprom_assert.cpp	/^void eeprom_assert(bool condition, int code)$/;"	f
+ERROR_READ_EXCEEDED_EEPROM_SIZE	eeprom_assert.h	/^    ERROR_READ_EXCEEDED_EEPROM_SIZE,$/;"	e	enum:__anon6
+ERROR_UNKNOWN_OK_CODE	eeprom_assert.h	/^    ERROR_UNKNOWN_OK_CODE,$/;"	e	enum:__anon6
+ERROR_WRITE_EXCEEDED_EEPROM_SIZE	eeprom_assert.h	/^    ERROR_WRITE_EXCEEDED_EEPROM_SIZE,$/;"	e	enum:__anon6
+eeprom_assert_h	eeprom_assert.h	2;"	d
+eeprom_read_bytes	eeprom_helpers.cpp	/^void eeprom_read_bytes(int start, char* buffer, int count)$/;"	f
+eeprom_read_char	eeprom_helpers.cpp	/^char eeprom_read_char(int addr)$/;"	f
+eeprom_read_int16	eeprom_helpers.cpp	/^int eeprom_read_int16(int addr)$/;"	f
+eeprom_read_int32	eeprom_helpers.cpp	/^long eeprom_read_int32(int addr)$/;"	f
+eeprom_read_string	eeprom_helpers.cpp	/^void eeprom_read_string(int start, char* buffer, int max_count)$/;"	f
+eeprom_read_uint16	eeprom_helpers.cpp	/^unsigned int eeprom_read_uint16(int addr)$/;"	f
+eeprom_read_uint32	eeprom_helpers.cpp	/^unsigned long eeprom_read_uint32(int addr)$/;"	f
+eeprom_write_bytes	eeprom_helpers.cpp	/^void eeprom_write_bytes(int start, char* buffer, int count)$/;"	f
+eeprom_write_char	eeprom_helpers.cpp	/^void eeprom_write_char(int addr, char value)$/;"	f
+eeprom_write_debug_string	eeprom_helpers.cpp	/^void eeprom_write_debug_string(char* buffer)$/;"	f
+eeprom_write_int16	eeprom_helpers.cpp	/^void eeprom_write_int16(int addr, int value)$/;"	f
+eeprom_write_int32	eeprom_helpers.cpp	/^void eeprom_write_int32(int addr, long value)$/;"	f
+eeprom_write_string	eeprom_helpers.cpp	/^void eeprom_write_string(int start, char* buffer, int max_count)$/;"	f
+eeprom_write_uint16	eeprom_helpers.cpp	/^void eeprom_write_uint16(int addr, unsigned int value)$/;"	f
+eeprom_write_uint32	eeprom_helpers.cpp	/^void eeprom_write_uint32(int addr, unsigned long value)$/;"	f
+DEBUG_STRING_LOC	eeprom_helpers.h	8;"	d
+DEBUG_STRING_MAX_LEN	eeprom_helpers.h	9;"	d
+EEPROM_MAX_ADDR	eeprom_helpers.h	6;"	d
+EEPROM_MIN_ADDR	eeprom_helpers.h	5;"	d
+eeprom_helpers_h	eeprom_helpers.h	3;"	d
+dirty	events.cpp	/^bool events::dirty() {$/;"	f	class:events
+dirty_	events.cpp	/^bool events::dirty_ = false;$/;"	m	class:events	file:
+set_dirty	events.cpp	/^void events::set_dirty(bool val) {$/;"	f	class:events
+dirty_	events.h	/^  static bool dirty_;$/;"	m	class:events
+events	events.h	/^class events {$/;"	c
+rxr_events_h	events.h	2;"	d
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+ANT_CTRL1	macros.h	15;"	d
+ANT_CTRL2	macros.h	16;"	d
+CLR	macros.h	8;"	d
+DIR_PIN	macros.h	22;"	d
+ENABLE_PIN	macros.h	24;"	d
+IN	macros.h	10;"	d
+MS1_PIN	macros.h	19;"	d
+MS2_PIN	macros.h	20;"	d
+OUT	macros.h	11;"	d
+SET	macros.h	9;"	d
+SET_MODE	macros.h	12;"	d
+SLEEP_PIN	macros.h	23;"	d
+STEP_PIN	macros.h	21;"	d
+rxr_macros_h	macros.h	2;"	d
+motor_pulse	motor.cpp	/^void motor_pulse() {$/;"	f
+motor_set_dir_backward	motor.cpp	/^void motor_set_dir_backward() {$/;"	f
+motor_set_dir_forward	motor.cpp	/^void motor_set_dir_forward() {$/;"	f
+motor_set_steps	motor.cpp	/^void motor_set_steps(int steps) {$/;"	f
+motor_sleep	motor.cpp	/^void motor_sleep() {$/;"	f
+motor_wake	motor.cpp	/^void motor_wake() {$/;"	f
+EIGHTH_STEPS	motor.h	/^    EIGHTH_STEPS,$/;"	e	enum:__anon1
+FULL_STEPS	motor.h	/^    FULL_STEPS$/;"	e	enum:__anon1
+HALF_STEPS	motor.h	/^    HALF_STEPS,$/;"	e	enum:__anon1
+QUARTER_STEPS	motor.h	/^    QUARTER_STEPS,$/;"	e	enum:__anon1
+lenzhound_motor_h	motor.h	2;"	d
+HEARTBEAT_INTERVAL_MILLIS	radio.cpp	14;"	d	file:
+PRINT_PACKET_STRING	radio.cpp	145;"	d	file:
+_get_radio_packet	radio.cpp	/^bool _get_radio_packet(void *buffer)$/;"	f
+_incremental_read_packet_string	radio.cpp	/^char* _incremental_read_packet_string(char type, char* start)$/;"	f
+_is_radio_available	radio.cpp	/^bool _is_radio_available()$/;"	f
+_map_ok_type	radio.cpp	/^char _map_ok_type(char key)$/;"	f
+_process_packet	radio.cpp	/^void _process_packet(radio_packet_t packet)$/;"	f
+_queue_print_i16	radio.cpp	/^void _queue_print_i16(char type, int val)$/;"	f
+_queue_print_i32	radio.cpp	/^void _queue_print_i32(char type, long val)$/;"	f
+_queue_print_ok	radio.cpp	/^void _queue_print_ok(char type)$/;"	f
+_queue_print_string	radio.cpp	/^void _queue_print_string(char type, char* val)$/;"	f
+_queue_print_u16	radio.cpp	/^void _queue_print_u16(char type, int val)$/;"	f
+_queue_print_u32	radio.cpp	/^void _queue_print_u32(char type, int val)$/;"	f
+_send_ok	radio.cpp	/^void _send_ok(char key)$/;"	f
+_send_radio_packet	radio.cpp	/^void _send_radio_packet(void *buffer)$/;"	f
+radio_init	radio.cpp	/^void radio_init()$/;"	f
+radio_is_alive	radio.cpp	/^bool radio_is_alive()$/;"	f
+radio_queue_message	radio.cpp	/^void radio_queue_message(radio_packet_t packet)$/;"	f
+radio_run	radio.cpp	/^void radio_run()$/;"	f
+radio_set_channel	radio.cpp	/^void radio_set_channel(int channel)$/;"	f
+radio_state	radio.cpp	/^radio_state_t radio_state;$/;"	v
+PACKET_ACCEL_GET	radio.h	/^    PACKET_ACCEL_GET                = 10,$/;"	e	enum:__anon3
+PACKET_ACCEL_GET_NO_PRINT	radio.h	/^    PACKET_ACCEL_GET_NO_PRINT       = 9,$/;"	e	enum:__anon3
+PACKET_ACCEL_PERCENT_SET	radio.h	/^    PACKET_ACCEL_PERCENT_SET        = 26,$/;"	e	enum:__anon3
+PACKET_ACCEL_PRINT	radio.h	/^    PACKET_ACCEL_PRINT              = 12,$/;"	e	enum:__anon3
+PACKET_ACCEL_SET	radio.h	/^    PACKET_ACCEL_SET                = 11,$/;"	e	enum:__anon3
+PACKET_CHANNEL_GET	radio.h	/^    PACKET_CHANNEL_GET              = 13,$/;"	e	enum:__anon3
+PACKET_CHANNEL_PRINT	radio.h	/^    PACKET_CHANNEL_PRINT            = 15,$/;"	e	enum:__anon3
+PACKET_CHANNEL_SET	radio.h	/^    PACKET_CHANNEL_SET              = 14,$/;"	e	enum:__anon3
+PACKET_MAX_SPEED_GET	radio.h	/^    PACKET_MAX_SPEED_GET            = 6,$/;"	e	enum:__anon3
+PACKET_MAX_SPEED_GET_NO_PRINT	radio.h	/^    PACKET_MAX_SPEED_GET_NO_PRINT   = 5,$/;"	e	enum:__anon3
+PACKET_MAX_SPEED_PRINT	radio.h	/^    PACKET_MAX_SPEED_PRINT          = 8,$/;"	e	enum:__anon3
+PACKET_MAX_SPEED_SET	radio.h	/^    PACKET_MAX_SPEED_SET            = 7,$/;"	e	enum:__anon3
+PACKET_NONE	radio.h	/^    PACKET_NONE                     = 0,$/;"	e	enum:__anon3
+PACKET_OK	radio.h	/^    PACKET_OK                       = 120,$/;"	e	enum:__anon3
+PACKET_PRESET_INDEX_GET	radio.h	/^    PACKET_PRESET_INDEX_GET         = 29,$/;"	e	enum:__anon3
+PACKET_PRESET_INDEX_PRINT	radio.h	/^    PACKET_PRESET_INDEX_PRINT       = 31,$/;"	e	enum:__anon3
+PACKET_PRESET_INDEX_SET	radio.h	/^    PACKET_PRESET_INDEX_SET         = 30,$/;"	e	enum:__anon3
+PACKET_PROFILE_ID_GET	radio.h	/^    PACKET_PROFILE_ID_GET           = 16,$/;"	e	enum:__anon3
+PACKET_PROFILE_ID_PRINT	radio.h	/^    PACKET_PROFILE_ID_PRINT         = 18,$/;"	e	enum:__anon3
+PACKET_PROFILE_ID_SET	radio.h	/^    PACKET_PROFILE_ID_SET           = 17,$/;"	e	enum:__anon3
+PACKET_PROFILE_NAME_GET	radio.h	/^    PACKET_PROFILE_NAME_GET         = 19,$/;"	e	enum:__anon3
+PACKET_PROFILE_NAME_PRINT	radio.h	/^    PACKET_PROFILE_NAME_PRINT       = 21,$/;"	e	enum:__anon3
+PACKET_PROFILE_NAME_SET	radio.h	/^    PACKET_PROFILE_NAME_SET         = 20,$/;"	e	enum:__anon3
+PACKET_RELOAD_CONFIG	radio.h	/^    PACKET_RELOAD_CONFIG            = 28,$/;"	e	enum:__anon3
+PACKET_ROLE_GET	radio.h	/^    PACKET_ROLE_GET                 = 3,$/;"	e	enum:__anon3
+PACKET_ROLE_PRINT	radio.h	/^    PACKET_ROLE_PRINT               = 4,$/;"	e	enum:__anon3
+PACKET_SAVE_CONFIG	radio.h	/^    PACKET_SAVE_CONFIG              = 27,$/;"	e	enum:__anon3
+PACKET_SEND	radio.h	161;"	d
+PACKET_SEND_EMPTY	radio.h	155;"	d
+PACKET_SEND_STRING	radio.h	168;"	d
+PACKET_SIZE	radio.h	51;"	d
+PACKET_SPEED_PERCENT_SET	radio.h	/^    PACKET_SPEED_PERCENT_SET        = 25,$/;"	e	enum:__anon3
+PACKET_STRING_LEN	radio.h	52;"	d
+PACKET_TARGET_POSITION_GET	radio.h	/^    PACKET_TARGET_POSITION_GET      = 22,$/;"	e	enum:__anon3
+PACKET_TARGET_POSITION_PRINT	radio.h	/^    PACKET_TARGET_POSITION_PRINT    = 24,$/;"	e	enum:__anon3
+PACKET_TARGET_POSITION_SET	radio.h	/^    PACKET_TARGET_POSITION_SET      = 23,$/;"	e	enum:__anon3
+PACKET_VERSION_GET	radio.h	/^    PACKET_VERSION_GET              = 1,$/;"	e	enum:__anon3
+PACKET_VERSION_PRINT	radio.h	/^    PACKET_VERSION_PRINT            = 2,$/;"	e	enum:__anon3
+RADIO_OUT_BUFFER_SIZE	radio.h	6;"	d
+RADIO_VERSION	radio.h	8;"	d
+RECEIVE_ADDRESS	radio.h	12;"	d
+RF_DEFAULT	radio.h	10;"	d
+STRING_PACKET_BUFFER_SIZE	radio.h	7;"	d
+TRANSMIT_ADDRESS	radio.h	11;"	d
+accel_get	radio.h	/^        empty_packet_t accel_get;$/;"	m	union:radio_packet_t::__anon4
+accel_percent_set	radio.h	/^        i16_packet_t accel_percent_set;$/;"	m	union:radio_packet_t::__anon4
+accel_print	radio.h	/^        i16_packet_t accel_print;$/;"	m	union:radio_packet_t::__anon4
+accel_set	radio.h	/^        i16_packet_t accel_set;$/;"	m	union:radio_packet_t::__anon4
+buffer	radio.h	/^    radio_packet_t buffer[RADIO_OUT_BUFFER_SIZE];$/;"	m	struct:radio_state_t
+channel_get	radio.h	/^        empty_packet_t channel_get;$/;"	m	union:radio_packet_t::__anon4
+channel_print	radio.h	/^        i16_packet_t channel_print;$/;"	m	union:radio_packet_t::__anon4
+channel_set	radio.h	/^        i16_packet_t channel_set;$/;"	m	union:radio_packet_t::__anon4
+empty_packet_t	radio.h	/^struct empty_packet_t {$/;"	s
+heartbeat_received_timestamp	radio.h	/^    long heartbeat_received_timestamp;$/;"	m	struct:radio_state_t
+heartbeat_sent_timestamp	radio.h	/^    long heartbeat_sent_timestamp;$/;"	m	struct:radio_state_t
+i16_packet_t	radio.h	/^struct i16_packet_t {$/;"	s
+i32_packet_t	radio.h	/^struct i32_packet_t {$/;"	s
+key	radio.h	/^    char key;$/;"	m	struct:ok_packet_t
+max_speed_get	radio.h	/^        empty_packet_t max_speed_get;$/;"	m	union:radio_packet_t::__anon4
+max_speed_print	radio.h	/^        u16_packet_t max_speed_print;$/;"	m	union:radio_packet_t::__anon4
+max_speed_set	radio.h	/^        u16_packet_t max_speed_set;$/;"	m	union:radio_packet_t::__anon4
+ok	radio.h	/^        ok_packet_t ok;$/;"	m	union:radio_packet_t::__anon4
+ok_packet_t	radio.h	/^struct ok_packet_t {$/;"	s
+padd	radio.h	/^            char padd[PACKET_SIZE - 1];$/;"	m	struct:radio_packet_t::__anon4::__anon5
+padd	radio.h	/^    char padd[PACKET_SIZE - 1];$/;"	m	struct:empty_packet_t
+padd	radio.h	/^    char padd[PACKET_SIZE - 2];$/;"	m	struct:ok_packet_t
+padd	radio.h	/^    char padd[PACKET_SIZE - 2];$/;"	m	struct:string_get_packet_t
+padd	radio.h	/^    char padd[PACKET_SIZE - 3];$/;"	m	struct:i16_packet_t
+padd	radio.h	/^    char padd[PACKET_SIZE - 3];$/;"	m	struct:u16_packet_t
+padd	radio.h	/^    char padd[PACKET_SIZE - 5];$/;"	m	struct:i32_packet_t
+padd	radio.h	/^    char padd[PACKET_SIZE - 5];$/;"	m	struct:u32_packet_t
+preset_index_get	radio.h	/^        empty_packet_t preset_index_get;$/;"	m	union:radio_packet_t::__anon4
+preset_index_print	radio.h	/^        i16_packet_t preset_index_print;$/;"	m	union:radio_packet_t::__anon4
+preset_index_set	radio.h	/^        i16_packet_t preset_index_set;$/;"	m	union:radio_packet_t::__anon4
+profile_id_get	radio.h	/^        empty_packet_t profile_id_get;$/;"	m	union:radio_packet_t::__anon4
+profile_id_print	radio.h	/^        u32_packet_t profile_id_print;$/;"	m	union:radio_packet_t::__anon4
+profile_id_set	radio.h	/^        u32_packet_t profile_id_set;$/;"	m	union:radio_packet_t::__anon4
+profile_name_get	radio.h	/^        string_get_packet_t profile_name_get;$/;"	m	union:radio_packet_t::__anon4
+profile_name_print	radio.h	/^        string_set_packet_t profile_name_print;$/;"	m	union:radio_packet_t::__anon4
+profile_name_set	radio.h	/^        string_set_packet_t profile_name_set;$/;"	m	union:radio_packet_t::__anon4
+radio_h	radio.h	2;"	d
+radio_packet_t	radio.h	/^struct radio_packet_t {$/;"	s
+radio_state_t	radio.h	/^struct radio_state_t {$/;"	s
+read_index	radio.h	/^    int read_index;$/;"	m	struct:radio_state_t
+reload_config	radio.h	/^        empty_packet_t reload_config;$/;"	m	union:radio_packet_t::__anon4
+role_get	radio.h	/^        empty_packet_t role_get;$/;"	m	union:radio_packet_t::__anon4
+role_print	radio.h	/^        u16_packet_t role_print;$/;"	m	union:radio_packet_t::__anon4
+save_config	radio.h	/^        empty_packet_t save_config;$/;"	m	union:radio_packet_t::__anon4
+speed_percent_set	radio.h	/^        i16_packet_t speed_percent_set;$/;"	m	union:radio_packet_t::__anon4
+start_index	radio.h	/^    char start_index;$/;"	m	struct:string_get_packet_t
+string_get_packet_t	radio.h	/^struct string_get_packet_t {$/;"	s
+string_packet_buffer	radio.h	/^    char string_packet_buffer[STRING_PACKET_BUFFER_SIZE];$/;"	m	struct:radio_state_t
+string_packet_buffer_index	radio.h	/^    int string_packet_buffer_index;$/;"	m	struct:radio_state_t
+string_packet_command	radio.h	/^    char string_packet_command;$/;"	m	struct:radio_state_t
+string_set_packet_t	radio.h	/^struct string_set_packet_t {$/;"	s
+target_position_get	radio.h	/^        empty_packet_t target_position_get;$/;"	m	union:radio_packet_t::__anon4
+target_position_print	radio.h	/^        i32_packet_t target_position_print;$/;"	m	union:radio_packet_t::__anon4
+target_position_set	radio.h	/^        i32_packet_t target_position_set;$/;"	m	union:radio_packet_t::__anon4
+type	radio.h	/^            char type;$/;"	m	struct:radio_packet_t::__anon4::__anon5
+type	radio.h	/^    char type;$/;"	m	struct:empty_packet_t
+type	radio.h	/^    char type;$/;"	m	struct:i16_packet_t
+type	radio.h	/^    char type;$/;"	m	struct:i32_packet_t
+type	radio.h	/^    char type;$/;"	m	struct:ok_packet_t
+type	radio.h	/^    char type;$/;"	m	struct:string_get_packet_t
+type	radio.h	/^    char type;$/;"	m	struct:string_set_packet_t
+type	radio.h	/^    char type;$/;"	m	struct:u16_packet_t
+type	radio.h	/^    char type;$/;"	m	struct:u32_packet_t
+u16_packet_t	radio.h	/^struct u16_packet_t {$/;"	s
+u32_packet_t	radio.h	/^struct u32_packet_t {$/;"	s
+val	radio.h	/^    char val[PACKET_STRING_LEN];$/;"	m	struct:string_set_packet_t
+val	radio.h	/^    int val;$/;"	m	struct:i16_packet_t
+val	radio.h	/^    long val;$/;"	m	struct:i32_packet_t
+val	radio.h	/^    long val;$/;"	m	struct:u32_packet_t
+val	radio.h	/^    unsigned int val;$/;"	m	struct:u16_packet_t
+version_get	radio.h	/^        empty_packet_t version_get;$/;"	m	union:radio_packet_t::__anon4
+version_match	radio.h	/^    int version_match;$/;"	m	struct:radio_state_t
+version_print	radio.h	/^        string_set_packet_t version_print;$/;"	m	union:radio_packet_t::__anon4
+write_index	radio.h	/^    int write_index;$/;"	m	struct:radio_state_t
+_parse_i16	serial_api.cpp	/^int _parse_i16(char* in) {$/;"	f
+_parse_i32	serial_api.cpp	/^long _parse_i32(char* in) {$/;"	f
+_parse_u16	serial_api.cpp	/^unsigned int _parse_u16(char* in) {$/;"	f
+_parse_u32	serial_api.cpp	/^unsigned long _parse_u32(char* in) {$/;"	f
+_print_i16	serial_api.cpp	/^void _print_i16(char type, int val)$/;"	f
+_print_i32	serial_api.cpp	/^void _print_i32(char type, long val)$/;"	f
+_print_string	serial_api.cpp	/^void _print_string(char type, char* str)$/;"	f
+_print_u16	serial_api.cpp	/^void _print_u16(char type, unsigned int val)$/;"	f
+_print_u32	serial_api.cpp	/^void _print_u32(char type, unsigned long val)$/;"	f
+_serial_api_end	serial_api.cpp	/^inline void _serial_api_end(const char *in)$/;"	f
+_serial_api_end_len	serial_api.cpp	/^inline void _serial_api_end_len(char *in, int len)$/;"	f
+_serial_api_in	serial_api.cpp	/^inline char *_serial_api_in(int index)$/;"	f
+_serial_api_inner_queue_byte	serial_api.cpp	/^void _serial_api_inner_queue_byte(char byte,$/;"	f
+_serial_api_out	serial_api.cpp	/^inline char *_serial_api_out(int index)$/;"	f
+_serial_api_print	serial_api.cpp	/^inline void _serial_api_print(const char *in)$/;"	f
+_serial_api_print_len	serial_api.cpp	/^inline void _serial_api_print_len(char *in, int len)$/;"	f
+_serial_api_print_ok	serial_api.cpp	/^inline void _serial_api_print_ok(char type)$/;"	f
+_serial_api_process_command	serial_api.cpp	/^void _serial_api_process_command(int length)$/;"	f
+_serial_api_reset_in_buffer	serial_api.cpp	/^inline void _serial_api_reset_in_buffer()$/;"	f
+serial_api_queue_byte	serial_api.cpp	/^void serial_api_queue_byte(char byte)$/;"	f
+serial_api_queue_output	serial_api.cpp	/^void serial_api_queue_output(const char *message)$/;"	f
+serial_api_queue_output_len	serial_api.cpp	/^void serial_api_queue_output_len(char *message,$/;"	f
+serial_api_read_response	serial_api.cpp	/^serial_api_response_t serial_api_read_response()$/;"	f
+serial_api_state	serial_api.cpp	/^serial_api_state_t serial_api_state = {0};$/;"	v
+MALFORMED_COMMAND	serial_api.h	13;"	d
+MAX_INPUT_LENGTH_EXCEEDED	serial_api.h	11;"	d
+MAX_RESPONSE_LENGTH_EXCEEDED	serial_api.h	10;"	d
+SERIAL_ACCEL_GET	serial_api.h	/^    SERIAL_ACCEL_GET            = 'a',$/;"	e	enum:__anon8
+SERIAL_ACCEL_SET	serial_api.h	/^    SERIAL_ACCEL_SET            = 'A',$/;"	e	enum:__anon8
+SERIAL_API_END_OF_COMMAND	serial_api.h	/^const char SERIAL_API_END_OF_COMMAND = '\\n';$/;"	v
+SERIAL_API_END_OF_RESPONSE	serial_api.h	/^const char SERIAL_API_END_OF_RESPONSE = '\\n';$/;"	v
+SERIAL_API_ESCAPE	serial_api.h	/^const char SERIAL_API_ESCAPE = '\\\\';$/;"	v
+SERIAL_API_H	serial_api.h	2;"	d
+SERIAL_API_IN_BUFFER_SIZE	serial_api.h	/^const int SERIAL_API_IN_BUFFER_SIZE = 128;$/;"	v
+SERIAL_API_OUT_BUFFER_SIZE	serial_api.h	/^const int SERIAL_API_OUT_BUFFER_SIZE = 128;$/;"	v
+SERIAL_CHANNEL_GET	serial_api.h	/^    SERIAL_CHANNEL_GET          = 'c',$/;"	e	enum:__anon8
+SERIAL_CHANNEL_SET	serial_api.h	/^    SERIAL_CHANNEL_SET          = 'C',$/;"	e	enum:__anon8
+SERIAL_ECHO	serial_api.h	/^    SERIAL_ECHO                 = 'h',$/;"	e	enum:__anon8
+SERIAL_ENCODER_GET	serial_api.h	/^    SERIAL_ENCODER_GET          = 'e',$/;"	e	enum:__anon8
+SERIAL_ID_GET	serial_api.h	/^    SERIAL_ID_GET               = 'i',$/;"	e	enum:__anon8
+SERIAL_ID_SET	serial_api.h	/^    SERIAL_ID_SET               = 'I',$/;"	e	enum:__anon8
+SERIAL_IGNORE	serial_api.h	/^    SERIAL_IGNORE               = '_',$/;"	e	enum:__anon8
+SERIAL_LEDS	serial_api.h	/^    SERIAL_LEDS                 = 'l',$/;"	e	enum:__anon8
+SERIAL_MAX_SPEED_GET	serial_api.h	/^    SERIAL_MAX_SPEED_GET        = 'm',$/;"	e	enum:__anon8
+SERIAL_MAX_SPEED_SET	serial_api.h	/^    SERIAL_MAX_SPEED_SET        = 'M',$/;"	e	enum:__anon8
+SERIAL_NAME_GET	serial_api.h	/^    SERIAL_NAME_GET             = 'n',$/;"	e	enum:__anon8
+SERIAL_NAME_SET	serial_api.h	/^    SERIAL_NAME_SET             = 'N',$/;"	e	enum:__anon8
+SERIAL_POT_GET	serial_api.h	/^    SERIAL_POT_GET              = 'p',$/;"	e	enum:__anon8
+SERIAL_PRESET_INDEX_GET	serial_api.h	/^    SERIAL_PRESET_INDEX_GET     = 'q',$/;"	e	enum:__anon8
+SERIAL_PRESET_INDEX_SET	serial_api.h	/^    SERIAL_PRESET_INDEX_SET     = 'Q',$/;"	e	enum:__anon8
+SERIAL_RELOAD_CONFIG	serial_api.h	/^    SERIAL_RELOAD_CONFIG        = 'x',$/;"	e	enum:__anon8
+SERIAL_REMOTE_CHANNEL_GET	serial_api.h	/^    SERIAL_REMOTE_CHANNEL_GET   = 'd',$/;"	e	enum:__anon8
+SERIAL_REMOTE_CHANNEL_SET	serial_api.h	/^    SERIAL_REMOTE_CHANNEL_SET   = 'D',$/;"	e	enum:__anon8
+SERIAL_REMOTE_ROLE	serial_api.h	/^    SERIAL_REMOTE_ROLE          = 's',$/;"	e	enum:__anon8
+SERIAL_REMOTE_VERSION	serial_api.h	/^    SERIAL_REMOTE_VERSION       = 'w',$/;"	e	enum:__anon8
+SERIAL_ROLE	serial_api.h	/^    SERIAL_ROLE                 = 'r',$/;"	e	enum:__anon8
+SERIAL_SAVE_CONFIG	serial_api.h	/^    SERIAL_SAVE_CONFIG          = 'u',$/;"	e	enum:__anon8
+SERIAL_START_STATE_GET	serial_api.h	/^    SERIAL_START_STATE_GET      = 't',$/;"	e	enum:__anon8
+SERIAL_START_STATE_SET	serial_api.h	/^    SERIAL_START_STATE_SET      = 'T',$/;"	e	enum:__anon8
+SERIAL_TARGET_POSITION_GET	serial_api.h	/^    SERIAL_TARGET_POSITION_GET  = 'o',$/;"	e	enum:__anon8
+SERIAL_TARGET_POSITION_SET	serial_api.h	/^    SERIAL_TARGET_POSITION_SET  = 'O',$/;"	e	enum:__anon8
+SERIAL_VERSION	serial_api.h	/^    SERIAL_VERSION              = 'v',$/;"	e	enum:__anon8
+UNKNOWN_COMMAND	serial_api.h	12;"	d
+buffer	serial_api.h	/^    char *buffer;$/;"	m	struct:serial_api_response_t
+echo	serial_api.h	/^        serial_api_echo_command_t echo;$/;"	m	union:serial_api_command_t::__anon9
+in_buffer	serial_api.h	/^    char in_buffer[SERIAL_API_IN_BUFFER_SIZE];$/;"	m	struct:serial_api_state_t
+in_index	serial_api.h	/^    int in_index;$/;"	m	struct:serial_api_state_t
+input	serial_api.h	/^    char *input;$/;"	m	struct:serial_api_echo_command_t
+length	serial_api.h	/^    int length;$/;"	m	struct:serial_api_echo_command_t
+length	serial_api.h	/^    int length;$/;"	m	struct:serial_api_response_t
+out_buffer	serial_api.h	/^    char out_buffer[SERIAL_API_OUT_BUFFER_SIZE];$/;"	m	struct:serial_api_state_t
+out_index	serial_api.h	/^    int out_index;$/;"	m	struct:serial_api_state_t
+serial_api_command_t	serial_api.h	/^struct serial_api_command_t {$/;"	s
+serial_api_echo_command_t	serial_api.h	/^struct serial_api_echo_command_t {$/;"	s
+serial_api_response_t	serial_api.h	/^struct serial_api_response_t {$/;"	s
+serial_api_state_t	serial_api.h	/^struct serial_api_state_t {$/;"	s
+type	serial_api.h	/^        char type;$/;"	m	union:serial_api_command_t::__anon9
+type	serial_api.h	/^    char type;$/;"	m	struct:serial_api_echo_command_t
+ACCEL_LOC	settings.h	9;"	d
+CHANNEL_LOC	settings.h	10;"	d
+MAX_VEL_LOC	settings.h	8;"	d
+ZMODE_ACCEL_LOC	settings.h	12;"	d
+ZMODE_MAX_VEL_LOC	settings.h	11;"	d
+get_int_16	settings.h	/^inline int get_int_16(int loc) {$/;"	f
+get_int_32	settings.h	/^inline long get_int_32(int loc) {$/;"	f
+set_int_16	settings.h	/^inline void set_int_16(int loc, int val)$/;"	f
+set_int_32	settings.h	/^inline void set_int_32(int loc, long val)$/;"	f
+settings_get_accel	settings.h	/^inline long settings_get_accel()$/;"	f
+settings_get_channel	settings.h	/^inline int settings_get_channel()$/;"	f
+settings_get_max_velocity	settings.h	/^inline long settings_get_max_velocity()$/;"	f
+settings_get_z_accel	settings.h	/^inline long settings_get_z_accel()$/;"	f
+settings_get_z_max_velocity	settings.h	/^inline long settings_get_z_max_velocity()$/;"	f
+settings_h	settings.h	3;"	d
+settings_set_accel	settings.h	/^inline void settings_set_accel(long val)$/;"	f
+settings_set_channel	settings.h	/^inline void settings_set_channel(int val)$/;"	f
+settings_set_max_velocity	settings.h	/^inline void settings_set_max_velocity(long val)$/;"	f
+settings_set_z_accel	settings.h	/^inline void settings_set_z_accel(long val)$/;"	f
+settings_set_z_max_velocity	settings.h	/^inline void settings_set_z_max_velocity(long val)$/;"	f
+BIT_SHIFT	util.h	/^const int BIT_SHIFT = 15;$/;"	v
+FIXED_ONE	util.h	/^const long FIXED_ONE = i16_to_fixed(1);$/;"	v
+abs32	util.h	/^inline long abs32(long a) {$/;"	f
+fixed_div	util.h	/^inline long fixed_div(long a, long b) {$/;"	f
+fixed_mult	util.h	/^inline long fixed_mult(long a, long b) {$/;"	f
+fixed_to_i16	util.h	/^inline int fixed_to_i16(long a) {$/;"	f
+fixed_to_i32	util.h	/^inline long fixed_to_i32(long a) {$/;"	f
+i16_to_fixed	util.h	/^inline long i16_to_fixed(int a) {$/;"	f
+i32_to_fixed	util.h	/^inline long i32_to_fixed(long a) {$/;"	f
+lenzhound_util_h	util.h	2;"	d
+max32	util.h	/^inline long max32(long a, long b) {$/;"	f
+min32	util.h	/^inline long min32(long a, long b) {$/;"	f
+ROLE	version.h	11;"	d
+ROLE_COUNT	version.h	/^    ROLE_COUNT$/;"	e	enum:__anon7
+ROLE_DOGBONE	version.h	/^    ROLE_DOGBONE,$/;"	e	enum:__anon7
+ROLE_PAW	version.h	/^    ROLE_PAW,$/;"	e	enum:__anon7
+VERSION	version.h	10;"	d
+VERSION_H	version.h	2;"	d

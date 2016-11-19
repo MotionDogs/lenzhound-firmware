@@ -23,20 +23,14 @@
 #include "constants.h"
 #include "macros.h"
 #include "motor.h"
-#include "motorcontroller.h"
+#include "controller.h"
 #include "events.h"
 #include "serial_api.h"
 #include "radio.h"
 
-// Console console;
-static serial_api_state_t serial_api_state = { 0 };
-static console_state_t console_state = { 0 };
-static radio_state_t radio_state = { 0 };
-static lh::MotorController motor_controller = lh::MotorController();
-
 void timer_interrupt()
 {
-    motor_controller.run();
+    controller_run();
 }
 
 void setup()
@@ -55,23 +49,12 @@ void setup()
     ANT_CTRL1(CLR);
     ANT_CTRL2(SET);
 
-    radio_state.serial_state = &serial_api_state;
-    radio_state.motor_controller = &motor_controller;
-    radio_init(&radio_state);
-    console_state.serial_state = &serial_api_state;
-    serial_api_state.motor_controller = &motor_controller;
-
-    long accel = settings_get_accel();
-    long max_velocity = settings_get_max_velocity();
-    long z_max_velocity = settings_get_z_max_velocity();
-    long z_accel = settings_get_z_accel();
-
-    motor_controller.set_accel(accel);
-    motor_controller.set_velocity(max_velocity);
-    motor_controller.set_z_accel(z_accel);
-    motor_controller.set_z_velocity(z_max_velocity);
-    motor_controller.set_accel_percent(100);
-    motor_controller.set_velocity_percent(100);
+    controller_init();
+    radio_init();
+    controller_set_accel(1);
+    controller_set_speed(1);
+    controller_set_accel_percent(100);
+    controller_set_speed_percent(100);
 
     Timer1.initialize();
     Timer1.attachInterrupt(timer_interrupt, ISR_PERIOD);
@@ -79,6 +62,6 @@ void setup()
 
 void loop()
 {
-    radio_run(&radio_state);
-    console_run(&console_state);
+    radio_run();
+    console_run();
 }

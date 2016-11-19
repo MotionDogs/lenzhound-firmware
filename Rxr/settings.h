@@ -2,7 +2,7 @@
 #ifndef settings_h
 #define settings_h
 
-#include "eepromImpl.h"
+#include "eeprom_helpers.h"
 
 // EEPROM locations for parameters
 #define MAX_VEL_LOC       0  // long
@@ -13,24 +13,20 @@
 
 inline void set_int_16(int loc, int val)
 {
-    eeprom::WriteInt16(loc, val);
+    eeprom_write_int16(loc, val);
 }
 
 inline int get_int_16(int loc) {
-    int val;
-    eeprom::ReadInt16(loc, &val);
-    return val;
+    return eeprom_read_int16(loc);
 }
 
 inline void set_int_32(int loc, long val)
 {
-    eeprom::WriteInt32(loc, val);
+    eeprom_write_int32(loc, val);
 }
 
 inline long get_int_32(int loc) {
-    long val;
-    eeprom::ReadInt32(loc, &val);
-    return val;
+    return eeprom_read_int32(loc);
 }
 
 inline int settings_get_channel()
