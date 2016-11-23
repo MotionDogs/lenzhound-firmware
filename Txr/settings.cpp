@@ -1,3 +1,4 @@
+#include "Arduino.h"
 #include "settings.h"
 
 static settings_state_t settings_state;
@@ -18,7 +19,14 @@ int _settings_position(int offset, int size)
 
 char settings_get_preset_index()
 {
-    return eeprom_read_char(PRESET_INDEX_OFFSET);
+    char preset_index = eeprom_read_char(PRESET_INDEX_OFFSET);
+    if (preset_index < 0) {
+        return 0;
+    } else if (preset_index > 3) {
+        return 3;
+    } else {
+        return preset_index;
+    }
 }
 
 void settings_set_preset_index(char index)
@@ -80,6 +88,7 @@ void settings_init()
                 DEFAULT_NAME, NAME_MAX_LENGTH);
         }
 
+        eeprom_write_char(PRESET_INDEX_OFFSET, 0);
         eeprom_write_uint32(SENTINEL_LOC, SENTINEL_VALUE);
     }
 

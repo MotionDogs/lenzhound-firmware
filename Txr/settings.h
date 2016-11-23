@@ -52,7 +52,7 @@
 #define DEFAULT_MAX_ACCEL       32
 #define DEFAULT_NAME            ""
 
-#define DEFAULT_ID_SEED         0xcafeul
+#define DEFAULT_ID_SEED         0xfaceul
 
 struct settings_state_t {
     unsigned int debounced_max_speed;

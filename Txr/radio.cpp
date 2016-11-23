@@ -334,24 +334,14 @@ void radio_run()
 
 
     if (_get_radio_packet(&packet)) {
-        // if (packet.version == RADIO_VERSION) {
-            // radio_state.version_match = 1;
-        Serial.println("get");
         _process_packet(packet);
-        // } else {
-            // radio_state.version_match = 0;
-        // }
     }
 
     if (_is_radio_available() && radio_state.read_index != radio_state.write_index) {
         radio_packet_t *out_packet = &radio_state.buffer[radio_state.read_index++];
         radio_state.read_index %= RADIO_OUT_BUFFER_SIZE;
-        Serial.println("send");
         _send_radio_packet(out_packet);
     }
-
-
-    // if (radio_state.heartbeat_sent_timestamp)
 }
 
 void radio_set_channel(int channel)

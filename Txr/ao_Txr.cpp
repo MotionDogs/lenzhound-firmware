@@ -41,7 +41,7 @@ enum TxrTimeouts {
     // how often to check that transmitter is still powered (in case of low battery)
     ALIVE_DURATION_TOUT = BSP_TICKS_PER_SEC * 5,
 
-    SEND_SPEED_AND_ACCEL_TOUT = BSP_TICKS_PER_SEC * 5,
+    SEND_SPEED_AND_ACCEL_TOUT = BSP_TICKS_PER_SEC / 4,
 };
 
 // todo: move this somewhere else or do differently
@@ -610,8 +610,8 @@ QP::QState Txr::free_run_mode(Txr *const me, QP::QEvt const *const e)
                     ((PositionButtonEvt *)e)->ButtonNum;
                 Q_REQUIRE(me->prev_position_button_pressed_ < NUM_POSITION_BUTTONS);
                 me->saved_positions_[me->prev_position_button_pressed_] = me->cur_pos_;
-                settings_set_saved_position((int)me->cur_pos_,
-                                            me->prev_position_button_pressed_);
+                settings_set_saved_position(me->prev_position_button_pressed_,
+                                            (int)me->cur_pos_);
                 BSP_turn_on_speed_LED(me->prev_position_button_pressed_);
                 me->flash_timeout_.postIn(me, FLASH_RATE_TOUT);
             }
