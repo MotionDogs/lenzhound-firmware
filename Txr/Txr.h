@@ -25,6 +25,8 @@ enum PelicanSignals {
     MAX_PUB_SIG,  // the last published signal
 
     SEND_TIMEOUT_SIG,
+    FLUSH_SETTINGS_TIMEOUT_SIG,
+    SPEED_AND_ACCEL_TIMEOUT_SIG,
     FLASH_RATE_SIG,
     CALIBRATION_SIG
 };

@@ -227,7 +227,6 @@ void _serial_api_process_command(int length)
         _serial_api_end(UNKNOWN_COMMAND);
     } break;
     case (SERIAL_SAVE_CONFIG): {
-        settings_flush_debounced_values();
         _serial_api_print_ok(cmd);
     } break;
     case (SERIAL_RELOAD_CONFIG): {

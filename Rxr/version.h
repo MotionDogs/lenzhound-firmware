@@ -7,7 +7,7 @@ enum {
     ROLE_COUNT      = 2
 };
 
-#define VERSION     "2.5"
+#define VERSION     "2.7"
 #define ROLE        ROLE_DOGBONE
 
 #endif

@@ -25,6 +25,7 @@ Q_DEFINE_THIS_FILE
 #define MID_SPEED  50
 #define MIN_SPEED  1
 
+#define MAX_SPEED_ENCODER_FACTOR  64
 #define ENCODER_COUNTS_PER_SPEED_PERCENT  4
 #define SPEED_PERCENT_SLOP 2
 
@@ -42,6 +43,8 @@ enum TxrTimeouts {
     ALIVE_DURATION_TOUT = BSP_TICKS_PER_SEC * 5,
 
     SEND_SPEED_AND_ACCEL_TOUT = BSP_TICKS_PER_SEC / 4,
+
+    FLUSH_SETTINGS_TOUT = BSP_TICKS_PER_SEC * 4,
 };
 
 // todo: move this somewhere else or do differently
@@ -66,6 +69,8 @@ private:
     QTimeEvt alive_timeout_;
     QTimeEvt flash_timeout_;
     QTimeEvt send_timeout_;
+    QTimeEvt speed_and_accel_timeout_;
+    QTimeEvt flush_settings_timeout_;
     QTimeEvt calibration_timeout_;
     long playback_target_pos_;
     float cur_pos_;    // float to save partial moves needed by encoder resolution division
@@ -87,6 +92,8 @@ public:
     Txr() :
         QActive((QStateHandler) & Txr::initial),
         flash_timeout_(FLASH_RATE_SIG), send_timeout_(SEND_TIMEOUT_SIG),
+        flush_settings_timeout_(FLUSH_SETTINGS_TIMEOUT_SIG),
+        speed_and_accel_timeout_(SPEED_AND_ACCEL_TIMEOUT_SIG),
         calibration_timeout_(CALIBRATION_SIG), alive_timeout_(ALIVE_SIG),
         previous_speed_percent_(-1), playback_target_pos_(0)
     {
@@ -102,10 +109,12 @@ protected:
     static QP::QState play_back_mode(Txr *const me, QP::QEvt const *const e);
     static QP::QState z_mode(Txr *const me, QP::QEvt const *const e);
 
+    void update_position();
     void update_position_freerun();
     void update_position_calibration();
     void update_position_z_mode();
     void update_position_playback();
+    void update_max_speed_using_encoder();
     void update_calibration_multiplier(int setting);
     void log_value(char key, long value);
     void set_LED_status(int led, int status);
@@ -301,6 +310,34 @@ void Txr::update_position_freerun()
         update_speed_LEDs(speed_percent);   
     }
 
+    update_position();
+}
+
+void Txr::update_max_speed_using_encoder()
+{
+    long cur_encoder_count = BSP_get_encoder();
+
+    if (cur_encoder_count != prev_encoder_count_) {
+        log_value(SERIAL_ENCODER_GET, cur_encoder_count);
+    }
+
+    float amount_to_move = cur_encoder_count - prev_encoder_count_;
+    amount_to_move /= 4.0;
+    amount_to_move *= MAX_SPEED_ENCODER_FACTOR;
+
+    long cur_max_speed = settings_get_max_speed();
+
+    prev_encoder_count_ = cur_encoder_count;
+
+    if (amount_to_move != 0) {
+        long clamped = clamp(cur_max_speed + amount_to_move, 1, 32768);
+        settings_set_max_speed((unsigned int)clamped);
+        log_value(SERIAL_MAX_SPEED_GET, clamped);
+    }
+}
+
+void Txr::update_position()
+{
     long new_pos = BSP_get_pot();
 
     // only update the current position if it's not jittering between two values
@@ -314,12 +351,11 @@ void Txr::update_position_freerun()
 
         PACKET_SEND(PACKET_TARGET_POSITION_SET, target_position_set, cur_pos_);
     }
-
 }
 
 void Txr::update_position_z_mode()
 {
-    update_position_freerun();
+    update_position();
 }
 
 void Txr::update_position_playback()
@@ -370,7 +406,9 @@ QP::QState Txr::initial(Txr *const me, QP::QEvt const *const e)
     me->subscribe(POSITION_BUTTON_SIG);
     me->subscribe(UPDATE_PARAMS_SIG);
     me->send_timeout_.postEvery(me, SEND_ENCODER_TOUT);
+    me->flush_settings_timeout_.postEvery(me, FLUSH_SETTINGS_TOUT);
     me->alive_timeout_.postEvery(me, ALIVE_DURATION_TOUT);
+    me->speed_and_accel_timeout_.postEvery(me, SEND_SPEED_AND_ACCEL_TOUT);
     me->calibration_pos_1_ = settings_get_calibration_position_1();
     me->calibration_pos_2_ = settings_get_calibration_position_2();
 
@@ -407,10 +445,17 @@ QP::QState Txr::on(Txr *const me, QP::QEvt const *const e)
             } else {
                 me->set_LED_status(GREEN_LED, LED_ON);
             }
+            status = Q_HANDLED();
+        } break;
+        case SPEED_AND_ACCEL_TIMEOUT_SIG:{
             PACKET_SEND(PACKET_MAX_SPEED_SET, max_speed_set,
                 settings_get_max_speed());
             PACKET_SEND(PACKET_ACCEL_SET, accel_set,
                 settings_get_max_accel());
+            status = Q_HANDLED();
+        } break;
+        case FLUSH_SETTINGS_TIMEOUT_SIG: {
+            settings_flush_debounced_values();
             status = Q_HANDLED();
         } break;
         case UPDATE_PARAMS_SIG: {
@@ -673,6 +718,8 @@ QP::QState Txr::z_mode(Txr *const me, QP::QEvt const *const e)
             me->set_LED_status(ENC_GREEN_LED, LED_ON);
             me->set_LED_status(ENC_RED_LED, LED_ON);
 
+            me->prev_encoder_count_ = BSP_get_encoder();
+
             status = Q_HANDLED();
         } break;
         case Q_EXIT_SIG: {
@@ -680,6 +727,7 @@ QP::QState Txr::z_mode(Txr *const me, QP::QEvt const *const e)
             status = Q_HANDLED();
         } break;
         case SEND_TIMEOUT_SIG: {
+            me->update_max_speed_using_encoder();
             me->update_position_z_mode();
             status = Q_HANDLED();
         } break;

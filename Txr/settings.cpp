@@ -105,10 +105,19 @@ void settings_flush_debounced_values()
 {
     unsigned int max_speed = settings_state.debounced_max_speed;
     unsigned int max_accel = settings_state.debounced_max_accel;
-    eeprom_write_uint16(
-        _settings_position(MAX_SPEED_OFFSET, MAX_SPEED_SIZE), max_speed);
-    eeprom_write_int16(
-        _settings_position(MAX_ACCEL_OFFSET, MAX_ACCEL_SIZE), max_accel);
+    unsigned int existing_max_speed = 
+        eeprom_read_uint16(_settings_position(MAX_SPEED_OFFSET, MAX_SPEED_SIZE));
+    unsigned int existing_max_accel = 
+        eeprom_read_int16(_settings_position(MAX_ACCEL_OFFSET, MAX_ACCEL_SIZE));
+
+    if (existing_max_speed != max_speed) {
+        eeprom_write_uint16(
+            _settings_position(MAX_SPEED_OFFSET, MAX_SPEED_SIZE), max_speed);   
+    }
+    if (existing_max_accel != max_accel) {
+        eeprom_write_int16(
+            _settings_position(MAX_ACCEL_OFFSET, MAX_ACCEL_SIZE), max_accel);   
+    }
 }
 
 unsigned long settings_get_id()
