@@ -6,6 +6,16 @@
 #include "eeprom_helpers.h"
 #include "Arduino.h"
 
+const char SERIAL_API_END_OF_RESPONSE       = '\n';
+const char SERIAL_API_END_OF_COMMAND        = '\n';
+const char SERIAL_API_ESCAPE                = '\\';
+const int SERIAL_API_EEPROM_SCAN_LENGTH     = 16;
+
+const char* MAX_RESPONSE_LENGTH_EXCEEDED    = "ERR 01";
+const char* MAX_INPUT_LENGTH_EXCEEDED       = "ERR 02";
+const char* UNKNOWN_COMMAND                 = "ERR 03";
+const char* MALFORMED_COMMAND               = "ERR 04";
+
 serial_api_state_t serial_api_state = {0};
 
 inline char *_serial_api_out(int index)
@@ -187,13 +197,10 @@ void _serial_api_process_command(int length)
     case (SERIAL_CHANNEL_SET): {
         unsigned int channel = _parse_u16(in);
         settings_set_channel(channel);
-        radio_set_channel(channel);
+        radio_set_channel(channel, false);
     } break;
     case (SERIAL_REMOTE_CHANNEL_GET): {
         PACKET_SEND_EMPTY(PACKET_CHANNEL_GET);
-    } break;
-    case (SERIAL_REMOTE_CHANNEL_SET): {
-        _serial_api_end(UNKNOWN_COMMAND);
     } break;
     case (SERIAL_START_STATE_GET): {
         _print_i16(cmd, settings_get_start_in_calibration_mode());
@@ -220,13 +227,8 @@ void _serial_api_process_command(int length)
         PACKET_SEND(PACKET_ACCEL_SET, accel_set, _parse_i16(in));
         _serial_api_print_ok(cmd);
     } break;
-    case (SERIAL_POT_GET): {
-        _serial_api_end(UNKNOWN_COMMAND);
-    } break;
-    case (SERIAL_ENCODER_GET): {
-        _serial_api_end(UNKNOWN_COMMAND);
-    } break;
     case (SERIAL_SAVE_CONFIG): {
+        // NOTE(doug): this is deprecated, but we're leaving an OK for now
         _serial_api_print_ok(cmd);
     } break;
     case (SERIAL_RELOAD_CONFIG): {
@@ -234,7 +236,7 @@ void _serial_api_process_command(int length)
         PACKET_SEND(PACKET_MAX_SPEED_SET, max_speed_set,
             settings_get_max_speed());
 
-        radio_set_channel(settings_get_channel());
+        radio_set_channel(settings_get_channel(), false);
         _serial_api_print_ok(cmd);
     } break;
     case (SERIAL_TARGET_POSITION_GET): {
@@ -244,6 +246,42 @@ void _serial_api_process_command(int length)
         PACKET_SEND(PACKET_TARGET_POSITION_SET,
             target_position_set, _parse_i32(in));
         _serial_api_print_ok(cmd);
+    } break;
+    case (SERIAL_EEPROM_EXPORT): {
+        int start = _parse_i16(in);
+        int length = min(EEPROM_MAX_ADDR - start, SERIAL_API_EEPROM_SCAN_LENGTH);
+        length = max(0, length);
+        unsigned char byte_buffer[SERIAL_API_EEPROM_SCAN_LENGTH];
+        eeprom_read_bytes(start, byte_buffer, length);
+
+        char buffer[SERIAL_API_EEPROM_SCAN_LENGTH * 2 + 1];
+        buffer[0] = 0;
+        for (int i = 0; i < length; ++i) {
+            sprintf(buffer + (i * 2), "%02x", byte_buffer[i]);
+        }
+
+        _print_string(cmd, buffer);
+    } break;
+    case (SERIAL_EEPROM_IMPORT): {
+        int start = _parse_i16(in);
+        int length;
+        char buffer[33];
+        sscanf(in, "%*c %*d %d %32s", &length, buffer);
+        if (length > 16) {
+            _serial_api_end(MALFORMED_COMMAND);
+        } else if (length > 0) {
+            unsigned char byte_buffer[17];
+            for (int i = 0; i < length; ++i) {
+                unsigned char byte;
+                sscanf(buffer + i * 2, "%02hhx", &byte);
+                byte_buffer[i] = byte;
+            }
+            eeprom_write_bytes(start, byte_buffer, length);
+
+            _serial_api_print_ok(cmd);
+        } else {
+            _serial_api_print_ok(cmd);
+        }
     } break;
     default: {
         _serial_api_end(UNKNOWN_COMMAND);

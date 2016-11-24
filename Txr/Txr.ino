@@ -18,7 +18,6 @@
 #include <nRF24L01.h>
 #include <MirfHardwareSpiDriver.h>
 #include "Arduino.h"
-#include <CmdMessenger.h>
 #include <EEPROM.h>
 
 

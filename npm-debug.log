@@ -1,14 +1,14 @@
 0 info it worked if it ends with ok
 1 verbose cli [ '/usr/bin/node', '/usr/bin/npm', 'start' ]
-2 info using npm@3.10.3
-3 info using node@v6.2.2
+2 info using npm@3.10.9
+3 info using node@v6.9.1
 4 verbose stack Error: ENOENT: no such file or directory, open '/home/doug/Lenzhound-1.x/package.json'
 4 verbose stack     at Error (native)
 5 verbose cwd /home/doug/Lenzhound-1.x
-6 error Linux 4.6.3-1-ARCH
+6 error Linux 4.8.4-1-ARCH
 7 error argv "/usr/bin/node" "/usr/bin/npm" "start"
-8 error node v6.2.2
-9 error npm  v3.10.3
+8 error node v6.9.1
+9 error npm  v3.10.9
 10 error path /home/doug/Lenzhound-1.x/package.json
 11 error code ENOENT
 12 error errno -2

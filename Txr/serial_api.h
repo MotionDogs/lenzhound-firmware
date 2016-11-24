@@ -1,18 +1,8 @@
 #ifndef SERIAL_API_H
 #define SERIAL_API_H
 
-const int SERIAL_API_IN_BUFFER_SIZE = 128;
-const int SERIAL_API_OUT_BUFFER_SIZE = 128;
-const char SERIAL_API_END_OF_RESPONSE = '\n';
-const char SERIAL_API_END_OF_COMMAND = '\n';
-const char SERIAL_API_ESCAPE = '\\';
-
-#define MAX_RESPONSE_LENGTH_EXCEEDED "ERR 01"
-#define MAX_INPUT_LENGTH_EXCEEDED    "ERR 02"
-#define UNKNOWN_COMMAND              "ERR 03"
-#define MALFORMED_COMMAND            "ERR 04"
-
-struct radio_state_t;
+const int SERIAL_API_IN_BUFFER_SIZE         = 128;
+const int SERIAL_API_OUT_BUFFER_SIZE        = 128;
 
 struct serial_api_state_t {
     char in_buffer[SERIAL_API_IN_BUFFER_SIZE];
@@ -50,6 +40,8 @@ enum {
     SERIAL_RELOAD_CONFIG        = 'x',
     SERIAL_TARGET_POSITION_GET  = 'o',
     SERIAL_TARGET_POSITION_SET  = 'O',
+    SERIAL_EEPROM_IMPORT        = 'G',
+    SERIAL_EEPROM_EXPORT        = 'g',
     SERIAL_IGNORE               = '_',
 };
 

@@ -460,7 +460,7 @@ QP::QState Txr::on(Txr *const me, QP::QEvt const *const e)
         } break;
         case UPDATE_PARAMS_SIG: {
             int channel = settings_get_channel();
-            radio_set_channel(channel);
+            radio_set_channel(channel, false);
             status = Q_HANDLED();
         } break;
         default: {
@@ -735,13 +735,13 @@ QP::QState Txr::z_mode(Txr *const me, QP::QEvt const *const e)
             int button_index = ((PositionButtonEvt *)e)->ButtonNum;
             Q_REQUIRE(button_index < NUM_POSITION_BUTTONS);
 
+            me->log_value(SERIAL_PRESET_INDEX_GET, button_index);
             settings_set_preset_index(button_index);
-            radio_set_channel(settings_get_channel());
+            radio_set_channel(settings_get_channel(), false);
             PACKET_SEND(PACKET_MAX_SPEED_SET, max_speed_set,
                 settings_get_max_speed());
             PACKET_SEND(PACKET_ACCEL_SET, accel_set, settings_get_max_accel());
 
-            me->log_value(SERIAL_PRESET_INDEX_GET, button_index);
 
             status = Q_HANDLED();
         } break;

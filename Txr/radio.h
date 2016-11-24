@@ -163,7 +163,7 @@ struct radio_state_t {
 void radio_init();
 void radio_run();
 void radio_queue_message(radio_packet_t packet);
-void radio_set_channel(int channel);
+void radio_set_channel(int channel, bool force);
 bool radio_is_alive();
 
 #endif //radio_h
