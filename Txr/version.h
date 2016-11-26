@@ -8,7 +8,7 @@ enum {
 };
 
 
-#define VERSION     "2.8"
+#define VERSION     "2.9"
 #define ROLE        ROLE_PAW
 
 #endif

@@ -15,7 +15,6 @@
 #include <MirfSpiDriver.h>
 #include <nRF24L01.h>
 #include <EEPROM.h>
-#include <CmdMessenger.h>
 #include "NewTimerOne.h"
 #include "settings.h"
 #include "console.h"
@@ -24,7 +23,6 @@
 #include "macros.h"
 #include "motor.h"
 #include "controller.h"
-#include "events.h"
 #include "serial_api.h"
 #include "radio.h"
 

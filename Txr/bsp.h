@@ -83,7 +83,7 @@ enum {
 };
 
 // Sys timer tick per seconds
-#define BSP_TICKS_PER_SEC    1024
+#define BSP_TICKS_PER_SEC    256
 
 void BSP_init(void);
 long BSP_get_encoder();

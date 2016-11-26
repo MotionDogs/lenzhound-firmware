@@ -118,6 +118,7 @@ protected:
     void update_calibration_multiplier(int setting);
     void log_value(char key, long value);
     void set_LED_status(int led, int status);
+    void set_speed_LED_status(int led, int status);
     void init_speed_percent(int start_percentage);
     int get_speed_percent_if_changed();
     void update_speed_LEDs(int speed_percent);
@@ -139,6 +140,7 @@ enum {
 // for these LEDs to the API, to make the UI prettier if we want to.
 void Txr::set_LED_status(int led, int status)
 {
+    log_value(SERIAL_LEDS, ((status & 0xff) << 8) | (led & 0xff));
     if (status == LED_ON) {
         switch (led) {
         case SPEED_LED1: {
@@ -214,6 +216,30 @@ void Txr::set_LED_status(int led, int status)
     }
 }
 
+void Txr::set_speed_LED_status(int led, int status)
+{
+    int actual = 0;
+    switch (led) {
+        case 0: {
+            actual = SPEED_LED1;
+        } break;
+        case 1: {
+            actual = SPEED_LED2;
+        } break;
+        case 2: {
+            actual = SPEED_LED4;
+        } break;
+        case 3: {
+            actual = SPEED_LED5;
+        } break;
+        default: {
+            Q_ERROR();
+        } break;
+    }
+    set_LED_status(actual, status);
+}
+
+
 void Txr::init_speed_percent(int start_percentage)
 {
 	long encoder_pos = BSP_get_encoder();
@@ -266,10 +292,10 @@ void Txr::update_speed_LEDs(int speed_percent)
 
 void Txr::set_speed_LEDs_off()
 {
-    RED_LED_OFF();
-    BSP_turn_off_speed_LED(1);
-    BSP_turn_off_speed_LED(2);
-    GREEN_LED_OFF();
+    set_speed_LED_status(0, LED_OFF);
+    set_speed_LED_status(1, LED_OFF);
+    set_speed_LED_status(2, LED_OFF);
+    set_speed_LED_status(3, LED_OFF);
 }
 
 void Txr::log_value(char key, long value)
@@ -657,7 +683,7 @@ QP::QState Txr::free_run_mode(Txr *const me, QP::QEvt const *const e)
                 me->saved_positions_[me->prev_position_button_pressed_] = me->cur_pos_;
                 settings_set_saved_position(me->prev_position_button_pressed_,
                                             (int)me->cur_pos_);
-                BSP_turn_on_speed_LED(me->prev_position_button_pressed_);
+                me->set_speed_LED_status(me->prev_position_button_pressed_, LED_ON);
                 me->flash_timeout_.postIn(me, FLASH_RATE_TOUT);
             }
 
@@ -665,7 +691,7 @@ QP::QState Txr::free_run_mode(Txr *const me, QP::QEvt const *const e)
         } break;
         case FLASH_RATE_SIG: {
             // turn off flashed LED
-            BSP_turn_off_speed_LED(me->prev_position_button_pressed_);
+            me->set_speed_LED_status(me->prev_position_button_pressed_, LED_OFF);
             status = Q_HANDLED();
         } break;
         default: {
@@ -741,7 +767,9 @@ QP::QState Txr::z_mode(Txr *const me, QP::QEvt const *const e)
             PACKET_SEND(PACKET_MAX_SPEED_SET, max_speed_set,
                 settings_get_max_speed());
             PACKET_SEND(PACKET_ACCEL_SET, accel_set, settings_get_max_accel());
-
+            me->set_speed_LED_status(me->prev_position_button_pressed_, LED_OFF);
+            me->set_speed_LED_status(button_index, LED_ON);
+            me->prev_position_button_pressed_ = button_index;
 
             status = Q_HANDLED();
         } break;
