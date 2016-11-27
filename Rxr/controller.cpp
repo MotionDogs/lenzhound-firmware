@@ -39,6 +39,11 @@ void controller_init()
     motor_set_steps(EIGHTH_STEPS);
 }
 
+void controller_uninitialize_position()
+{
+    state.initial_position_set = false;
+}
+
 bool controller_is_position_initialized()
 {
     return state.initial_position_set;

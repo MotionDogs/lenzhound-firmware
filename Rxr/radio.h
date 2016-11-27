@@ -48,6 +48,7 @@ enum {
     PACKET_START_STATE_GET          = 32,
     PACKET_START_STATE_SET          = 33,
     PACKET_START_STATE_PRINT        = 34,
+    PACKET_RE_INIT_POSITION         = 35,
     PACKET_OK                       = 120,
 };
 
@@ -123,6 +124,7 @@ struct radio_packet_t {
         i16_packet_t preset_index_print;
         i16_packet_t start_state_set;
         i16_packet_t start_state_print;
+        empty_packet_t re_init_position;
         ok_packet_t ok;
     };
 };

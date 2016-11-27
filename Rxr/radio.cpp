@@ -277,6 +277,10 @@ void _process_packet(radio_packet_t packet)
             packet.start_state_print.val);
         _send_ok(type);
     } break;
+    case PACKET_RE_INIT_POSITION: {
+        controller_uninitialize_position();
+        _send_ok(type);
+    } break;
     case PACKET_OK: {
         char ok_type = _map_ok_type(packet.ok.key);
         _queue_print_ok(ok_type);

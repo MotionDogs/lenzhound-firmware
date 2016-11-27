@@ -27,6 +27,7 @@ void controller_init();
 void controller_run();
 void controller_move_to_position(long position);
 void controller_initialize_position(long position);
+void controller_uninitialize_position();
 void controller_set_speed_percent(int speed);
 void controller_set_accel_percent(int accel);
 void controller_set_speed(long speed);

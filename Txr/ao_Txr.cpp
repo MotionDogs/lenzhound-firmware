@@ -25,7 +25,7 @@ Q_DEFINE_THIS_FILE
 #define MID_SPEED  50
 #define MIN_SPEED  1
 
-#define MAX_SPEED_ENCODER_FACTOR  64
+#define MAX_SPEED_ENCODER_FACTOR  16
 #define ENCODER_COUNTS_PER_SPEED_PERCENT  4
 #define SPEED_PERCENT_SLOP 2
 
@@ -73,10 +73,13 @@ private:
     QTimeEvt flush_settings_timeout_;
     QTimeEvt calibration_timeout_;
     long playback_target_pos_;
-    float cur_pos_;    // float to save partial moves needed by encoder resolution division
+    long cur_pos_;    // float to save partial moves needed by encoder resolution division
     long prev_pos_1_;   // used to prevent jitter
     long prev_pos_2_;   // used to prevent jitter
-    long prev_encoder_count_;
+    long initial_encoder_count_;
+    long initial_max_speed_;
+    long initial_position_;
+    long previous_encoder_count_;
     long calibration_pos_1_;
     long calibration_pos_2_;
     char enc_pushes_;
@@ -123,6 +126,7 @@ protected:
     int get_speed_percent_if_changed();
     void update_speed_LEDs(int speed_percent);
     void set_speed_LEDs_off();
+    void reset_calibration();
 };
 
 
@@ -306,24 +310,29 @@ void Txr::log_value(char key, long value)
     serial_api_queue_output(buffer);
 }
 
+void Txr::reset_calibration()
+{
+    initial_encoder_count_ = previous_encoder_count_ = BSP_get_encoder();
+    initial_position_ = cur_pos_;
+}
+
 void Txr::update_position_calibration()
 {
     long cur_encoder_count = BSP_get_encoder();
 
-    if (cur_encoder_count != prev_encoder_count_) {
+    if (cur_encoder_count != previous_encoder_count_) {
         log_value(SERIAL_ENCODER_GET, cur_encoder_count);
     }
 
-    // since it's 4 counts per detent, let's make it a detent per motor count
-    // this is a test, remove if not necessary
-    float amount_to_move = cur_encoder_count - prev_encoder_count_;
-    amount_to_move /= 4.0;
-    amount_to_move *= calibration_multiplier_;
-     //(cur_encoder_count - prev_encoder_count_) * calibration_multiplier_;
-    cur_pos_ += amount_to_move;
-    prev_encoder_count_ = cur_encoder_count;
+    long encoder_delta = cur_encoder_count - initial_encoder_count_;
+    long position_delta = (encoder_delta / 4) * calibration_multiplier_;
 
-    if (amount_to_move != 0) {
+    long new_pos = initial_position_ + position_delta;
+
+    previous_encoder_count_ = cur_encoder_count;
+
+    if (new_pos != cur_pos_) {
+        cur_pos_ = new_pos;
         PACKET_SEND(PACKET_TARGET_POSITION_SET, target_position_set, cur_pos_);
     }
 }
@@ -343,22 +352,22 @@ void Txr::update_max_speed_using_encoder()
 {
     long cur_encoder_count = BSP_get_encoder();
 
-    if (cur_encoder_count != prev_encoder_count_) {
+    if (cur_encoder_count != previous_encoder_count_) {
         log_value(SERIAL_ENCODER_GET, cur_encoder_count);
     }
 
-    float amount_to_move = cur_encoder_count - prev_encoder_count_;
-    amount_to_move /= 4.0;
-    amount_to_move *= MAX_SPEED_ENCODER_FACTOR;
+    long encoder_delta = cur_encoder_count - initial_encoder_count_;
 
+    long new_max_speed = initial_max_speed_ +
+        (encoder_delta * MAX_SPEED_ENCODER_FACTOR);
+    new_max_speed = clamp(new_max_speed, 1, 32768);
     long cur_max_speed = settings_get_max_speed();
 
-    prev_encoder_count_ = cur_encoder_count;
+    previous_encoder_count_ = cur_encoder_count;
 
-    if (amount_to_move != 0) {
-        long clamped = clamp(cur_max_speed + amount_to_move, 1, 32768);
-        settings_set_max_speed((unsigned int)clamped);
-        log_value(SERIAL_MAX_SPEED_GET, clamped);
+    if (new_max_speed != cur_max_speed) {
+        settings_set_max_speed((unsigned int)new_max_speed);
+        log_value(SERIAL_MAX_SPEED_GET, new_max_speed);
     }
 }
 
@@ -417,9 +426,8 @@ void Txr::update_calibration_multiplier(int setting)
 QP::QState Txr::initial(Txr *const me, QP::QEvt const *const e)
 {
     me->calibration_multiplier_ = 1;
-    me->cur_pos_ = 0;
-    me->prev_encoder_count_ = 0;
-    PACKET_SEND(PACKET_TARGET_POSITION_SET, target_position_set, 0);
+    me->reset_calibration();
+    me->initial_max_speed_ = 0;
     me->z_mode_saved_speed_ = 50;
     me->z_mode_saved_acceleration_ = 100;
     me->prev_pos_1_ = -1;
@@ -438,7 +446,14 @@ QP::QState Txr::initial(Txr *const me, QP::QEvt const *const e)
     me->calibration_pos_1_ = settings_get_calibration_position_1();
     me->calibration_pos_2_ = settings_get_calibration_position_2();
 
-    if (!settings_get_start_in_calibration_mode()) {
+    long pos = map(BSP_get_pot(), MIN_POT_VAL, MAX_POT_VAL,
+        me->calibration_pos_1_, me->calibration_pos_2_);
+    me->cur_pos_ = pos;
+    me->initial_position_ = pos;
+
+    if (settings_get_start_in_calibration_mode()) {
+        return Q_TRAN(&uncalibrated);
+    } else {
         for (int i = 0; i < NUM_POSITION_BUTTONS; i++) {
             me->saved_positions_[i] = settings_get_saved_position(i);
         }
@@ -451,7 +466,6 @@ QP::QState Txr::initial(Txr *const me, QP::QEvt const *const e)
             return Q_TRAN(&play_back_mode);
         }
     }
-    return Q_TRAN(&uncalibrated);
 }
 
 QP::QState Txr::on(Txr *const me, QP::QEvt const *const e)
@@ -504,8 +518,11 @@ QP::QState Txr::uncalibrated(Txr *const me, QP::QEvt const *const e)
         case Q_ENTRY_SIG: {
             me->set_LED_status(ENC_RED_LED, LED_ON);
             me->set_LED_status(ENC_GREEN_LED, LED_OFF);
-            me->prev_encoder_count_ = BSP_get_encoder();
             me->update_calibration_multiplier(BSP_get_mode());
+            me->cur_pos_ = 0;
+            me->reset_calibration();
+            PACKET_SEND_EMPTY(PACKET_RE_INIT_POSITION);
+
             status = Q_HANDLED();
         } break;
         case Q_EXIT_SIG: {
@@ -531,14 +548,17 @@ QP::QState Txr::uncalibrated(Txr *const me, QP::QEvt const *const e)
         } break;
         case PLAY_BACK_MODE_SIG: {
             me->update_calibration_multiplier(PLAYBACK_MODE);
+            me->reset_calibration();
             status = Q_HANDLED();
         } break;
         case Z_MODE_SIG: {
             me->update_calibration_multiplier(Z_MODE);
+            me->reset_calibration();
             status = Q_HANDLED();
         } break;
         case FREE_RUN_MODE_SIG: {
             me->update_calibration_multiplier(FREE_MODE);
+            me->reset_calibration();
             status = Q_HANDLED();
         } break;
         default: {
@@ -744,7 +764,8 @@ QP::QState Txr::z_mode(Txr *const me, QP::QEvt const *const e)
             me->set_LED_status(ENC_GREEN_LED, LED_ON);
             me->set_LED_status(ENC_RED_LED, LED_ON);
 
-            me->prev_encoder_count_ = BSP_get_encoder();
+            me->reset_calibration();
+            me->initial_max_speed_ = settings_get_max_speed();
 
             status = Q_HANDLED();
         } break;
