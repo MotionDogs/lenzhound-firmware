@@ -117,7 +117,6 @@ void eeprom_write_uint32(int addr, unsigned long value)
   eeprom_write_bytes(addr, (unsigned char*)&value, sizeof(value));
 }
 
-
 void eeprom_write_debug_string(char* buffer)
 {
   int i = DEBUG_STRING_LOC;
@@ -126,6 +125,18 @@ void eeprom_write_debug_string(char* buffer)
 
   while (*ptr && i < end_i) {
     EEPROM.write(i, *ptr);
+    ++ptr;
+  }
+}
+
+void eeprom_read_debug_string(char* buffer)
+{
+  int i = DEBUG_STRING_LOC;
+  int end_i = DEBUG_STRING_LOC + DEBUG_STRING_MAX_LEN;
+  char* ptr = buffer;
+
+  while (*ptr && i < end_i) {
+    *ptr = EEPROM.read(i);
     ++ptr;
   }
 }

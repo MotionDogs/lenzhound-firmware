@@ -116,6 +116,13 @@ inline void set_speed_LED_status(int led, int status)
 
 inline void set_speed_LEDs_off()
 {
+    analogWrite(SPEED_LED1, 0);
+    analogWrite(SPEED_LED2, 0);
+    analogWrite(SPEED_LED3_1, 0);
+    analogWrite(SPEED_LED3_2, 0);
+    analogWrite(SPEED_LED4, 0);
+    analogWrite(SPEED_LED5, 0);
+
     set_speed_LED_status(0, LED_OFF);
     set_speed_LED_status(1, LED_OFF);
     set_speed_LED_status(2, LED_OFF);

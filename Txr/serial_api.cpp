@@ -177,8 +177,8 @@ void _serial_api_process_command(int length)
         int old_index = settings_get_preset_index();
         if (index != old_index) {
             settings_set_preset_index(index);
-            _serial_api_print_ok(cmd);   
         }
+        _serial_api_print_ok(cmd);   
     } break;
     case (SERIAL_ID_GET): {
         _print_u32(cmd, settings_get_id());
@@ -287,6 +287,14 @@ void _serial_api_process_command(int length)
         } else {
             _serial_api_print_ok(cmd);
         }
+    } break;
+    case (SERIAL_DEBUG_FAIL_ASSERT): {
+        BSP_assert(false);
+    } break;
+    case (SERIAL_DEBUG_STRING_GET): {
+        char buffer[DEBUG_STRING_MAX_LEN];
+        eeprom_read_debug_string(buffer);
+        _print_string(cmd, buffer);
     } break;
     default: {
         _serial_api_end(UNKNOWN_COMMAND);

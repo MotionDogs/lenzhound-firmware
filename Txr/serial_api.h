@@ -44,6 +44,8 @@ enum {
     SERIAL_TARGET_POSITION_SET  = 'O',
     SERIAL_EEPROM_IMPORT        = 'G',
     SERIAL_EEPROM_EXPORT        = 'g',
+    SERIAL_DEBUG_FAIL_ASSERT    = 'B',
+    SERIAL_DEBUG_STRING_GET     = 'b',
     SERIAL_IGNORE               = '_',
 };
 

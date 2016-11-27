@@ -81,6 +81,11 @@ void radio_run()
 
 void radio_set_channel(int channel, bool force)
 {
+    radio_packet_t packet = {0};
+    while (Mirf.isSending()) {
+    }
+    while (_get_radio_packet(&packet)) {
+    }
     if (force || Mirf.channel != channel) {
         char reg[] = { RF_DEFAULT, 0 };
 

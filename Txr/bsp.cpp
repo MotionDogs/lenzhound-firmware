@@ -282,11 +282,16 @@ unsigned long BSP_millis()
 }
 
 //............................................................................
-void Q_onAssert(char const Q_ROM *const Q_ROM_VAR file, int line)
+void Q_onAssert(char const *const module, int location)   
 {
     QF_INT_DISABLE();                                // disable all interrupts
     GREEN_LED_ON();                                  // GREEN LED permanently ON
     RED_LED_ON();
+
+    char buffer[DEBUG_STRING_MAX_LEN];
+    sprintf(buffer, "%s:%d", module, location);
+    eeprom_write_debug_string(buffer);
+
     // AMBER_LED_ON();
     // AMBER2_LED_ON();
     asm volatile ("jmp 0x0000");    // perform a software reset of the Arduino

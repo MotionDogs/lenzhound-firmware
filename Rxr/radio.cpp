@@ -33,10 +33,10 @@ bool _get_radio_packet(void *buffer)
 
 void _send_radio_packet(void *buffer)
 {
-    Mirf.setTADDR((uint8_t *)TRANSMIT_ADDRESS);
-    Mirf.send((uint8_t *)buffer);
-    while (Mirf.isSending()) {
-    }
+    // Mirf.setTADDR((uint8_t *)TRANSMIT_ADDRESS);
+    // Mirf.send((uint8_t *)buffer);
+    // while (Mirf.isSending()) {
+    // }
 }
 
 void _queue_print_ok(char type)

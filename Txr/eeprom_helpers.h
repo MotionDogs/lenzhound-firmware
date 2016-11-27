@@ -29,5 +29,6 @@ void eeprom_write_int32(int addr, long value);
 void eeprom_write_uint32(int addr, unsigned long value);
 
 void eeprom_write_debug_string(char* buffer);
+void eeprom_read_debug_string(char* buffer);
 
 #endif  // eeprom_helpers_h

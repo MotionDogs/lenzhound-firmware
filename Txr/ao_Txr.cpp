@@ -92,6 +92,7 @@ private:
     long encoder_base_;
     int previous_speed_percent_;
     int previous_preset_index_;
+    int previous_channel_;
 
 public:
     Txr() :
@@ -100,8 +101,8 @@ public:
         flush_settings_timeout_(FLUSH_SETTINGS_TIMEOUT_SIG),
         speed_and_accel_timeout_(SPEED_AND_ACCEL_TIMEOUT_SIG),
         calibration_timeout_(CALIBRATION_SIG), alive_timeout_(ALIVE_SIG),
-        previous_speed_percent_(-1), playback_target_pos_(0),
-        previous_preset_index_(0)
+        previous_speed_percent_(50), playback_target_pos_(0),
+        previous_preset_index_(0), previous_channel_(0)
     {
     }
 
@@ -122,9 +123,9 @@ protected:
     void update_position_playback();
     void update_max_speed_using_encoder();
     void update_calibration_multiplier(int setting);
-    void init_speed_percent(int start_percentage);
+    void init_speed_percent();
     int get_speed_percent_if_changed();
-    void update_speed_LEDs(int speed_percent);
+    void update_speed_LEDs();
     void reset_calibration();
 };
 
@@ -132,11 +133,11 @@ protected:
 static Txr l_Txr;                   // the single instance of Txr active object (local)
 QActive *const AO_Txr = &l_Txr;     // the global opaque pointer
 
-void Txr::init_speed_percent(int start_percentage)
+void Txr::init_speed_percent()
 {
 	long encoder_pos = BSP_get_encoder();
 	encoder_base_ = encoder_pos -
-		(start_percentage * ENCODER_COUNTS_PER_SPEED_PERCENT);
+		(previous_speed_percent_ * ENCODER_COUNTS_PER_SPEED_PERCENT);
 }
 
 int Txr::get_speed_percent_if_changed()
@@ -160,8 +161,10 @@ int Txr::get_speed_percent_if_changed()
     }
 }
 
-void Txr::update_speed_LEDs(int speed_percent)
+void Txr::update_speed_LEDs()
 {
+    int speed_percent = previous_speed_percent_;
+
     #define MAP_LED(x,n) x == n ? \
     	255 :\
     	map(clamp(distance(x, n), 0, 24), 0, 24, 50, 0)
@@ -214,7 +217,7 @@ void Txr::update_position_freerun()
     int speed_percent = get_speed_percent_if_changed();
     if (speed_percent != -1) {
         PACKET_SEND(PACKET_SPEED_PERCENT_SET, speed_percent_set, speed_percent);
-        update_speed_LEDs(speed_percent);   
+        update_speed_LEDs();   
     }
 
     update_position();
@@ -270,7 +273,7 @@ void Txr::update_position_playback()
     int speed_percent = get_speed_percent_if_changed();
     if (speed_percent != -1) {
         PACKET_SEND(PACKET_SPEED_PERCENT_SET, speed_percent_set, speed_percent);
-        update_speed_LEDs(speed_percent);   
+        update_speed_LEDs();   
     }
 
     if (playback_target_pos_ != cur_pos_) {
@@ -310,13 +313,13 @@ QP::QState Txr::initial(Txr *const me, QP::QEvt const *const e)
     me->subscribe(FREE_RUN_MODE_SIG);
     me->subscribe(Z_MODE_SIG);
     me->subscribe(POSITION_BUTTON_SIG);
-    me->subscribe(UPDATE_PARAMS_SIG);
     me->send_timeout_.postEvery(me, SEND_ENCODER_TOUT);
     me->flush_settings_timeout_.postEvery(me, FLUSH_SETTINGS_TOUT);
     me->alive_timeout_.postEvery(me, ALIVE_DURATION_TOUT);
     me->speed_and_accel_timeout_.postEvery(me, SEND_SPEED_AND_ACCEL_TOUT);
     me->calibration_pos_1_ = settings_get_calibration_position_1();
     me->calibration_pos_2_ = settings_get_calibration_position_2();
+    me->previous_channel_ = settings_get_channel();
 
     long pos = map(BSP_get_pot(), MIN_POT_VAL, MAX_POT_VAL,
         me->calibration_pos_1_, me->calibration_pos_2_);
@@ -364,15 +367,17 @@ QP::QState Txr::on(Txr *const me, QP::QEvt const *const e)
                 settings_get_max_speed());
             PACKET_SEND(PACKET_ACCEL_SET, accel_set,
                 settings_get_max_accel());
+
+            int channel = settings_get_channel();
+            if (channel != me->previous_channel_) {
+                radio_set_channel(channel, false);
+                me->previous_channel_ = channel;
+            }
+
             status = Q_HANDLED();
         } break;
         case FLUSH_SETTINGS_TIMEOUT_SIG: {
             settings_flush_debounced_values();
-            status = Q_HANDLED();
-        } break;
-        case UPDATE_PARAMS_SIG: {
-            int channel = settings_get_channel();
-            radio_set_channel(channel, false);
             status = Q_HANDLED();
         } break;
         default: {
@@ -552,14 +557,13 @@ QP::QState Txr::free_run_mode(Txr *const me, QP::QEvt const *const e)
 
     switch (e->sig) {
         case Q_ENTRY_SIG: {
-            set_LED_status(ENC_GREEN_LED, LED_ON);
-            set_LED_status(ENC_RED_LED, LED_OFF);
-
-            me->init_speed_percent(50);
+            me->init_speed_percent();
+            me->update_speed_LEDs();
 
             status = Q_HANDLED();
         } break;
         case Q_EXIT_SIG: {
+            set_speed_LEDs_off();
             status = Q_HANDLED();
         } break;
         case SEND_TIMEOUT_SIG: {
@@ -600,10 +604,9 @@ QP::QState Txr::play_back_mode(Txr *const me, QP::QEvt const *const e)
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             me->playback_target_pos_ = me->cur_pos_;
-            set_LED_status(ENC_GREEN_LED, LED_ON);
-            set_LED_status(ENC_RED_LED, LED_OFF);
             PACKET_SEND(PACKET_TARGET_POSITION_SET, target_position_set, me->cur_pos_);
-            me->init_speed_percent(50);
+            me->init_speed_percent();
+            me->update_speed_LEDs();
             status = Q_HANDLED();
         } break;
         case Q_EXIT_SIG: {
@@ -635,6 +638,7 @@ QP::QState Txr::z_mode(Txr *const me, QP::QEvt const *const e)
         case Q_ENTRY_SIG: {
             set_LED_status(ENC_GREEN_LED, LED_ON);
             set_LED_status(ENC_RED_LED, LED_ON);
+            set_speed_LEDs_off();
 
             int preset_index = settings_get_preset_index();
             me->previous_preset_index_ = preset_index;
@@ -668,10 +672,8 @@ QP::QState Txr::z_mode(Txr *const me, QP::QEvt const *const e)
 
             log_value(SERIAL_PRESET_INDEX_GET, button_index);
             settings_set_preset_index(button_index);
-            radio_set_channel(settings_get_channel(), false);
-            PACKET_SEND(PACKET_MAX_SPEED_SET, max_speed_set,
-                settings_get_max_speed());
-            PACKET_SEND(PACKET_ACCEL_SET, accel_set, settings_get_max_accel());
+            me->reset_calibration();
+            me->initial_max_speed_ = settings_get_max_speed();
             me->prev_position_button_pressed_ = button_index;
 
             status = Q_HANDLED();
