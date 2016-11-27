@@ -6,8 +6,6 @@
 
 
 txr () {
-    make verify-txr
-
     contents=$(cat ./Txr/version.h)
     regex="VERSION \"2\.([0-9]+)\""
 
@@ -19,12 +17,12 @@ txr () {
         echo "$contents doesn't match" >&2 # this could get noisy if there are a lot of non-matching files
     fi
 
+    make verify-txr
+
     cp /tmp/build*/Txr.ino.hex ./bin/Txr.ino.leonardo-2.$((version + 1)).hex
 }
 
 rxr () {
-    make verify-rxr
-
     contents=$(cat ./Rxr/version.h)
     regex="VERSION \"2\.([0-9]+)\""
 
@@ -36,6 +34,8 @@ rxr () {
         echo "$contents doesn't match" >&2 # this could get noisy if there are a lot of non-matching files
     fi
 
+    make verify-rxr
+    
     cp /tmp/build*/Rxr.ino.hex ./bin/Rxr.ino.leonardo-2.$((version + 1)).hex
 }
 
