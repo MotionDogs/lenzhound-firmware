@@ -4,6 +4,7 @@
 #include "bsp.h"
 #include "settings.h"
 #include "eeprom_helpers.h"
+#include "leds.h"
 #include "Arduino.h"
 
 const char SERIAL_API_END_OF_RESPONSE       = '\n';
@@ -172,8 +173,12 @@ void _serial_api_process_command(int length)
         _print_i16(cmd, settings_get_preset_index());
     } break;
     case (SERIAL_PRESET_INDEX_SET): {
-        settings_set_preset_index(_parse_i16(in));
-        _serial_api_print_ok(cmd);
+        int index = _parse_i16(in);
+        int old_index = settings_get_preset_index();
+        if (index != old_index) {
+            settings_set_preset_index(index);
+            _serial_api_print_ok(cmd);   
+        }
     } break;
     case (SERIAL_ID_GET): {
         _print_u32(cmd, settings_get_id());

@@ -17,6 +17,7 @@
 #include "serial_api.h"
 #include "console.h"
 #include "settings.h"
+#include "leds.h"
 
 Q_DEFINE_THIS_FILE
 
@@ -90,6 +91,7 @@ private:
     char z_mode_saved_acceleration_;
     long encoder_base_;
     int previous_speed_percent_;
+    int previous_preset_index_;
 
 public:
     Txr() :
@@ -98,7 +100,8 @@ public:
         flush_settings_timeout_(FLUSH_SETTINGS_TIMEOUT_SIG),
         speed_and_accel_timeout_(SPEED_AND_ACCEL_TIMEOUT_SIG),
         calibration_timeout_(CALIBRATION_SIG), alive_timeout_(ALIVE_SIG),
-        previous_speed_percent_(-1), playback_target_pos_(0)
+        previous_speed_percent_(-1), playback_target_pos_(0),
+        previous_preset_index_(0)
     {
     }
 
@@ -119,130 +122,15 @@ protected:
     void update_position_playback();
     void update_max_speed_using_encoder();
     void update_calibration_multiplier(int setting);
-    void log_value(char key, long value);
-    void set_LED_status(int led, int status);
-    void set_speed_LED_status(int led, int status);
     void init_speed_percent(int start_percentage);
     int get_speed_percent_if_changed();
     void update_speed_LEDs(int speed_percent);
-    void set_speed_LEDs_off();
     void reset_calibration();
 };
 
 
 static Txr l_Txr;                   // the single instance of Txr active object (local)
 QActive *const AO_Txr = &l_Txr;     // the global opaque pointer
-
-enum {
-    LED_OFF,
-    LED_ON,
-    LED_TOGGLE
-};
-
-
-// NOTE(doug): this exists to make it easier in the future to shoot out events
-// for these LEDs to the API, to make the UI prettier if we want to.
-void Txr::set_LED_status(int led, int status)
-{
-    log_value(SERIAL_LEDS, ((status & 0xff) << 8) | (led & 0xff));
-    if (status == LED_ON) {
-        switch (led) {
-        case SPEED_LED1: {
-            RED_LED_ON();
-        } break;
-        case SPEED_LED2: {
-            AMBER_LED_ON();
-        } break;
-        case SPEED_LED4: {
-            AMBER2_LED_ON();
-        } break;
-        case SPEED_LED5: {
-            GREEN_LED_ON();
-        } break;
-        case GREEN_LED: {
-            GREEN2_LED_ON();
-        } break;
-        case ENC_RED_LED: {
-            ENC_RED_LED_ON();
-        } break;
-        case ENC_GREEN_LED: {
-            ENC_GREEN_LED_ON();
-        } break;
-        }
-    } else if (status == LED_OFF) {
-        switch (led) {
-        case SPEED_LED1: {
-            RED_LED_OFF();
-        } break;
-        case SPEED_LED2: {
-            AMBER_LED_OFF();
-        } break;
-        case SPEED_LED4: {
-            AMBER2_LED_OFF();
-        } break;
-        case SPEED_LED5: {
-            GREEN_LED_OFF();
-        } break;
-        case GREEN_LED: {
-            GREEN2_LED_OFF();
-        } break;
-        case ENC_RED_LED: {
-            ENC_RED_LED_OFF();
-        } break;
-        case ENC_GREEN_LED: {
-            ENC_GREEN_LED_OFF();
-        } break;
-        }
-    } else if (status == LED_TOGGLE) {
-        switch (led) {
-        case SPEED_LED1: {
-            RED_LED_TOGGLE();
-        } break;
-        case SPEED_LED2: {
-            AMBER_LED_TOGGLE();
-        } break;
-        case SPEED_LED4: {
-            AMBER2_LED_TOGGLE();
-        } break;
-        case SPEED_LED5: {
-            GREEN_LED_TOGGLE();
-        } break;
-        case GREEN_LED: {
-            GREEN2_LED_TOGGLE();
-        } break;
-        case ENC_RED_LED: {
-            ENC_RED_LED_TOGGLE();
-        } break;
-        case ENC_GREEN_LED: {
-            ENC_GREEN_LED_TOGGLE();
-        } break;
-        }
-    }
-}
-
-void Txr::set_speed_LED_status(int led, int status)
-{
-    int actual = 0;
-    switch (led) {
-        case 0: {
-            actual = SPEED_LED1;
-        } break;
-        case 1: {
-            actual = SPEED_LED2;
-        } break;
-        case 2: {
-            actual = SPEED_LED4;
-        } break;
-        case 3: {
-            actual = SPEED_LED5;
-        } break;
-        default: {
-            Q_ERROR();
-        } break;
-    }
-    set_LED_status(actual, status);
-}
-
 
 void Txr::init_speed_percent(int start_percentage)
 {
@@ -292,22 +180,6 @@ void Txr::update_speed_LEDs(int speed_percent)
     analogWrite(SPEED_LED3_2, led_3);
     analogWrite(SPEED_LED4, led_4);
     analogWrite(SPEED_LED5, led_5);
-}
-
-void Txr::set_speed_LEDs_off()
-{
-    set_speed_LED_status(0, LED_OFF);
-    set_speed_LED_status(1, LED_OFF);
-    set_speed_LED_status(2, LED_OFF);
-    set_speed_LED_status(3, LED_OFF);
-}
-
-void Txr::log_value(char key, long value)
-{
-    char buffer[32];
-    sprintf(buffer, "%c=%ld", key, value);
-
-    serial_api_queue_output(buffer);
 }
 
 void Txr::reset_calibration()
@@ -481,9 +353,9 @@ QP::QState Txr::on(Txr *const me, QP::QEvt const *const e)
         } break;
         case ALIVE_SIG: {
             if (radio_is_alive()) {
-                me->set_LED_status(GREEN_LED, LED_OFF);
+                set_LED_status(GREEN_LED, LED_OFF);
             } else {
-                me->set_LED_status(GREEN_LED, LED_ON);
+                set_LED_status(GREEN_LED, LED_ON);
             }
             status = Q_HANDLED();
         } break;
@@ -516,8 +388,8 @@ QP::QState Txr::uncalibrated(Txr *const me, QP::QEvt const *const e)
 
     switch (e->sig) {
         case Q_ENTRY_SIG: {
-            me->set_LED_status(ENC_RED_LED, LED_ON);
-            me->set_LED_status(ENC_GREEN_LED, LED_OFF);
+            set_LED_status(ENC_RED_LED, LED_ON);
+            set_LED_status(ENC_GREEN_LED, LED_OFF);
             me->update_calibration_multiplier(BSP_get_mode());
             me->cur_pos_ = 0;
             me->reset_calibration();
@@ -574,8 +446,8 @@ QP::QState Txr::calibrated(Txr *const me, QP::QEvt const *const e)
 
     switch (e->sig) {
     case Q_ENTRY_SIG: {
-        me->set_LED_status(ENC_RED_LED, LED_OFF);
-        me->set_LED_status(ENC_GREEN_LED, LED_ON);
+        set_LED_status(ENC_RED_LED, LED_OFF);
+        set_LED_status(ENC_GREEN_LED, LED_ON);
         status = Q_HANDLED();
     } break;
     case Q_EXIT_SIG: {
@@ -620,8 +492,8 @@ QP::QState Txr::flashing(Txr *const me, QP::QEvt const *const e)
 
     switch (e->sig) {
         case Q_ENTRY_SIG: {
-            me->set_LED_status(ENC_RED_LED, LED_ON);
-            // me->set_LED_status(ENC_GREEN_LED, LED_TOGGLE);
+            set_LED_status(ENC_RED_LED, LED_ON);
+            // set_LED_status(ENC_GREEN_LED, LED_TOGGLE);
             me->flash_timeout_.postEvery(me, FLASH_RATE_TOUT);
             me->calibration_timeout_.postIn(me, FLASH_DURATION_TOUT);
             led_count = 0;
@@ -638,8 +510,8 @@ QP::QState Txr::flashing(Txr *const me, QP::QEvt const *const e)
         } break;
         case Q_EXIT_SIG: {
             me->flash_timeout_.disarm();
-            me->set_LED_status(ENC_RED_LED, LED_ON);
-            // me->set_LED_status(ENC_GREEN_LED, LED_OFF);
+            set_LED_status(ENC_RED_LED, LED_ON);
+            // set_LED_status(ENC_GREEN_LED, LED_OFF);
             status = Q_HANDLED();
         } break;
         case CALIBRATION_SIG: {
@@ -680,8 +552,8 @@ QP::QState Txr::free_run_mode(Txr *const me, QP::QEvt const *const e)
 
     switch (e->sig) {
         case Q_ENTRY_SIG: {
-            me->set_LED_status(ENC_GREEN_LED, LED_ON);
-            me->set_LED_status(ENC_RED_LED, LED_OFF);
+            set_LED_status(ENC_GREEN_LED, LED_ON);
+            set_LED_status(ENC_RED_LED, LED_OFF);
 
             me->init_speed_percent(50);
 
@@ -703,7 +575,7 @@ QP::QState Txr::free_run_mode(Txr *const me, QP::QEvt const *const e)
                 me->saved_positions_[me->prev_position_button_pressed_] = me->cur_pos_;
                 settings_set_saved_position(me->prev_position_button_pressed_,
                                             (int)me->cur_pos_);
-                me->set_speed_LED_status(me->prev_position_button_pressed_, LED_ON);
+                set_speed_LED_status(me->prev_position_button_pressed_, LED_ON);
                 me->flash_timeout_.postIn(me, FLASH_RATE_TOUT);
             }
 
@@ -711,7 +583,7 @@ QP::QState Txr::free_run_mode(Txr *const me, QP::QEvt const *const e)
         } break;
         case FLASH_RATE_SIG: {
             // turn off flashed LED
-            me->set_speed_LED_status(me->prev_position_button_pressed_, LED_OFF);
+            set_speed_LED_status(me->prev_position_button_pressed_, LED_OFF);
             status = Q_HANDLED();
         } break;
         default: {
@@ -728,14 +600,14 @@ QP::QState Txr::play_back_mode(Txr *const me, QP::QEvt const *const e)
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             me->playback_target_pos_ = me->cur_pos_;
-            me->set_LED_status(ENC_GREEN_LED, LED_ON);
-            me->set_LED_status(ENC_RED_LED, LED_OFF);
+            set_LED_status(ENC_GREEN_LED, LED_ON);
+            set_LED_status(ENC_RED_LED, LED_OFF);
             PACKET_SEND(PACKET_TARGET_POSITION_SET, target_position_set, me->cur_pos_);
             me->init_speed_percent(50);
             status = Q_HANDLED();
         } break;
         case Q_EXIT_SIG: {
-            me->set_speed_LEDs_off();
+            set_speed_LEDs_off();
             status = Q_HANDLED();
         } break;
         case SEND_TIMEOUT_SIG: {
@@ -761,8 +633,12 @@ QP::QState Txr::z_mode(Txr *const me, QP::QEvt const *const e)
 
     switch (e->sig) {
         case Q_ENTRY_SIG: {
-            me->set_LED_status(ENC_GREEN_LED, LED_ON);
-            me->set_LED_status(ENC_RED_LED, LED_ON);
+            set_LED_status(ENC_GREEN_LED, LED_ON);
+            set_LED_status(ENC_RED_LED, LED_ON);
+
+            int preset_index = settings_get_preset_index();
+            me->previous_preset_index_ = preset_index;
+            set_speed_LED_status(preset_index, LED_ON);
 
             me->reset_calibration();
             me->initial_max_speed_ = settings_get_max_speed();
@@ -770,26 +646,32 @@ QP::QState Txr::z_mode(Txr *const me, QP::QEvt const *const e)
             status = Q_HANDLED();
         } break;
         case Q_EXIT_SIG: {
-            me->set_speed_LEDs_off();
+            set_speed_LEDs_off();
             status = Q_HANDLED();
         } break;
         case SEND_TIMEOUT_SIG: {
             me->update_max_speed_using_encoder();
             me->update_position_z_mode();
+
+            int preset_index = settings_get_preset_index();
+            if (preset_index != me->previous_preset_index_) {
+                set_speed_LED_status(me->previous_preset_index_, LED_OFF);
+                set_speed_LED_status(preset_index, LED_ON);
+                me->previous_preset_index_ = preset_index;
+            }
+
             status = Q_HANDLED();
         } break;
         case POSITION_BUTTON_SIG: {
             int button_index = ((PositionButtonEvt *)e)->ButtonNum;
             Q_REQUIRE(button_index < NUM_POSITION_BUTTONS);
 
-            me->log_value(SERIAL_PRESET_INDEX_GET, button_index);
+            log_value(SERIAL_PRESET_INDEX_GET, button_index);
             settings_set_preset_index(button_index);
             radio_set_channel(settings_get_channel(), false);
             PACKET_SEND(PACKET_MAX_SPEED_SET, max_speed_set,
                 settings_get_max_speed());
             PACKET_SEND(PACKET_ACCEL_SET, accel_set, settings_get_max_accel());
-            me->set_speed_LED_status(me->prev_position_button_pressed_, LED_OFF);
-            me->set_speed_LED_status(button_index, LED_ON);
             me->prev_position_button_pressed_ = button_index;
 
             status = Q_HANDLED();

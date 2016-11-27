@@ -1,6 +1,8 @@
 #ifndef SERIAL_API_H
 #define SERIAL_API_H
 
+#include "Arduino.h"
+
 const int SERIAL_API_IN_BUFFER_SIZE         = 128;
 const int SERIAL_API_OUT_BUFFER_SIZE        = 128;
 
@@ -68,5 +70,13 @@ void serial_api_queue_byte(char byte);
 void serial_api_queue_output(const char *message);
 void serial_api_queue_output_len(char *message,
                                  int length);
+
+inline void log_value(char key, long value)
+{
+    char buffer[32];
+    sprintf(buffer, "%c=%ld", key, value);
+
+    serial_api_queue_output(buffer);
+}
 
 #endif
