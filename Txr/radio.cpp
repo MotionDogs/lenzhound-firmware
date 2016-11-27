@@ -7,7 +7,7 @@
 #include <nRF24L01.h>
 #include <MirfHardwareSpiDriver.h>
 #include "bsp.h"
-#include "version.h"
+#include "config.h"
 #include "eeprom_assert.h"
 
 #define HEARTBEAT_INTERVAL_MILLIS 2000

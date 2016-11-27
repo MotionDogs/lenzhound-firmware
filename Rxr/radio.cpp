@@ -7,7 +7,7 @@
 #include <Mirf.h>
 #include <nRF24L01.h>
 #include <MirfHardwareSpiDriver.h>
-#include "version.h"
+#include "config.h"
 #include "eeprom_assert.h"
 #include "util.h"
 
@@ -229,12 +229,11 @@ void _process_packet(radio_packet_t packet)
     case PACKET_TARGET_POSITION_SET: {
         long position = i32_to_fixed(packet.target_position_set.val);
 
-        if (controller_is_position_initialized()) {
+        if (!controller_is_position_initialized()) {
             controller_initialize_position(position);
         } else {
             controller_move_to_position(position);
         }
-
 
         _queue_print_i32(SERIAL_TARGET_POSITION_GET, position);
 

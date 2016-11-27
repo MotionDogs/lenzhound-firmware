@@ -1,4 +1,4 @@
-#include "version.h"
+#include "config.h"
 #include "serial_api.h"
 #include "radio.h"
 #include "settings.h"
