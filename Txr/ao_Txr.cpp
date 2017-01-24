@@ -39,7 +39,7 @@ enum TxrTimeouts {
     // how long to flash LED for
     FLASH_DURATION_TOUT = BSP_TICKS_PER_SEC / 4,
     // how long to hold calibration button before reentering calibration
-    ENTER_CALIBRATION_TOUT = BSP_TICKS_PER_SEC / 2,
+    ENTER_CALIBRATION_TOUT = BSP_TICKS_PER_SEC * 2,
     // how often to check that transmitter is still powered (in case of low battery)
     ALIVE_DURATION_TOUT = BSP_TICKS_PER_SEC * 5,
 
@@ -450,42 +450,26 @@ QP::QState Txr::calibrated(Txr *const me, QP::QEvt const *const e)
     QP::QState status;
 
     switch (e->sig) {
-    case Q_ENTRY_SIG: {
-        set_LED_status(ENC_RED_LED, LED_OFF);
-        set_LED_status(ENC_GREEN_LED, LED_ON);
-        status = Q_HANDLED();
-    } break;
-    case Q_EXIT_SIG: {
-        status = Q_HANDLED();
-    } break;
-    case ENC_DOWN_SIG: {
-        // reenter calibration if held down for 2 seconds
-        me->calibration_timeout_.postIn(me, ENTER_CALIBRATION_TOUT);
-        status = Q_HANDLED();
-    } break;
-    case ENC_UP_SIG: {
-        // if they released the button before the time is up, stop waiting for
-        // the timeout
-        me->calibration_timeout_.disarm();
-        status = Q_HANDLED();
-    } break;
-    case CALIBRATION_SIG: {
-        // we've held for 2 seconds, go to calibration
-        me->enc_pushes_ = 0;
-        status = Q_TRAN(&flashing);
-    } break;
-    case PLAY_BACK_MODE_SIG: {
-        status = Q_TRAN(&play_back_mode);
-    } break;
-    case Z_MODE_SIG: {
-        status = Q_TRAN(&z_mode);
-    } break;
-    case FREE_RUN_MODE_SIG: {
-        status = Q_TRAN(&free_run_mode);
-    } break;
-    default: {
-        status = Q_SUPER(&on);
-    } break;
+		case Q_ENTRY_SIG: {
+			set_LED_status(ENC_RED_LED, LED_OFF);
+			set_LED_status(ENC_GREEN_LED, LED_ON);
+			status = Q_HANDLED();
+		} break;
+		case Q_EXIT_SIG: {
+			status = Q_HANDLED();
+		} break;
+		case PLAY_BACK_MODE_SIG: {
+			status = Q_TRAN(&play_back_mode);
+		} break;
+		case Z_MODE_SIG: {
+			status = Q_TRAN(&z_mode);
+		} break;
+		case FREE_RUN_MODE_SIG: {
+			status = Q_TRAN(&free_run_mode);
+		} break;
+		default: {
+			status = Q_SUPER(&on);
+		} break;
     }
     return status;
 }
@@ -559,7 +543,6 @@ QP::QState Txr::free_run_mode(Txr *const me, QP::QEvt const *const e)
         case Q_ENTRY_SIG: {
             me->init_speed_percent();
             me->update_speed_LEDs();
-
             status = Q_HANDLED();
         } break;
         case Q_EXIT_SIG: {
@@ -621,6 +604,14 @@ QP::QState Txr::play_back_mode(Txr *const me, QP::QEvt const *const e)
             int button_num = ((PositionButtonEvt *)e)->ButtonNum;
             Q_REQUIRE(button_num < NUM_POSITION_BUTTONS);
             me->playback_target_pos_ = me->saved_positions_[button_num];
+			me->prev_position_button_pressed_ =	button_num;
+			set_speed_LED_status(me->prev_position_button_pressed_, LED_ON);
+			me->flash_timeout_.postIn(me, FLASH_RATE_TOUT);
+            status = Q_HANDLED();
+        } break;
+        case FLASH_RATE_SIG: {
+            // turn off flashed LED
+            set_speed_LED_status(me->prev_position_button_pressed_, LED_OFF);
             status = Q_HANDLED();
         } break;
         default: {
@@ -678,6 +669,22 @@ QP::QState Txr::z_mode(Txr *const me, QP::QEvt const *const e)
 
             status = Q_HANDLED();
         } break;
+		case ENC_DOWN_SIG: {
+			// reenter calibration if held down for 2 seconds
+			me->calibration_timeout_.postIn(me, ENTER_CALIBRATION_TOUT);
+			status = Q_HANDLED();
+		} break;
+		case ENC_UP_SIG: {
+			// if they released the button before the time is up, stop waiting for
+			// the timeout
+			me->calibration_timeout_.disarm();
+			status = Q_HANDLED();
+		} break;
+		case CALIBRATION_SIG: {
+			// we've held for 2 seconds, go to calibration
+			me->enc_pushes_ = 0;
+			status = Q_TRAN(&flashing);
+		} break;
         default: {
             status = Q_SUPER(&calibrated);
         } break;
