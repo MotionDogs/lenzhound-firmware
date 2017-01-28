@@ -231,12 +231,12 @@ void Txr::update_max_speed_using_encoder()
         log_value(SERIAL_ENCODER_GET, cur_encoder_count);
     }
 
-    long encoder_delta = cur_encoder_count - initial_encoder_count_;
+    long encoder_delta = cur_encoder_count - previous_encoder_count_;
+    long cur_max_speed = settings_get_max_speed();
 
-    long new_max_speed = initial_max_speed_ +
+    long new_max_speed = cur_max_speed +
         (encoder_delta * MAX_SPEED_ENCODER_FACTOR);
     new_max_speed = clamp(new_max_speed, 1, 32768);
-    long cur_max_speed = settings_get_max_speed();
 
     previous_encoder_count_ = cur_encoder_count;
 

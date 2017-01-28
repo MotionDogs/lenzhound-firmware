@@ -3,7 +3,7 @@ ARDUINO=~/.lenzhound/Arduino.app/Contents
 UNAME_STR=`uname`
 if [ "$UNAME_STR" == 'Darwin' ]; then
 	ARDUINO=~/.lenzhound/Arduino.app/Contents
-elif [ "$UNAME_STR" == 'Linux' ];
+elif [ "$UNAME_STR" == 'Linux' ]; then
 	ARDUINO=~/.lenzhound/arduino/Contents
 else
 	echo "Unkown platform $UNAME_STR" 1>&2
