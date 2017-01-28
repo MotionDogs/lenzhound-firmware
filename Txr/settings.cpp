@@ -7,7 +7,7 @@ int _settings_position(int preset, int offset, int size)
 {
     // 2*0+0*9 2*0+1*9 2*9+0*11  2*9+1*11
     // |   a   |   a   |    b    |    b    |
-    return SETTINGS_START + (MAX_PROFILES * offset) + (preset * size);
+    return PROFILE_SETTINGS_START + (MAX_PROFILES * offset) + (preset * size);
 }
 
 int _settings_position(int offset, int size)
@@ -138,27 +138,22 @@ int settings_get_channel()
 
 int settings_get_calibration_position_1()
 {
-    return eeprom_read_int16(
-        _settings_position(CAL_POS_1_OFFSET, CAL_POS_1_SIZE));
+    return eeprom_read_int16(CAL_POS_1_OFFSET);
 }
 
 int settings_get_calibration_position_2()
 {
-    return eeprom_read_int16(
-        _settings_position(CAL_POS_2_OFFSET, CAL_POS_2_SIZE));
+    return eeprom_read_int16(CAL_POS_2_OFFSET);
 }
 
 bool settings_get_start_in_calibration_mode()
 {
-    return (bool)eeprom_read_int16(
-        _settings_position(START_IN_CAL_OFFSET, START_IN_CAL_SIZE));
+    return (bool)eeprom_read_int16(START_IN_CAL_OFFSET);
 }
 
 int settings_get_saved_position(int index)
 {
-    return eeprom_read_int16(
-        _settings_position(SAVED_POSITION_OFFSET,SAVED_POSITION_SIZE) +
-        (index * sizeof(int)));
+    return eeprom_read_int16(SAVED_POSITION_OFFSET + (index * sizeof(int)));
 }
 
 unsigned int settings_get_max_speed()
@@ -190,27 +185,22 @@ void settings_set_channel(int val)
 
 void settings_set_calibration_position_1(int val)
 {
-    eeprom_write_int16(_settings_position(CAL_POS_1_OFFSET, CAL_POS_1_SIZE),
-        val);
+    eeprom_write_int16(CAL_POS_1_OFFSET, val);
 }
 
 void settings_set_calibration_position_2(int val)
 {
-    eeprom_write_int16(_settings_position(CAL_POS_2_OFFSET, CAL_POS_2_SIZE),
-        val);
+    eeprom_write_int16(CAL_POS_2_OFFSET, val);
 }
 
 void settings_set_start_in_calibration_mode(bool val)
 {
-    eeprom_write_int16(
-        _settings_position(START_IN_CAL_OFFSET, START_IN_CAL_SIZE), val);
+    eeprom_write_int16(START_IN_CAL_OFFSET, val);
 }
 
 void settings_set_saved_position(int index, int val)
 {
-    eeprom_write_int16(
-        _settings_position(SAVED_POSITION_OFFSET, SAVED_POSITION_SIZE)
-        + (index * sizeof(int)), val);
+    eeprom_write_int16(SAVED_POSITION_OFFSET + (index * sizeof(int)), val);
 }
 
 void settings_set_max_speed(unsigned int val)

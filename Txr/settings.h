@@ -4,11 +4,23 @@
 #include "eeprom_helpers.h"
 
 #define SENTINEL_LOC            00
-#define SENTINEL_VALUE          0xfafaul
+#define SENTINEL_VALUE          0xfbfbul
 
-#define SETTINGS_START          32
+#define PROFILE_SETTINGS_START  128
 
 #define PRESET_INDEX_OFFSET     8
+
+#define CAL_POS_1_OFFSET        10 // int16
+#define CAL_POS_1_SIZE          2  // int16
+
+#define CAL_POS_2_OFFSET        12 // int16
+#define CAL_POS_2_SIZE          2  // int16
+
+#define START_IN_CAL_OFFSET     14 // bool16
+#define START_IN_CAL_SIZE       2  // bool16
+
+#define SAVED_POSITION_OFFSET   16 // int16[4]
+#define SAVED_POSITION_SIZE     8  // int16[4]
 
 #define MAX_PROFILES            6
 
@@ -18,18 +30,6 @@
 
 #define CHANNEL_OFFSET          4  // int16
 #define CHANNEL_SIZE            2  // int16
-
-#define CAL_POS_1_OFFSET        6  // int16
-#define CAL_POS_1_SIZE          2  // int16
-
-#define CAL_POS_2_OFFSET        8  // int16
-#define CAL_POS_2_SIZE          2  // int16
-
-#define SAVED_POSITION_OFFSET   10 // int16[4]
-#define SAVED_POSITION_SIZE     8 // int16[4]
-
-#define START_IN_CAL_OFFSET     18 // bool16
-#define START_IN_CAL_SIZE       2  // bool16
 
 #define MAX_SPEED_OFFSET        20 // uint16
 #define MAX_SPEED_SIZE          2  // uint16
