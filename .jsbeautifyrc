@@ -1,8 +1,0 @@
-{
-  "c": {
-    "configPath": "../.uncrustify.cfg"
-  },
-  "cpp": {
-    "configPath": "../.uncrustify.cfg"
-  }
-}

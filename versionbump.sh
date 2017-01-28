@@ -1,10 +1,3 @@
-# rm -r /tmp/build*
-
-# $lower = $(echo $1 | tr '[:upper:' '[:lower:')
-# eval 'make verify-$lower
-# cp /tmp/build*/$1.ino.hex ./bin/$1.ino.leonardo-$2.hex
-
-
 txr () {
     contents=$(cat ./Txr/version.h)
     regex="VERSION \"2\.([0-9]+)\""
@@ -17,9 +10,9 @@ txr () {
         echo "$contents doesn't match" >&2 # this could get noisy if there are a lot of non-matching files
     fi
 
-    make verify-txr
+    sh ./build.sh -t
 
-    cp /tmp/build*/Txr.ino.hex ./bin/Txr.ino.leonardo-2.$((version + 1)).hex
+    cp ~/.lenzhound/build/Txr.ino.hex ./bin/Txr.ino.leonardo-2.$((version + 1)).hex
 }
 
 rxr () {
@@ -34,13 +27,10 @@ rxr () {
         echo "$contents doesn't match" >&2 # this could get noisy if there are a lot of non-matching files
     fi
 
-    make verify-rxr
+    sh ./build.sh -r
     
-    cp /tmp/build*/Rxr.ino.hex ./bin/Rxr.ino.leonardo-2.$((version + 1)).hex
+    cp ~/.lenzhound/build/Rxr.ino.hex ./bin/Rxr.ino.leonardo-2.$((version + 1)).hex
 }
-
-
-E_OPTERR=65
 
 rm -r /tmp/build*
 
