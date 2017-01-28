@@ -32,8 +32,6 @@ rxr () {
     cp ~/.lenzhound/build/Rxr.ino.hex ./bin/Rxr.ino.leonardo-2.$((version + 1)).hex
 }
 
-rm -r /tmp/build*
-
 set -- `getopt "tr" "$@"`
 
 while [ ! -z "$1" ]
