@@ -39,7 +39,7 @@ enum TxrTimeouts {
     // how long to flash LED for
     FLASH_DURATION_TOUT = BSP_TICKS_PER_SEC / 4,
     // how long to hold calibration button before reentering calibration
-    ENTER_CALIBRATION_TOUT = BSP_TICKS_PER_SEC * 2,
+    ENTER_CALIBRATION_TOUT = BSP_TICKS_PER_SEC * 1,
     // how often to check that transmitter is still powered (in case of low battery)
     ALIVE_DURATION_TOUT = BSP_TICKS_PER_SEC * 5,
 
@@ -147,9 +147,9 @@ int Txr::get_speed_percent_if_changed()
 		ENCODER_COUNTS_PER_SPEED_PERCENT;
 
 	if (speed_percent < -SPEED_PERCENT_SLOP) {
-		encoder_base_ = speed_percent * ENCODER_COUNTS_PER_SPEED_PERCENT;
+		encoder_base_ = encoder_pos;
 	} else if (speed_percent > (100 + SPEED_PERCENT_SLOP)) {
-		encoder_base_ = speed_percent - 100 - (2 * SPEED_PERCENT_SLOP);
+		encoder_base_ = encoder_pos - speed_percent * ENCODER_COUNTS_PER_SPEED_PERCENT;
 	}
 
 	int result = clamp(speed_percent, 1, 100);
