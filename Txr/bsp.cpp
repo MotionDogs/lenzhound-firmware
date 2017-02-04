@@ -106,9 +106,6 @@ ISR(TIMER4_COMPA_vect) {
             QF::PUBLISH(evt, &l_TIMER2_COMPA);
         }
     }
-
-    console_run();
-    radio_run();
 }
 
 //............................................................................
@@ -170,6 +167,9 @@ void QF::onCleanup(void)
 //............................................................................
 void QF::onIdle()
 {
+    console_run();
+    radio_run();
+    
     //GREEN_LED_ON();     // toggle the GREEN LED on Arduino on and off, see NOTE1
     //GREEN_LED_OFF();
 
