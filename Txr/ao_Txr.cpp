@@ -56,12 +56,12 @@ long map(long x, long in_min, long in_max, long out_min, long out_max)
 
 long clamp(long x, long min, long max)
 {
-	return (x < min) ? min : ((x > max) ? max : x);
+    return (x < min) ? min : ((x > max) ? max : x);
 }
 
 long distance(long a, long b)
 {
-	return abs(a - b);
+    return abs(a - b);
 }
 
 
@@ -135,24 +135,24 @@ QActive *const AO_Txr = &l_Txr;     // the global opaque pointer
 
 void Txr::init_speed_percent()
 {
-	long encoder_pos = BSP_get_encoder();
-	encoder_base_ = encoder_pos -
-		(previous_speed_percent_ * ENCODER_COUNTS_PER_SPEED_PERCENT);
+    long encoder_pos = BSP_get_encoder();
+    encoder_base_ = encoder_pos -
+        (previous_speed_percent_ * ENCODER_COUNTS_PER_SPEED_PERCENT);
 }
 
 int Txr::get_speed_percent_if_changed()
 {
-	long encoder_pos = BSP_get_encoder();
-	long speed_percent = (encoder_pos - encoder_base_) /
-		ENCODER_COUNTS_PER_SPEED_PERCENT;
+    long encoder_pos = BSP_get_encoder();
+    long speed_percent = (encoder_pos - encoder_base_) /
+        ENCODER_COUNTS_PER_SPEED_PERCENT;
 
-	if (speed_percent < -SPEED_PERCENT_SLOP) {
-		encoder_base_ = encoder_pos;
-	} else if (speed_percent > (100 + SPEED_PERCENT_SLOP)) {
-		encoder_base_ = encoder_pos - speed_percent * ENCODER_COUNTS_PER_SPEED_PERCENT;
-	}
+    if (speed_percent < -SPEED_PERCENT_SLOP) {
+        encoder_base_ = encoder_pos;
+    } else if (speed_percent > (100 + SPEED_PERCENT_SLOP)) {
+        encoder_base_ = encoder_pos - speed_percent * ENCODER_COUNTS_PER_SPEED_PERCENT;
+    }
 
-	int result = clamp(speed_percent, 1, 100);
+    int result = clamp(speed_percent, 1, 100);
     if (result != previous_speed_percent_) {
         previous_speed_percent_ = result;
         return result;
@@ -166,8 +166,8 @@ void Txr::update_speed_LEDs()
     int speed_percent = previous_speed_percent_;
 
     #define MAP_LED(x,n) x == n ? \
-    	255 :\
-    	map(clamp(distance(x, n), 0, 24), 0, 24, 50, 0)
+        255 :\
+        map(clamp(distance(x, n), 0, 24), 0, 24, 50, 0)
 
     int led_1 = MAP_LED(speed_percent, 1);
     int led_2 = MAP_LED(speed_percent, 25);
@@ -175,7 +175,7 @@ void Txr::update_speed_LEDs()
     int led_4 = MAP_LED(speed_percent, 75);
     int led_5 = MAP_LED(speed_percent, 100);
 
-	#undef MAP_LED
+    #undef MAP_LED
 
     analogWrite(SPEED_LED1, led_1);
     analogWrite(SPEED_LED2, led_2);
@@ -450,26 +450,42 @@ QP::QState Txr::calibrated(Txr *const me, QP::QEvt const *const e)
     QP::QState status;
 
     switch (e->sig) {
-		case Q_ENTRY_SIG: {
-			set_LED_status(ENC_RED_LED, LED_OFF);
-			set_LED_status(ENC_GREEN_LED, LED_ON);
-			status = Q_HANDLED();
-		} break;
-		case Q_EXIT_SIG: {
-			status = Q_HANDLED();
-		} break;
-		case PLAY_BACK_MODE_SIG: {
-			status = Q_TRAN(&play_back_mode);
-		} break;
-		case Z_MODE_SIG: {
-			status = Q_TRAN(&z_mode);
-		} break;
-		case FREE_RUN_MODE_SIG: {
-			status = Q_TRAN(&free_run_mode);
-		} break;
-		default: {
-			status = Q_SUPER(&on);
-		} break;
+        case Q_ENTRY_SIG: {
+            set_LED_status(ENC_RED_LED, LED_OFF);
+            set_LED_status(ENC_GREEN_LED, LED_ON);
+            status = Q_HANDLED();
+        } break;
+        case Q_EXIT_SIG: {
+            status = Q_HANDLED();
+        } break;
+        case PLAY_BACK_MODE_SIG: {
+            status = Q_TRAN(&play_back_mode);
+        } break;
+        case Z_MODE_SIG: {
+            status = Q_TRAN(&z_mode);
+        } break;
+        case FREE_RUN_MODE_SIG: {
+            status = Q_TRAN(&free_run_mode);
+        } break;
+        case ENC_DOWN_SIG: {
+            // reenter calibration if held down for ENTER_CALIBRATION_TOUT
+            me->calibration_timeout_.postIn(me, ENTER_CALIBRATION_TOUT);
+            status = Q_HANDLED();
+        } break;
+        case ENC_UP_SIG: {
+            // if they released the button before the time is up, stop waiting for
+            // the timeout
+            me->calibration_timeout_.disarm();
+            status = Q_HANDLED();
+        } break;
+        case CALIBRATION_SIG: {
+            // we've held for ENTER_CALIBRATION_TOUT, go to calibration
+            me->enc_pushes_ = 0;
+            status = Q_TRAN(&flashing);
+        } break;
+        default: {
+            status = Q_SUPER(&on);
+        } break;
     }
     return status;
 }
@@ -518,7 +534,7 @@ QP::QState Txr::flashing(Txr *const me, QP::QEvt const *const e)
             }
         } break;
         case FLASH_RATE_SIG: {
-        	static int red_on = 0;
+            static int red_on = 0;
             analogWrite(SPEED_LED3_1, red_on ? 0xff : 0x00);
             red_on = !red_on;
             status = Q_HANDLED();
@@ -604,9 +620,9 @@ QP::QState Txr::play_back_mode(Txr *const me, QP::QEvt const *const e)
             int button_num = ((PositionButtonEvt *)e)->ButtonNum;
             Q_REQUIRE(button_num < NUM_POSITION_BUTTONS);
             me->playback_target_pos_ = me->saved_positions_[button_num];
-			me->prev_position_button_pressed_ =	button_num;
-			set_speed_LED_status(me->prev_position_button_pressed_, LED_ON);
-			me->flash_timeout_.postIn(me, FLASH_RATE_TOUT);
+            me->prev_position_button_pressed_ = button_num;
+            set_speed_LED_status(me->prev_position_button_pressed_, LED_ON);
+            me->flash_timeout_.postIn(me, FLASH_RATE_TOUT);
             status = Q_HANDLED();
         } break;
         case FLASH_RATE_SIG: {
@@ -669,22 +685,6 @@ QP::QState Txr::z_mode(Txr *const me, QP::QEvt const *const e)
 
             status = Q_HANDLED();
         } break;
-		case ENC_DOWN_SIG: {
-			// reenter calibration if held down for 2 seconds
-			me->calibration_timeout_.postIn(me, ENTER_CALIBRATION_TOUT);
-			status = Q_HANDLED();
-		} break;
-		case ENC_UP_SIG: {
-			// if they released the button before the time is up, stop waiting for
-			// the timeout
-			me->calibration_timeout_.disarm();
-			status = Q_HANDLED();
-		} break;
-		case CALIBRATION_SIG: {
-			// we've held for 2 seconds, go to calibration
-			me->enc_pushes_ = 0;
-			status = Q_TRAN(&flashing);
-		} break;
         default: {
             status = Q_SUPER(&calibrated);
         } break;
