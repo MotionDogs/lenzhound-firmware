@@ -209,7 +209,7 @@ int BSP_get_mode()
     } else if (buttonState & 0x40) {
         return FREE_MODE;
     } else {
-        return PLAYBACK_MODE;
+        return PLAY_BACK_MODE;
     }
 }
 

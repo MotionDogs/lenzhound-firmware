@@ -225,10 +225,10 @@ void _serial_api_process_command(int length)
         _serial_api_print_ok(cmd);
     } break;
     case (SERIAL_ACCEL_GET): {
-        _print_i16(cmd, settings_get_max_accel());
+        _print_i16(cmd, settings_get_max_accel() / 4);
     } break;
     case (SERIAL_ACCEL_SET): {
-        settings_set_max_accel(_parse_i16(in));
+        settings_set_max_accel(_parse_i16(in) * 4);
         PACKET_SEND(PACKET_ACCEL_SET, accel_set, _parse_i16(in));
         _serial_api_print_ok(cmd);
     } break;
@@ -237,7 +237,7 @@ void _serial_api_process_command(int length)
         _serial_api_print_ok(cmd);
     } break;
     case (SERIAL_RELOAD_CONFIG): {
-        PACKET_SEND(PACKET_ACCEL_SET, accel_set, settings_get_max_accel());
+        PACKET_SEND(PACKET_ACCEL_SET, accel_set, settings_get_max_accel() / 4);
         PACKET_SEND(PACKET_MAX_SPEED_SET, max_speed_set,
             settings_get_max_speed());
 

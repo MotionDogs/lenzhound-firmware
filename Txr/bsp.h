@@ -78,7 +78,7 @@
 // Modes
 enum {
   FREE_MODE,
-  PLAYBACK_MODE,
+  PLAY_BACK_MODE,
   Z_MODE
 };
 
