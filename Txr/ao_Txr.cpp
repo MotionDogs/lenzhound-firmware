@@ -33,8 +33,8 @@ enum TxrTimeouts {
     // how often to send encoder position
     SEND_ENCODER_TOUT  = BSP_TICKS_PER_SEC / 100,
     // how quick to flash LED
-    FLASH_RATE_TOUT = BSP_TICKS_PER_SEC / 16,
-    // how long to flash LED for
+    FLASH_RATE_TOUT = BSP_TICKS_PER_SEC / 2,
+    // how long to be flashing LED for
     FLASH_DURATION_TOUT = BSP_TICKS_PER_SEC / 4,
     // how long to hold calibration button before reentering calibration
     ENTER_CALIBRATION_TOUT = BSP_TICKS_PER_SEC * 1,
@@ -545,15 +545,18 @@ QP::QState Txr::flashing(Txr *const me, QP::QEvt const *const e)
 QP::QState Txr::free_run_mode(Txr *const me, QP::QEvt const *const e)
 {
     QP::QState status;
+    static int flashCount = 0;
 
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             me->double_tapping_ = false;
             me->update_speed_LEDs();
+            flashCount = 0;
             status = Q_HANDLED();
         } break;
         case Q_EXIT_SIG: {
             set_speed_LEDs_off();
+            me->flash_timeout_.disarm();
             status = Q_HANDLED();
         } break;
         case SEND_TIMEOUT_SIG: {
@@ -562,7 +565,9 @@ QP::QState Txr::free_run_mode(Txr *const me, QP::QEvt const *const e)
             } else {
                 me->update_max_accel_using_encoder();
             }
-            me->update_speed_LEDs();
+            if (flashCount == 0) {
+                me->update_speed_LEDs();
+            }
             me->update_position();
 
             status = Q_HANDLED();
@@ -576,15 +581,17 @@ QP::QState Txr::free_run_mode(Txr *const me, QP::QEvt const *const e)
                 me->saved_positions_[me->prev_position_button_pressed_] = me->cur_pos_;
                 settings_set_saved_position(me->prev_position_button_pressed_,
                                             (int)me->cur_pos_);
-                set_speed_LED_status(me->prev_position_button_pressed_, LED_ON);
+                set_speed_LED_status(me->prev_position_button_pressed_, LED_OFF);
+                flashCount = 2;  //  on, off
                 me->flash_timeout_.postIn(me, FLASH_RATE_TOUT);
             }
 
             status = Q_HANDLED();
         } break;
         case FLASH_RATE_SIG: {
-            // turn off flashed LED
-            set_speed_LED_status(me->prev_position_button_pressed_, LED_OFF);
+            set_speed_LED_status(me->prev_position_button_pressed_, LED_TOGGLE);
+            if (--flashCount > 0)
+                me->flash_timeout_.postIn(me, FLASH_RATE_TOUT);
             status = Q_HANDLED();
         } break;
         default: {
@@ -596,6 +603,7 @@ QP::QState Txr::free_run_mode(Txr *const me, QP::QEvt const *const e)
 
 QP::QState Txr::play_back_mode(Txr *const me, QP::QEvt const *const e)
 {
+    static int flashCount = 0;
     QP::QState status;
 
     switch (e->sig) {
@@ -604,10 +612,12 @@ QP::QState Txr::play_back_mode(Txr *const me, QP::QEvt const *const e)
             me->play_back_target_pos_ = me->cur_pos_;
             PACKET_SEND(PACKET_TARGET_POSITION_SET, target_position_set, me->cur_pos_);
             me->update_speed_LEDs();
+            flashCount = 0;
             status = Q_HANDLED();
         } break;
         case Q_EXIT_SIG: {
             set_speed_LEDs_off();
+            me->flash_timeout_.disarm();
             status = Q_HANDLED();
         } break;
         case SEND_TIMEOUT_SIG: {
@@ -616,7 +626,9 @@ QP::QState Txr::play_back_mode(Txr *const me, QP::QEvt const *const e)
             } else {
                 me->update_max_accel_using_encoder();
             }
-            me->update_speed_LEDs();
+            if (flashCount == 0) {
+                me->update_speed_LEDs();
+            }
 
             me->update_position_play_back();
             status = Q_HANDLED();
@@ -626,13 +638,17 @@ QP::QState Txr::play_back_mode(Txr *const me, QP::QEvt const *const e)
             Q_REQUIRE(button_num < NUM_POSITION_BUTTONS);
             me->play_back_target_pos_ = me->saved_positions_[button_num];
             me->prev_position_button_pressed_ = button_num;
-            set_speed_LED_status(me->prev_position_button_pressed_, LED_ON);
+            set_speed_LED_status(me->prev_position_button_pressed_, LED_OFF);
+            flashCount = 2;  //  on, off
+            // disarm first in case a previous flash is in progress
+            me->flash_timeout_.disarm(); 
             me->flash_timeout_.postIn(me, FLASH_RATE_TOUT);
             status = Q_HANDLED();
         } break;
         case FLASH_RATE_SIG: {
-            // turn off flashed LED
-            set_speed_LED_status(me->prev_position_button_pressed_, LED_OFF);
+            set_speed_LED_status(me->prev_position_button_pressed_, LED_TOGGLE);
+            if (--flashCount > 0)
+                me->flash_timeout_.postIn(me, FLASH_RATE_TOUT);
             status = Q_HANDLED();
         } break;
         default: {
