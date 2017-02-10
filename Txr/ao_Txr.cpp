@@ -142,6 +142,7 @@ QActive *const AO_Txr = &l_Txr;     // the global opaque pointer
 void Txr::update_speed_LEDs()
 {
     int speed_percent = (int)((long)settings_get_max_speed() * 100L / 32768L);
+    speed_percent = clamp(speed_percent, 1, 100);
 
     #define MAP_LED(x,n) x == n ? \
         255 :\
