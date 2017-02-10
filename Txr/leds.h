@@ -43,15 +43,19 @@ inline void set_LED_status(int led, int status)
     } else if (status == LED_OFF) {
         switch (led) {
         case SPEED_LED1: {
+            analogWrite(SPEED_LED1, 0);
             RED_LED_OFF();
         } break;
         case SPEED_LED2: {
+            analogWrite(SPEED_LED2, 0);
             AMBER_LED_OFF();
         } break;
         case SPEED_LED4: {
+            analogWrite(SPEED_LED4, 0);
             AMBER2_LED_OFF();
         } break;
         case SPEED_LED5: {
+            analogWrite(SPEED_LED5, 0);
             GREEN_LED_OFF();
         } break;
         case GREEN_LED: {
