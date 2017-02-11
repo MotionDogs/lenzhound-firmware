@@ -2,8 +2,6 @@
 #include "constants.h"
 #include "util.h"
 
-#define CONVERSION_FACTOR .01
-
 controller_state_t state = {0};
 
 void _controller_sleep()
@@ -24,7 +22,6 @@ void controller_init()
 {
     state.direction = 1;
     state.max_speed = 0;
-    state.current_speed_cap = 0;
     state.accel = 0;
     state.mode = 0;
     state.decel_denominator = 0;
@@ -76,46 +73,15 @@ void controller_set_mode(int mode)
     state.mode = mode;
 }
 
-void controller_refresh_speed()
-{
-    long max = state.max_speed;
-
-    state.current_speed_cap = min32(
-        max32(max * state.speed_percent * CONVERSION_FACTOR, 1L),
-        FIXED_ONE);
-}
-
-void controller_refresh_accel()
-{
-    state.accel = max32(
-        state.max_accel *
-        state.accel_percent *
-        CONVERSION_FACTOR, 1L);
-    state.decel_denominator = fixed_mult(state.accel, i32_to_fixed(2L));
-}
-
-void controller_set_speed_percent(int speed)
-{
-    state.speed_percent = speed;
-    controller_refresh_speed();
-}
-
-void controller_set_accel_percent(int accel)
-{
-    state.accel_percent = accel;
-    controller_refresh_accel();
-}
-
 void controller_set_speed(long speed)
 {
-    state.max_speed = speed;
-    controller_refresh_speed();
+    state.max_speed = clamp32(speed, 1L, FIXED_ONE);
 }
 
 void controller_set_accel(long accel)
 {
-    state.max_accel = accel;
-    controller_refresh_accel();
+    state.accel = clamp32(accel, 1L, 32L);
+    state.decel_denominator = fixed_mult(state.accel, i32_to_fixed(2L));
 }
 
 long controller_get_speed()
@@ -125,7 +91,7 @@ long controller_get_speed()
 
 long controller_get_accel()
 {
-    return state.max_accel;
+    return state.accel;
 }
 
 long controller_get_decel_threshold()
@@ -178,7 +144,7 @@ void controller_run()
             state.velocity = min32(state.velocity + state.accel,
 //              |
 //              v
-                state.current_speed_cap);
+                state.max_speed);
         }
         state.calculated_position += state.velocity;
 //                               |
@@ -217,7 +183,7 @@ void controller_run()
             state.velocity = max32(state.velocity - state.accel,
 //              |
 //              v
-                -state.current_speed_cap);
+                -state.max_speed);
         }
         state.calculated_position += state.velocity;
 //                               |

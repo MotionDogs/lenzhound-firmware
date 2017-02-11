@@ -21,11 +21,6 @@
 
 Q_DEFINE_THIS_FILE
 
-// These are percentages
-#define MAX_SPEED  100
-#define MID_SPEED  50
-#define MIN_SPEED  1
-
 #define ENCODER_CLAMP_SLOP 2
 
 #define DIMLY_LIT_ENCODER_VAL 13
@@ -134,7 +129,6 @@ protected:
     void update_max_speed_using_encoder();
     void update_max_accel_using_encoder();
     void update_calibration_multiplier(int setting);
-    void init_speed_percent();
     void update_speedand_accel_LEDs();
     void reset_calibration();
 };
@@ -146,48 +140,48 @@ void Txr::update_speedand_accel_LEDs()
 {
 
     if (encoder_mode_ == ENCODER_MODE_ACCEL) {
-        int percent = settings_get_max_accel() / ENCODER_STEPS_PER_CLICK;
-        percent = clamp(percent, 1, 32);
+        int factor = settings_get_max_accel() / ENCODER_STEPS_PER_CLICK;
+        factor = clamp(factor, 1, 32);
 
         #define MAP_LED(x,n) x == n ? \
             255 :\
             map(clamp(distance(x, n), 0, 7), 0, 7, 50, 0)
 
-        int led_1 = MAP_LED(percent, 1);
-        int led_2 = MAP_LED(percent, 8);
-        int led_3 = MAP_LED(percent, 16);
-        int led_4 = MAP_LED(percent, 24);
-        int led_5 = MAP_LED(percent, 32);
+        int led_1 = MAP_LED(factor, 1);
+        int led_2 = MAP_LED(factor, 8);
+        int led_3 = MAP_LED(factor, 16);
+        int led_4 = MAP_LED(factor, 24);
+        int led_5 = MAP_LED(factor, 32);
 
         analogWrite(SPEED_LED1, led_1);
         analogWrite(SPEED_LED2, led_2);
         analogWrite(SPEED_LED4, led_4);
         analogWrite(SPEED_LED5, led_5);
 
-        analogWrite(SPEED_LED3_1, led_3);
-        analogWrite(SPEED_LED3_2, min(DIMLY_LIT_ENCODER_VAL + led_3, 255));
+        analogWrite(SPEED_LED3_1, led_3 / 4);
+        analogWrite(SPEED_LED3_2, min(DIMLY_LIT_ENCODER_VAL + led_3, 64) / 4);
         #undef MAP_LED
     } else {
-        int percent = (int)((long)settings_get_max_speed() * 100L / 32768L);
-        percent = clamp(percent, 1, 100);
+        int factor = (int)((long)settings_get_max_speed() * 100L / 32768L);
+        factor = clamp(factor, 1, 100);
 
         #define MAP_LED(x,n) x == n ? \
             255 :\
             map(clamp(distance(x, n), 0, 24), 0, 24, 50, 0)
 
-        int led_1 = MAP_LED(percent, 1);
-        int led_2 = MAP_LED(percent, 25);
-        int led_3 = MAP_LED(percent, 50);
-        int led_4 = MAP_LED(percent, 75);
-        int led_5 = MAP_LED(percent, 100);
+        int led_1 = MAP_LED(factor, 1);
+        int led_2 = MAP_LED(factor, 25);
+        int led_3 = MAP_LED(factor, 50);
+        int led_4 = MAP_LED(factor, 75);
+        int led_5 = MAP_LED(factor, 100);
 
         analogWrite(SPEED_LED1, led_1);
         analogWrite(SPEED_LED2, led_2);
         analogWrite(SPEED_LED4, led_4);
         analogWrite(SPEED_LED5, led_5);
 
-        analogWrite(SPEED_LED3_1, min(DIMLY_LIT_ENCODER_VAL + led_3, 255));
-        analogWrite(SPEED_LED3_2, led_3);
+        analogWrite(SPEED_LED3_1, min(DIMLY_LIT_ENCODER_VAL + led_3, 64) / 4);
+        analogWrite(SPEED_LED3_2, led_3 / 4);
     }
 
 }

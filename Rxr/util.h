@@ -16,6 +16,10 @@ inline long min32(long a, long b) {
   return (a < b) ? a : b;
 }
 
+inline long clamp32(long x, long min, long max) {
+	return min32(max, max32(min, x));
+}
+
 inline long i16_to_fixed(int a) {
   return ((long)a) << BIT_SHIFT;
 }

@@ -245,14 +245,6 @@ void _process_packet(radio_packet_t packet)
             packet.target_position_print.val);
         _send_ok(type);
     } break;
-    case PACKET_SPEED_PERCENT_SET: {
-        controller_set_speed_percent(packet.speed_percent_set.val);
-        _send_ok(type);
-    } break;
-    case PACKET_ACCEL_PERCENT_SET: {
-        controller_set_accel_percent(packet.accel_percent_set.val);
-        _send_ok(type);
-    } break;
     case PACKET_SAVE_CONFIG: {
         _send_ok(type);
     } break;

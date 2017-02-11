@@ -51,8 +51,6 @@ void setup()
     radio_init();
     controller_set_accel(1);
     controller_set_speed(1);
-    controller_set_accel_percent(100);
-    controller_set_speed_percent(100);
 
     Timer1.initialize();
     Timer1.attachInterrupt(timer_interrupt, ISR_PERIOD);
