@@ -17,6 +17,8 @@ const char* MAX_INPUT_LENGTH_EXCEEDED       = "ERR 02";
 const char* UNKNOWN_COMMAND                 = "ERR 03";
 const char* MALFORMED_COMMAND               = "ERR 04";
 
+const int ENCODER_STEPS_PER_CLICK  = 4;
+
 serial_api_state_t serial_api_state = {0};
 
 inline char *_serial_api_out(int index)
@@ -225,10 +227,10 @@ void _serial_api_process_command(int length)
         _serial_api_print_ok(cmd);
     } break;
     case (SERIAL_ACCEL_GET): {
-        _print_i16(cmd, settings_get_max_accel() / 4);
+        _print_i16(cmd, settings_get_max_accel() / ENCODER_STEPS_PER_CLICK);
     } break;
     case (SERIAL_ACCEL_SET): {
-        settings_set_max_accel(_parse_i16(in) * 4);
+        settings_set_max_accel(_parse_i16(in) * ENCODER_STEPS_PER_CLICK);
         PACKET_SEND(PACKET_ACCEL_SET, accel_set, _parse_i16(in));
         _serial_api_print_ok(cmd);
     } break;
@@ -237,7 +239,9 @@ void _serial_api_process_command(int length)
         _serial_api_print_ok(cmd);
     } break;
     case (SERIAL_RELOAD_CONFIG): {
-        PACKET_SEND(PACKET_ACCEL_SET, accel_set, settings_get_max_accel() / 4);
+        PACKET_SEND(PACKET_ACCEL_SET,
+            accel_set,
+            settings_get_max_accel() / ENCODER_STEPS_PER_CLICK);
         PACKET_SEND(PACKET_MAX_SPEED_SET, max_speed_set,
             settings_get_max_speed());
 

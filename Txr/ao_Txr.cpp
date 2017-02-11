@@ -28,6 +28,9 @@ Q_DEFINE_THIS_FILE
 
 #define ENCODER_CLAMP_SLOP 2
 
+#define DIMLY_LIT_ENCODER_VAL 13
+#define ENCODER_STEPS_PER_CLICK 4
+
 // various timeouts in ticks
 enum TxrTimeouts {
     // how often to send encoder position
@@ -132,46 +135,61 @@ protected:
     void update_max_accel_using_encoder();
     void update_calibration_multiplier(int setting);
     void init_speed_percent();
-    void update_speed_LEDs();
+    void update_speedand_accel_LEDs();
     void reset_calibration();
 };
 
 static Txr l_Txr;                   // the single instance of Txr active object (local)
 QActive *const AO_Txr = &l_Txr;     // the global opaque pointer
 
-void Txr::update_speed_LEDs()
+void Txr::update_speedand_accel_LEDs()
 {
-    int speed_percent = (int)((long)settings_get_max_speed() * 100L / 32768L);
-    speed_percent = clamp(speed_percent, 1, 100);
-
-    #define MAP_LED(x,n) x == n ? \
-        255 :\
-        map(clamp(distance(x, n), 0, 24), 0, 24, 50, 0)
-
 
     if (encoder_mode_ == ENCODER_MODE_ACCEL) {
-        analogWrite(SPEED_LED1, 0);
-        analogWrite(SPEED_LED2, 0);
-        analogWrite(SPEED_LED3_1, 0);
-        analogWrite(SPEED_LED3_2, 100);
-        analogWrite(SPEED_LED4, 0);
-        analogWrite(SPEED_LED5, 0);
-    } else {
-        int led_1 = MAP_LED(speed_percent, 1);
-        int led_2 = MAP_LED(speed_percent, 25);
-        int led_3 = MAP_LED(speed_percent, 50);
-        int led_4 = MAP_LED(speed_percent, 75);
-        int led_5 = MAP_LED(speed_percent, 100);
+        int percent = settings_get_max_accel() / ENCODER_STEPS_PER_CLICK;
+        percent = clamp(percent, 1, 32);
+
+        #define MAP_LED(x,n) x == n ? \
+            255 :\
+            map(clamp(distance(x, n), 0, 7), 0, 7, 50, 0)
+
+        int led_1 = MAP_LED(percent, 1);
+        int led_2 = MAP_LED(percent, 8);
+        int led_3 = MAP_LED(percent, 16);
+        int led_4 = MAP_LED(percent, 24);
+        int led_5 = MAP_LED(percent, 32);
 
         analogWrite(SPEED_LED1, led_1);
         analogWrite(SPEED_LED2, led_2);
-        analogWrite(SPEED_LED3_1, led_3);
-        analogWrite(SPEED_LED3_2, led_3);
         analogWrite(SPEED_LED4, led_4);
         analogWrite(SPEED_LED5, led_5);
+
+        analogWrite(SPEED_LED3_1, led_3);
+        analogWrite(SPEED_LED3_2, min(DIMLY_LIT_ENCODER_VAL + led_3, 255));
+        #undef MAP_LED
+    } else {
+        int percent = (int)((long)settings_get_max_speed() * 100L / 32768L);
+        percent = clamp(percent, 1, 100);
+
+        #define MAP_LED(x,n) x == n ? \
+            255 :\
+            map(clamp(distance(x, n), 0, 24), 0, 24, 50, 0)
+
+        int led_1 = MAP_LED(percent, 1);
+        int led_2 = MAP_LED(percent, 25);
+        int led_3 = MAP_LED(percent, 50);
+        int led_4 = MAP_LED(percent, 75);
+        int led_5 = MAP_LED(percent, 100);
+
+        analogWrite(SPEED_LED1, led_1);
+        analogWrite(SPEED_LED2, led_2);
+        analogWrite(SPEED_LED4, led_4);
+        analogWrite(SPEED_LED5, led_5);
+
+        analogWrite(SPEED_LED3_1, min(DIMLY_LIT_ENCODER_VAL + led_3, 255));
+        analogWrite(SPEED_LED3_2, led_3);
     }
 
-    #undef MAP_LED
 }
 
 void Txr::reset_calibration()
@@ -189,7 +207,8 @@ void Txr::update_position_calibration()
     }
 
     long encoder_delta = cur_encoder_count - initial_encoder_count_;
-    long position_delta = (encoder_delta / 4) * calibration_multiplier_;
+    long position_delta = (encoder_delta / ENCODER_STEPS_PER_CLICK) *
+        calibration_multiplier_;
 
     long new_pos = initial_position_ + position_delta;
 
@@ -237,13 +256,15 @@ void Txr::update_max_accel_using_encoder()
     long cur_max_accel = settings_get_max_accel();
 
     long new_max_accel = cur_max_accel + encoder_delta;
-    new_max_accel = clamp(new_max_accel, 4, 128);
+    new_max_accel = clamp(new_max_accel,
+        ENCODER_STEPS_PER_CLICK * 1,
+        ENCODER_STEPS_PER_CLICK * 32);
 
     previous_encoder_count_ = cur_encoder_count;
 
     if (new_max_accel != cur_max_accel) {
         settings_set_max_accel(new_max_accel);
-        log_value(SERIAL_ACCEL_GET, new_max_accel / 4);
+        log_value(SERIAL_ACCEL_GET, new_max_accel / ENCODER_STEPS_PER_CLICK);
     }
 }
 
@@ -353,7 +374,7 @@ QP::QState Txr::on(Txr *const me, QP::QEvt const *const e)
             PACKET_SEND(PACKET_MAX_SPEED_SET, max_speed_set,
                 settings_get_max_speed());
             PACKET_SEND(PACKET_ACCEL_SET, accel_set,
-                settings_get_max_accel() / 4);
+                settings_get_max_accel() / ENCODER_STEPS_PER_CLICK);
 
             int channel = settings_get_channel();
             if (channel != me->previous_channel_) {
@@ -550,7 +571,7 @@ QP::QState Txr::free_run_mode(Txr *const me, QP::QEvt const *const e)
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             me->double_tapping_ = false;
-            me->update_speed_LEDs();
+            me->update_speedand_accel_LEDs();
             flashCount = 0;
             status = Q_HANDLED();
         } break;
@@ -566,7 +587,7 @@ QP::QState Txr::free_run_mode(Txr *const me, QP::QEvt const *const e)
                 me->update_max_accel_using_encoder();
             }
             if (flashCount == 0) {
-                me->update_speed_LEDs();
+                me->update_speedand_accel_LEDs();
             }
             me->update_position();
 
@@ -611,7 +632,7 @@ QP::QState Txr::play_back_mode(Txr *const me, QP::QEvt const *const e)
             me->double_tapping_ = false;
             me->play_back_target_pos_ = me->cur_pos_;
             PACKET_SEND(PACKET_TARGET_POSITION_SET, target_position_set, me->cur_pos_);
-            me->update_speed_LEDs();
+            me->update_speedand_accel_LEDs();
             flashCount = 0;
             status = Q_HANDLED();
         } break;
@@ -627,7 +648,7 @@ QP::QState Txr::play_back_mode(Txr *const me, QP::QEvt const *const e)
                 me->update_max_accel_using_encoder();
             }
             if (flashCount == 0) {
-                me->update_speed_LEDs();
+                me->update_speedand_accel_LEDs();
             }
 
             me->update_position_play_back();
@@ -682,7 +703,7 @@ QP::QState Txr::z_mode(Txr *const me, QP::QEvt const *const e)
             } else {
                 me->update_max_accel_using_encoder();
             }
-            me->update_speed_LEDs();
+            me->update_speedand_accel_LEDs();
             me->update_position();
 
             int preset_index = settings_get_preset_index();
