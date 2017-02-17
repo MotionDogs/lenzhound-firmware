@@ -46,47 +46,30 @@ void settings_init()
     unsigned long sentinel = eeprom_read_uint32(SENTINEL_LOC);
     if (sentinel != SENTINEL_VALUE) {
         for (int i = 0; i < MAX_PROFILES; ++i) {
-            eeprom_write_int16(
-                _settings_position(i,CHANNEL_OFFSET, CHANNEL_SIZE),
-                DEFAULT_CHANNEL);
-            eeprom_write_int16(
-                _settings_position(i,CAL_POS_1_OFFSET, CAL_POS_1_SIZE),
-                DEFAULT_CAL_POS_1);
-            eeprom_write_int16(
-                _settings_position(i,CAL_POS_2_OFFSET, CAL_POS_2_SIZE),
-                DEFAULT_CAL_POS_2);
-
-            int saved_position_offset =
-                _settings_position(i,SAVED_POSITION_OFFSET,SAVED_POSITION_SIZE);
-
-            eeprom_write_int16(
-                saved_position_offset + 0,
-                DEFAULT_SAVED_POSITION);
-            eeprom_write_int16(
-                saved_position_offset + 2,
-                DEFAULT_SAVED_POSITION);
-            eeprom_write_int16(
-                saved_position_offset + 4,
-                DEFAULT_SAVED_POSITION);
-            eeprom_write_int16(
-                saved_position_offset + 6,
-                DEFAULT_SAVED_POSITION);
-            eeprom_write_int16(
-                _settings_position(i,START_IN_CAL_OFFSET, START_IN_CAL_SIZE),
-                DEFAULT_START_IN_CAL);
             eeprom_write_uint16(
-                _settings_position(i,MAX_SPEED_OFFSET, MAX_SPEED_SIZE),
+                _settings_position(i, MAX_SPEED_OFFSET, MAX_SPEED_SIZE),
                 DEFAULT_MAX_SPEED);
             eeprom_write_int16(
-                _settings_position(i,MAX_ACCEL_OFFSET, MAX_ACCEL_SIZE),
+                _settings_position(i, MAX_ACCEL_OFFSET, MAX_ACCEL_SIZE),
                 DEFAULT_MAX_ACCEL);
             eeprom_write_uint32(
-                _settings_position(i,ID_OFFSET, ID_SIZE),
+                _settings_position(i, ID_OFFSET, ID_SIZE),
                 DEFAULT_ID_SEED + (long)i);
             eeprom_write_string(
-                _settings_position(i,NAME_OFFSET, NAME_SIZE),
+                _settings_position(i, NAME_OFFSET, NAME_SIZE),
                 DEFAULT_NAME, NAME_MAX_LENGTH);
         }
+
+        eeprom_write_int16(CAL_POS_1_OFFSET, DEFAULT_CAL_POS_1);
+        eeprom_write_int16(CAL_POS_2_OFFSET, DEFAULT_CAL_POS_2);
+
+        eeprom_write_int16(SAVED_POSITION_OFFSET + 0, DEFAULT_SAVED_POSITION);
+        eeprom_write_int16(SAVED_POSITION_OFFSET + 2, DEFAULT_SAVED_POSITION);
+        eeprom_write_int16(SAVED_POSITION_OFFSET + 4, DEFAULT_SAVED_POSITION);
+        eeprom_write_int16(SAVED_POSITION_OFFSET + 6, DEFAULT_SAVED_POSITION);
+        eeprom_write_int16(START_IN_CAL_OFFSET, DEFAULT_START_IN_CAL);
+
+        eeprom_write_int16(CHANNEL_OFFSET, DEFAULT_CHANNEL);
 
         eeprom_write_char(PRESET_INDEX_OFFSET, 0);
         eeprom_write_uint32(SENTINEL_LOC, SENTINEL_VALUE);
@@ -133,7 +116,7 @@ void settings_get_name(char* buffer)
 
 int settings_get_channel()
 {
-    return eeprom_read_int16(_settings_position(CHANNEL_OFFSET, CHANNEL_SIZE));
+    return eeprom_read_int16(CHANNEL_OFFSET);
 }
 
 int settings_get_calibration_position_1()
@@ -180,7 +163,7 @@ void settings_set_name(char* val)
 
 void settings_set_channel(int val)
 {
-    eeprom_write_int16(_settings_position(CHANNEL_OFFSET, CHANNEL_SIZE), val);
+    eeprom_write_int16(CHANNEL_OFFSET, val);
 }
 
 void settings_set_calibration_position_1(int val)

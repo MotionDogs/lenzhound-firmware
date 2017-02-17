@@ -205,6 +205,7 @@ void _serial_api_process_command(int length)
         unsigned int channel = _parse_u16(in);
         settings_set_channel(channel);
         radio_set_channel(channel, false);
+        _serial_api_print_ok(cmd);
     } break;
     case (SERIAL_REMOTE_CHANNEL_GET): {
         PACKET_SEND_EMPTY(PACKET_CHANNEL_GET);
