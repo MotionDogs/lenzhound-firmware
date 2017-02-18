@@ -129,61 +129,69 @@ protected:
     void update_max_speed_using_encoder();
     void update_max_accel_using_encoder();
     void update_calibration_multiplier(int setting);
-    void update_speedand_accel_LEDs();
+    void update_speed_and_accel_LEDs();
     void reset_calibration();
 };
 
 static Txr l_Txr;                   // the single instance of Txr active object (local)
 QActive *const AO_Txr = &l_Txr;     // the global opaque pointer
 
-void Txr::update_speedand_accel_LEDs()
+int map_accel_LED(int x, int n)
 {
+    return x == n ? 128 : map(clamp(distance(x, n), 0, 7), 0, 7, 50, 0);
+}
+
+int map_speed_LED(int x, int n)
+{
+    return x == n ? 128 : map(clamp(distance(x, n), 0, 24), 0, 24, 50, 0);
+}
+
+void Txr::update_speed_and_accel_LEDs()
+{
+    int encoder_led;
+    int button_leds[4];
 
     if (encoder_mode_ == ENCODER_MODE_ACCEL) {
+
         int factor = settings_get_max_accel() / ENCODER_STEPS_PER_CLICK;
         factor = clamp(factor, 1, 32);
 
-        #define MAP_LED(x,n) x == n ? \
-            255 :\
-            map(clamp(distance(x, n), 0, 7), 0, 7, 50, 0)
+        button_leds[0] = map_accel_LED(factor, 1);
+        button_leds[1] = map_accel_LED(factor, 8);
+        encoder_led = map_accel_LED(factor, 16);
+        button_leds[2] = map_accel_LED(factor, 24);
+        button_leds[3] = map_accel_LED(factor, 32);
 
-        int led_1 = MAP_LED(factor, 1);
-        int led_2 = MAP_LED(factor, 8);
-        int led_3 = MAP_LED(factor, 16);
-        int led_4 = MAP_LED(factor, 24);
-        int led_5 = MAP_LED(factor, 32);
-
-        analogWrite(SPEED_LED1, led_1);
-        analogWrite(SPEED_LED2, led_2);
-        analogWrite(SPEED_LED4, led_4);
-        analogWrite(SPEED_LED5, led_5);
-
-        analogWrite(SPEED_LED3_1, led_3 / 4);
-        analogWrite(SPEED_LED3_2, min(DIMLY_LIT_ENCODER_VAL + led_3, 64) / 4);
-        #undef MAP_LED
+        analogWrite(SPEED_LED3_1, encoder_led / 4);
+        analogWrite(SPEED_LED3_2, min(DIMLY_LIT_ENCODER_VAL + encoder_led, 64) / 4);
     } else {
+
         int factor = (int)((long)settings_get_max_speed() * 100L / 32768L);
         factor = clamp(factor, 1, 100);
 
-        #define MAP_LED(x,n) x == n ? \
-            255 :\
-            map(clamp(distance(x, n), 0, 24), 0, 24, 50, 0)
+        button_leds[0] = map_speed_LED(factor, 1);
+        button_leds[1] = map_speed_LED(factor, 25);
+        encoder_led = map_speed_LED(factor, 50);
+        button_leds[2] = map_speed_LED(factor, 75);
+        button_leds[3] = map_speed_LED(factor, 100);
 
-        int led_1 = MAP_LED(factor, 1);
-        int led_2 = MAP_LED(factor, 25);
-        int led_3 = MAP_LED(factor, 50);
-        int led_4 = MAP_LED(factor, 75);
-        int led_5 = MAP_LED(factor, 100);
-
-        analogWrite(SPEED_LED1, led_1);
-        analogWrite(SPEED_LED2, led_2);
-        analogWrite(SPEED_LED4, led_4);
-        analogWrite(SPEED_LED5, led_5);
-
-        analogWrite(SPEED_LED3_1, min(DIMLY_LIT_ENCODER_VAL + led_3, 64) / 4);
-        analogWrite(SPEED_LED3_2, led_3 / 4);
+        analogWrite(SPEED_LED3_1, min(DIMLY_LIT_ENCODER_VAL + encoder_led, 64) / 4);
+        analogWrite(SPEED_LED3_2, encoder_led / 4);
     }
 
+    if (BSP_get_mode() == Z_MODE) {
+        int preset = settings_get_preset_index();
+        float ms = (float)millis();
+
+        // arbitrary constants here to get the desired period.
+        int factor = (int)((sin(ms / 500.0f) + 1.0f) * 128.0f);
+        button_leds[preset] = map(factor, 0, 256, max(1, button_leds[preset]), 16);
+    }
+
+    analogWrite(SPEED_LED1, button_leds[0]);
+    analogWrite(SPEED_LED2, button_leds[1]);
+    analogWrite(SPEED_LED4, button_leds[2]);
+    analogWrite(SPEED_LED5, button_leds[3]);
 }
 
 void Txr::reset_calibration()
@@ -565,7 +573,7 @@ QP::QState Txr::free_run_mode(Txr *const me, QP::QEvt const *const e)
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             me->double_tapping_ = false;
-            me->update_speedand_accel_LEDs();
+            me->update_speed_and_accel_LEDs();
             flashCount = 0;
             status = Q_HANDLED();
         } break;
@@ -581,7 +589,7 @@ QP::QState Txr::free_run_mode(Txr *const me, QP::QEvt const *const e)
                 me->update_max_accel_using_encoder();
             }
             if (flashCount == 0) {
-                me->update_speedand_accel_LEDs();
+                me->update_speed_and_accel_LEDs();
             }
             me->update_position();
 
@@ -626,7 +634,7 @@ QP::QState Txr::play_back_mode(Txr *const me, QP::QEvt const *const e)
             me->double_tapping_ = false;
             me->play_back_target_pos_ = me->cur_pos_;
             PACKET_SEND(PACKET_TARGET_POSITION_SET, target_position_set, me->cur_pos_);
-            me->update_speedand_accel_LEDs();
+            me->update_speed_and_accel_LEDs();
             flashCount = 0;
             status = Q_HANDLED();
         } break;
@@ -642,7 +650,7 @@ QP::QState Txr::play_back_mode(Txr *const me, QP::QEvt const *const e)
                 me->update_max_accel_using_encoder();
             }
             if (flashCount == 0) {
-                me->update_speedand_accel_LEDs();
+                me->update_speed_and_accel_LEDs();
             }
 
             me->update_position_play_back();
@@ -697,7 +705,7 @@ QP::QState Txr::z_mode(Txr *const me, QP::QEvt const *const e)
             } else {
                 me->update_max_accel_using_encoder();
             }
-            me->update_speedand_accel_LEDs();
+            me->update_speed_and_accel_LEDs();
             me->update_position();
 
             int preset_index = settings_get_preset_index();
