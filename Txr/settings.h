@@ -47,7 +47,7 @@
 #define DEFAULT_CHANNEL         1
 #define DEFAULT_DATA_RATE       0
 #define DEFAULT_CAL_POS_1       0
-#define DEFAULT_CAL_POS_2       100
+#define DEFAULT_CAL_POS_2       800
 #define DEFAULT_SAVED_POSITION  0
 #define DEFAULT_START_IN_CAL    0
 #define DEFAULT_MAX_SPEED       16384
