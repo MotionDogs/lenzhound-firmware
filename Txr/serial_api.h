@@ -46,6 +46,7 @@ enum {
     SERIAL_EEPROM_EXPORT        = 'g',
     SERIAL_DEBUG_FAIL_ASSERT    = 'B',
     SERIAL_DEBUG_STRING_GET     = 'b',
+    SERIAL_FACTORY_RESET        = 'Y',
     SERIAL_IGNORE               = '_',
 };
 

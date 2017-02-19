@@ -63,6 +63,7 @@ struct settings_state_t {
 
 void settings_init();
 void settings_flush_debounced_values();
+void settings_reset_to_defaults();
 
 char settings_get_preset_index();
 void settings_set_preset_index(char index);

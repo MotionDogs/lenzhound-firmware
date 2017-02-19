@@ -50,6 +50,7 @@ enum {
     SERIAL_RELOAD_CONFIG        = 'x',
     SERIAL_TARGET_POSITION_GET  = 'o',
     SERIAL_TARGET_POSITION_SET  = 'O',
+    SERIAL_FACTORY_RESET        = 'Y',
     SERIAL_IGNORE               = '_',
 };
 

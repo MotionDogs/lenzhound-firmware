@@ -43,7 +43,6 @@ inline void _serial_api_print(const char *in)
         }
         *(out++) = *(in++);
     }
-
 }
 
 inline void _serial_api_print_len(char *in, int len)
@@ -300,6 +299,10 @@ void _serial_api_process_command(int length)
         char buffer[DEBUG_STRING_MAX_LEN];
         eeprom_read_debug_string(buffer);
         _print_string(cmd, buffer);
+    } break;
+    case (SERIAL_FACTORY_RESET): {
+        settings_reset_to_defaults();
+        _serial_api_print_ok(cmd);
     } break;
     default: {
         _serial_api_end(UNKNOWN_COMMAND);

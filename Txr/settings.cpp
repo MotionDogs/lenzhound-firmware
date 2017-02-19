@@ -41,6 +41,10 @@ void settings_set_preset_index(char index)
             _settings_position(index, MAX_ACCEL_OFFSET, MAX_ACCEL_SIZE));
 }
 
+void settings_reset_to_defaults() {
+    eeprom_write_uint32(SENTINEL_LOC, 0);
+}
+
 void settings_init()
 {
     unsigned long sentinel = eeprom_read_uint32(SENTINEL_LOC);
