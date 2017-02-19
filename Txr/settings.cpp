@@ -55,7 +55,7 @@ void settings_init()
                 DEFAULT_MAX_SPEED);
             eeprom_write_int16(
                 _settings_position(i, MAX_ACCEL_OFFSET, MAX_ACCEL_SIZE),
-                DEFAULT_MAX_ACCEL);
+                DEFAULT_MAX_ACCEL * 4);
             eeprom_write_uint32(
                 _settings_position(i, ID_OFFSET, ID_SIZE),
                 DEFAULT_ID_SEED + (long)i);
