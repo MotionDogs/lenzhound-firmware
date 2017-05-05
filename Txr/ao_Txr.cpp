@@ -33,9 +33,9 @@ enum TxrTimeouts {
     // how often to send encoder position
     SEND_ENCODER_TOUT  = BSP_TICKS_PER_SEC / 100,
     // how quick to flash LED
-    FLASH_RATE_TOUT = BSP_TICKS_PER_SEC / 2,
+    FLASH_RATE_TOUT = BSP_TICKS_PER_SEC / 3,
     // how long to be flashing LED for
-    FLASH_DURATION_TOUT = BSP_TICKS_PER_SEC / 4,
+    FLASH_DURATION_TOUT = BSP_TICKS_PER_SEC,
     // how long to hold calibration button before reentering calibration
     ENTER_CALIBRATION_TOUT = BSP_TICKS_PER_SEC * 1,
     // how often to check that transmitter is still powered (in case of low battery)
@@ -502,7 +502,7 @@ QP::QState Txr::calibrated(Txr *const me, QP::QEvt const *const e)
 
                 // we double-tapped - switch to calibration mode
                 me->enc_pushes_ = 0;
-                status = Q_TRAN(&flashing);
+                status = Q_TRAN(&uncalibrated);
             } else {
                 if (me->encoder_mode_ == ENCODER_MODE_SPEED) {
                     me->encoder_mode_ = ENCODER_MODE_ACCEL;
@@ -528,22 +528,20 @@ QP::QState Txr::calibrated(Txr *const me, QP::QEvt const *const e)
 
 QP::QState Txr::flashing(Txr *const me, QP::QEvt const *const e)
 {
-    static char led_count = 0;
     QP::QState status;
 
     switch (e->sig) {
         case Q_ENTRY_SIG: {
             set_LED_status(ENC_RED_LED, LED_ON);
-            // set_LED_status(ENC_GREEN_LED, LED_TOGGLE);
+            set_LED_status(ENC_GREEN_LED, LED_TOGGLE);
             me->flash_timeout_.postEvery(me, FLASH_RATE_TOUT);
             me->calibration_timeout_.postIn(me, FLASH_DURATION_TOUT);
-            led_count = 0;
             status = Q_HANDLED();
         } break;
         case Q_EXIT_SIG: {
             me->flash_timeout_.disarm();
             set_LED_status(ENC_RED_LED, LED_ON);
-            // set_LED_status(ENC_GREEN_LED, LED_OFF);
+            set_LED_status(ENC_GREEN_LED, LED_OFF);
             status = Q_HANDLED();
         } break;
         case CALIBRATION_SIG: {
@@ -561,9 +559,7 @@ QP::QState Txr::flashing(Txr *const me, QP::QEvt const *const e)
             }
         } break;
         case FLASH_RATE_SIG: {
-            static int red_on = 0;
-            analogWrite(SPEED_LED3_1, red_on ? 0xff : 0x00);
-            red_on = !red_on;
+            set_LED_status(ENC_GREEN_LED, LED_TOGGLE);
             status = Q_HANDLED();
         } break;
         case ENC_DOWN_SIG: {
