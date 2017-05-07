@@ -56,6 +56,8 @@
 
 #define DEFAULT_ID_SEED         0xfaceul
 
+#define ENCODER_STEPS_PER_CLICK 4
+
 struct settings_state_t {
     unsigned int debounced_max_speed;
     int debounced_max_accel;
@@ -87,5 +89,8 @@ void settings_set_start_in_calibration_mode(bool val);
 void settings_set_saved_position(int index, int val);
 void settings_set_max_speed(unsigned int val);
 void settings_set_max_accel(int val);
+
+int settings_process_accel_in(int val);
+int settings_process_accel_out(int val);
 
 #endif

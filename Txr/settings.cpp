@@ -199,3 +199,21 @@ void settings_set_max_accel(int val)
 {
     settings_state.debounced_max_accel = val;
 }
+
+int settings_process_accel_in(int val)
+{
+    int test_val = val / ENCODER_STEPS_PER_CLICK;
+    return test_val <= 8 ? val :
+           test_val <= 16 ? val * 2 :
+           test_val <= 24 ? val * 4 :
+           val * 8;
+}
+
+int settings_process_accel_out(int val)
+{
+    int test_val = val / ENCODER_STEPS_PER_CLICK;
+    return test_val < 16 ? val :
+           test_val < 64 ? val / 2 :
+           test_val < 192 ? val / 4 :
+           val / 8;
+}

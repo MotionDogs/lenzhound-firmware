@@ -17,8 +17,6 @@ const char* MAX_INPUT_LENGTH_EXCEEDED       = "ERR 02";
 const char* UNKNOWN_COMMAND                 = "ERR 03";
 const char* MALFORMED_COMMAND               = "ERR 04";
 
-const int ENCODER_STEPS_PER_CLICK  = 4;
-
 serial_api_state_t serial_api_state = {0};
 
 inline char *_serial_api_out(int index)
@@ -227,10 +225,12 @@ void _serial_api_process_command(int length)
         _serial_api_print_ok(cmd);
     } break;
     case (SERIAL_ACCEL_GET): {
-        _print_i16(cmd, settings_get_max_accel() / ENCODER_STEPS_PER_CLICK);
+        int processed_accel = settings_process_accel_out(settings_get_max_accel());
+        _print_i16(cmd, processed_accel / ENCODER_STEPS_PER_CLICK);
     } break;
     case (SERIAL_ACCEL_SET): {
-        settings_set_max_accel(_parse_i16(in) * ENCODER_STEPS_PER_CLICK);
+        int processed_accel = settings_process_accel_in(_parse_i16(in) * ENCODER_STEPS_PER_CLICK);
+        settings_set_max_accel(processed_accel);
         PACKET_SEND(PACKET_ACCEL_SET, accel_set, _parse_i16(in));
         _serial_api_print_ok(cmd);
     } break;

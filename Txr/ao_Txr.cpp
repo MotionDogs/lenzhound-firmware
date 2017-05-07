@@ -24,7 +24,6 @@ Q_DEFINE_THIS_FILE
 #define ENCODER_CLAMP_SLOP 2
 
 #define DIMLY_LIT_ENCODER_VAL 13
-#define ENCODER_STEPS_PER_CLICK 4
 
 #define BUTTON_LED_OFFISH_THRESHOLD 24
 
@@ -156,7 +155,8 @@ void Txr::update_button_LEDs()
 
     if (encoder_mode_ == ENCODER_MODE_ACCEL) {
 
-        int factor = settings_get_max_accel() / ENCODER_STEPS_PER_CLICK;
+        int processed_accel = settings_process_accel_out(settings_get_max_accel());
+        int factor = processed_accel / ENCODER_STEPS_PER_CLICK;
         factor = clamp(factor, 1, 32);
 
         button_leds[0] = map_accel_LED(factor, 1);
@@ -268,7 +268,7 @@ void Txr::update_max_accel_using_encoder()
     }
 
     long encoder_delta = cur_encoder_count - previous_encoder_count_;
-    long cur_max_accel = settings_get_max_accel();
+    long cur_max_accel = settings_process_accel_out(settings_get_max_accel());
 
     long new_max_accel = cur_max_accel + encoder_delta;
     new_max_accel = clamp(new_max_accel,
@@ -278,7 +278,8 @@ void Txr::update_max_accel_using_encoder()
     previous_encoder_count_ = cur_encoder_count;
 
     if (new_max_accel != cur_max_accel) {
-        settings_set_max_accel(new_max_accel);
+        int processed_accel = settings_process_accel_in(new_max_accel);
+        settings_set_max_accel(processed_accel);
         log_value(SERIAL_ACCEL_GET, new_max_accel / ENCODER_STEPS_PER_CLICK);
     }
 }

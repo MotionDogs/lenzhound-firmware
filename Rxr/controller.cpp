@@ -80,7 +80,7 @@ void controller_set_speed(long speed)
 
 void controller_set_accel(long accel)
 {
-    state.accel = clamp32(accel, 1L, 32L);
+    state.accel = clamp32(accel, 1L, 256L);
     state.decel_denominator = fixed_mult(state.accel, i32_to_fixed(2L));
 }
 
