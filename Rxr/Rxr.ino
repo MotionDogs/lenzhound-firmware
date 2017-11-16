@@ -35,14 +35,23 @@ void setup()
 {
     Serial.begin(SERIAL_BAUD);
 
+    // easydriver
     SET_MODE(SLEEP_PIN, OUT);
     SET_MODE(ENABLE_PIN, OUT);
     SET_MODE(MS1_PIN, OUT);
     SET_MODE(MS2_PIN, OUT);
     SET_MODE(STEP_PIN, OUT);
     SET_MODE(DIR_PIN, OUT);
+
+    // antenna
     SET_MODE(ANT_CTRL1, OUT);
     SET_MODE(ANT_CTRL2, OUT);
+
+    // drv8880
+    SET_MODE(SLEEP2_PIN, OUT);
+    SET_MODE(STEP2_PIN, OUT);
+    SET_MODE(DIR2_PIN, OUT);
+    SET_MODE(M0_PIN, OUT); 
 
     ANT_CTRL1(CLR);
     ANT_CTRL2(SET);
