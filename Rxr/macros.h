@@ -24,7 +24,7 @@
 #define ENABLE_PIN(verb)    ( verb(D,7) )
 
 // drv8880 pins
-#define  M0_PIN(verb)      ( verb(F,4) )
+#define TRQ1_PIN(verb)      ( verb(F,4) )
 #define SLEEP2_PIN(verb)    ( verb(F,5) )
 #define STEP2_PIN(verb)     ( verb(F,6) )
 #define DIR2_PIN(verb)      ( verb(F,7) )

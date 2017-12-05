@@ -51,7 +51,7 @@ void setup()
     SET_MODE(SLEEP2_PIN, OUT);
     SET_MODE(STEP2_PIN, OUT);
     SET_MODE(DIR2_PIN, OUT);
-    SET_MODE(M0_PIN, OUT); 
+    SET_MODE(TRQ1_PIN, OUT); 
 
     ANT_CTRL1(CLR);
     ANT_CTRL2(SET);

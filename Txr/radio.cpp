@@ -19,6 +19,7 @@ bool _is_radio_available()
     return !Mirf.isSending();
 }
 
+
 bool _get_radio_packet(void *buffer)
 {
     if (!Mirf.isSending() && Mirf.dataReady()) {

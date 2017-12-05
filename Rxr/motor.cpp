@@ -32,6 +32,14 @@ void motor_wake() {
   SLEEP2_PIN(SET); // drv8880
 }
 
+void motor_trq1_on() {
+  TRQ1_PIN(SET);
+}
+
+void motor_trq1_off() {
+  TRQ1_PIN(CLR);
+}
+
 // easydriver microsteps
 void motor_set_steps(int steps) {
     switch (steps) {

@@ -34,6 +34,7 @@ void controller_init()
     state.initial_position_set = false;
     _controller_sleep();
     motor_set_steps(EIGHTH_STEPS);
+    state.current_level = 0;
 }
 
 void controller_uninitialize_position()
@@ -116,6 +117,16 @@ bool controller_try_sleep()
     }
     state.run_count++;
     return false;
+}
+
+void controller_set_current_level(int current_level)
+{
+    if(state.current_level == 0)
+    {
+      motor_trq1_off();
+    } else {
+      motor_trq1_on();
+    }
 }
 
 void controller_run()

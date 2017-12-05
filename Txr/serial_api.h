@@ -13,6 +13,10 @@ struct serial_api_state_t {
     int out_index;
 };
 
+// Used letters - A B C D E G I L M N O P Q R S T U W X Y
+// Unused letters - F J K Z
+
+
 enum {
     SERIAL_ECHO                 = 'h',
     SERIAL_VERSION              = 'v',
@@ -48,6 +52,8 @@ enum {
     SERIAL_DEBUG_STRING_GET     = 'b',
     SERIAL_FACTORY_RESET        = 'Y',
     SERIAL_IGNORE               = '_',
+    SERIAL_CURRENT_LEVEL_GET    = 'f',
+    SERIAL_CURRENT_LEVEL_SET    = 'F',
 };
 
 struct serial_api_echo_command_t {

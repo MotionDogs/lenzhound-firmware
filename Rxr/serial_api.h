@@ -52,6 +52,8 @@ enum {
     SERIAL_TARGET_POSITION_SET  = 'O',
     SERIAL_FACTORY_RESET        = 'Y',
     SERIAL_IGNORE               = '_',
+    SERIAL_CURRENT_LEVEL_GET    = 'f',
+    SERIAL_CURRENT_LEVEL_SET    = 'F',    
 };
 
 struct serial_api_echo_command_t {

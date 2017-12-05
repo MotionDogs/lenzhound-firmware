@@ -14,5 +14,7 @@ void motor_set_dir_backward();
 void motor_sleep();
 void motor_wake();
 void motor_set_steps(int steps);
+void motor_trq1_on();
+void motor_trq1_off();
 
 #endif //lenzhound_motor_h

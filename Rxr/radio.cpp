@@ -122,6 +122,7 @@ char _map_ok_type(char key)
     case PACKET_TARGET_POSITION_SET: return SERIAL_TARGET_POSITION_SET;
     case PACKET_SAVE_CONFIG: return SERIAL_SAVE_CONFIG;
     case PACKET_RELOAD_CONFIG: return SERIAL_RELOAD_CONFIG;
+    case PACKET_CURRENT_LEVEL_SET: return SERIAL_CURRENT_LEVEL_SET;
 
     default: return SERIAL_IGNORE;
     }
@@ -200,6 +201,19 @@ void _process_packet(radio_packet_t packet)
         _queue_print_i16(SERIAL_REMOTE_CHANNEL_GET, channel);
         _send_ok(type);
     } break;
+    case PACKET_CURRENT_LEVEL_GET: {
+        unsigned int current_level = settings_get_current_level();
+        PACKET_SEND(PACKET_CURRENT_LEVEL_PRINT, current_level_print, current_level);
+    } break;
+    case PACKET_CURRENT_LEVEL_SET: {
+        controller_set_current_level(packet.current_level_set.val);
+        _send_ok(type);
+    } break;
+    case PACKET_CURRENT_LEVEL_PRINT: {
+        unsigned int current_level = packet.current_level_print.val;
+        _queue_print_i16(SERIAL_CURRENT_LEVEL_GET, current_level);
+        _send_ok(type);
+    } break;    
     case PACKET_PROFILE_ID_GET: {
     } break;
     case PACKET_PROFILE_ID_SET: {

@@ -42,6 +42,9 @@
 #define NAME_OFFSET             24 // char[42]
 #define NAME_SIZE               42 // char[42]
 
+#define CURRENT_LEVEL_OFFSET    66 // uint16
+#define CURRENT_LEVEL_SIZE      2  // uint16
+
 #define NAME_MAX_LENGTH         41 // 40 + NULL terminator
 
 #define DEFAULT_CHANNEL         1
@@ -52,6 +55,7 @@
 #define DEFAULT_START_IN_CAL    0
 #define DEFAULT_MAX_SPEED       16384
 #define DEFAULT_MAX_ACCEL       32
+#define DEFAULT_CURRENT_LEVEL   0
 #define DEFAULT_NAME            ""
 
 #define DEFAULT_ID_SEED         0xfaceul
@@ -79,6 +83,8 @@ bool settings_get_start_in_calibration_mode();
 int settings_get_saved_position(int index);
 unsigned int settings_get_max_speed();
 int settings_get_max_accel();
+int settings_get_current_level();
+
 
 void settings_set_id(unsigned long val);
 void settings_set_name(char* val);
@@ -89,6 +95,7 @@ void settings_set_start_in_calibration_mode(bool val);
 void settings_set_saved_position(int index, int val);
 void settings_set_max_speed(unsigned int val);
 void settings_set_max_accel(int val);
+void settings_set_current_level(unsigned int val);
 
 int settings_process_accel_in(int val);
 int settings_process_accel_out(int val);

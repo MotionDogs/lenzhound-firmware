@@ -6,13 +6,15 @@
 
 // EEPROM locations for parameters
 #define DEFAULT_CHANNEL   1
+#define DEFAULT_CURRENT_LEVEL   0   // int
 #define CHANNEL_LOC       32  // int
+#define CURRENT_LEVEL_LOC 64  // int
 #define SENTINEL_LOC      128 // int
 #define SENTINEL_VALUE    0xfafbul
 
 inline int settings_reset_to_defaults()
 {
-    eeprom_write_uint16(SENTINEL_LOC, 0);
+    eeprom_write_uint16(CURRENT_LEVEL_LOC, 0);
 }
 
 inline int settings_get_channel()
@@ -29,4 +31,15 @@ inline void settings_set_channel(int val)
 {
     return eeprom_write_int16(CHANNEL_LOC, val);
 }
+
+inline int settings_get_current_level()
+{
+    if (eeprom_read_uint16(SENTINEL_LOC) != SENTINEL_VALUE) {
+        eeprom_write_uint16(SENTINEL_LOC, SENTINEL_VALUE);
+        eeprom_write_int16(CURRENT_LEVEL_LOC, DEFAULT_CURRENT_LEVEL);
+        return DEFAULT_CURRENT_LEVEL;
+    }
+    return eeprom_read_int16(CURRENT_LEVEL_LOC);
+}
+
 #endif

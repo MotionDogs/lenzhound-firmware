@@ -75,6 +75,8 @@ void settings_init()
 
         eeprom_write_int16(CHANNEL_OFFSET, DEFAULT_CHANNEL);
 
+        eeprom_write_int16(CURRENT_LEVEL_OFFSET, DEFAULT_CURRENT_LEVEL);
+
         eeprom_write_char(PRESET_INDEX_OFFSET, 0);
         eeprom_write_uint32(SENTINEL_LOC, SENTINEL_VALUE);
     }
@@ -216,4 +218,15 @@ int settings_process_accel_out(int val)
            test_val < 64 ? val / 2 :
            test_val < 192 ? val / 4 :
            val / 8;
+}
+
+int settings_get_current_level()
+{
+    return eeprom_read_int16(CURRENT_LEVEL_OFFSET);
+}
+
+
+void settings_set_current_level(unsigned int val)
+{
+    eeprom_write_int16(CURRENT_LEVEL_OFFSET, val);
 }
