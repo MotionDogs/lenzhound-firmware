@@ -13,8 +13,8 @@ struct serial_api_state_t {
     int out_index;
 };
 
-// Used letters - A B C D E G I L M N O P Q R S T U W X Y
-// Unused letters - F J K Z
+// Used letters - A B C D E F G I L M N O P Q R S T U W X Y
+// Unused letters - J K Z
 
 
 enum {
