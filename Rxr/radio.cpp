@@ -211,7 +211,7 @@ void _process_packet(radio_packet_t packet)
     } break;
     case PACKET_CURRENT_LEVEL_PRINT: {
         unsigned int current_level = packet.current_level_print.val;
-        _queue_print_i16(SERIAL_CURRENT_LEVEL_GET, current_level);
+        _queue_print_u16(SERIAL_CURRENT_LEVEL_GET, current_level);
         _send_ok(type);
     } break;    
     case PACKET_PROFILE_ID_GET: {

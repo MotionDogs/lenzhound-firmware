@@ -120,8 +120,8 @@ bool controller_try_sleep()
 }
 
 void controller_set_current_level(int current_level)
-{
-    if(state.current_level == 0)
+{   
+    if(current_level == 0)
     {
       motor_trq1_off();
     } else {

@@ -15,13 +15,14 @@
 inline int settings_reset_to_defaults()
 {
     eeprom_write_uint16(CURRENT_LEVEL_LOC, DEFAULT_CURRENT_LEVEL);
+    eeprom_write_uint16(SENTINEL_LOC, SENTINEL_VALUE);
+    eeprom_write_int16(CHANNEL_LOC, DEFAULT_CHANNEL);    
 }
 
 inline int settings_get_channel()
 {
-    if (settings_reset_to_defaults()) {
-        eeprom_write_uint16(SENTINEL_LOC, SENTINEL_VALUE);
-        eeprom_write_int16(CHANNEL_LOC, DEFAULT_CHANNEL);
+    if (eeprom_read_uint16(SENTINEL_LOC) != SENTINEL_VALUE) {
+        settings_reset_to_defaults();
         return DEFAULT_CHANNEL;
     }
     return eeprom_read_int16(CHANNEL_LOC);
@@ -34,9 +35,8 @@ inline void settings_set_channel(int val)
 
 inline int settings_get_current_level()
 {
-    if (settings_reset_to_defaults()) {
-        eeprom_write_uint16(SENTINEL_LOC, SENTINEL_VALUE);
-        eeprom_write_int16(CURRENT_LEVEL_LOC, DEFAULT_CURRENT_LEVEL);
+    if (eeprom_read_uint16(SENTINEL_LOC) != SENTINEL_VALUE) {
+        settings_reset_to_defaults();
         return DEFAULT_CURRENT_LEVEL;
     }
     return eeprom_read_int16(CURRENT_LEVEL_LOC);
