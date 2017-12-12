@@ -202,7 +202,7 @@ void _process_packet(radio_packet_t packet)
         _send_ok(type);
     } break;
     case PACKET_CURRENT_LEVEL_GET: {
-        unsigned int current_level = settings_get_current_level();
+        unsigned int current_level = controller_get_current_level();
         PACKET_SEND(PACKET_CURRENT_LEVEL_PRINT, current_level_print, current_level);
     } break;
     case PACKET_CURRENT_LEVEL_SET: {

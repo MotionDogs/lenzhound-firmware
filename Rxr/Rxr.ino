@@ -60,6 +60,7 @@ void setup()
     radio_init();
     controller_set_accel(1);
     controller_set_speed(1);
+    controller_set_current_level(0);
 
     Timer1.initialize();
     Timer1.attachInterrupt(timer_interrupt, ISR_PERIOD);

@@ -246,7 +246,7 @@ void _serial_api_process_command(int length)
         _serial_api_print_ok(cmd);
     } break;
     case (SERIAL_CURRENT_LEVEL_GET): {
-        unsigned int current_level = settings_get_current_level();
+        unsigned int current_level = controller_get_current_level();
         _print_u16(cmd, current_level);
     } break;
     case (SERIAL_CURRENT_LEVEL_SET): {

@@ -65,6 +65,7 @@
 struct settings_state_t {
     unsigned int debounced_max_speed;
     int debounced_max_accel;
+    unsigned int debounced_current_level;
 };
 
 void settings_init();
@@ -83,7 +84,7 @@ bool settings_get_start_in_calibration_mode();
 int settings_get_saved_position(int index);
 unsigned int settings_get_max_speed();
 int settings_get_max_accel();
-int settings_get_current_level();
+unsigned int settings_get_current_level();
 
 
 void settings_set_id(unsigned long val);

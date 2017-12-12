@@ -33,13 +33,4 @@ inline void settings_set_channel(int val)
     return eeprom_write_int16(CHANNEL_LOC, val);
 }
 
-inline int settings_get_current_level()
-{
-    if (eeprom_read_uint16(SENTINEL_LOC) != SENTINEL_VALUE) {
-        settings_reset_to_defaults();
-        return DEFAULT_CURRENT_LEVEL;
-    }
-    return eeprom_read_int16(CURRENT_LEVEL_LOC);
-}
-
 #endif

@@ -39,6 +39,9 @@ void settings_set_preset_index(char index)
     settings_state.debounced_max_accel =
         eeprom_read_int16(
             _settings_position(index, MAX_ACCEL_OFFSET, MAX_ACCEL_SIZE));
+    settings_state.debounced_current_level = 
+        eeprom_read_uint16(
+            _settings_position(index, CURRENT_LEVEL_OFFSET, CURRENT_LEVEL_SIZE));
 }
 
 void settings_reset_to_defaults() {
@@ -56,6 +59,9 @@ void settings_init()
             eeprom_write_int16(
                 _settings_position(i, MAX_ACCEL_OFFSET, MAX_ACCEL_SIZE),
                 DEFAULT_MAX_ACCEL * 4);
+            eeprom_write_uint16(
+                _settings_position(i, CURRENT_LEVEL_OFFSET, CURRENT_LEVEL_SIZE),
+                DEFAULT_CURRENT_LEVEL);
             eeprom_write_uint32(
                 _settings_position(i, ID_OFFSET, ID_SIZE),
                 DEFAULT_ID_SEED + (long)i);
@@ -75,8 +81,6 @@ void settings_init()
 
         eeprom_write_int16(CHANNEL_OFFSET, DEFAULT_CHANNEL);
 
-        eeprom_write_int16(CURRENT_LEVEL_OFFSET, DEFAULT_CURRENT_LEVEL);
-
         eeprom_write_char(PRESET_INDEX_OFFSET, 0);
         eeprom_write_uint32(SENTINEL_LOC, SENTINEL_VALUE);
     }
@@ -88,16 +92,22 @@ void settings_init()
     settings_state.debounced_max_accel =
         eeprom_read_int16(_settings_position(preset,
             MAX_ACCEL_OFFSET, MAX_ACCEL_SIZE));
+    settings_state.debounced_current_level =
+        eeprom_read_uint16(_settings_position(preset,
+            CURRENT_LEVEL_OFFSET, CURRENT_LEVEL_SIZE));
 }
 
 void settings_flush_debounced_values()
 {
     unsigned int max_speed = settings_state.debounced_max_speed;
     unsigned int max_accel = settings_state.debounced_max_accel;
+    unsigned int current_level = settings_state.debounced_current_level;
     unsigned int existing_max_speed = 
         eeprom_read_uint16(_settings_position(MAX_SPEED_OFFSET, MAX_SPEED_SIZE));
     unsigned int existing_max_accel = 
         eeprom_read_int16(_settings_position(MAX_ACCEL_OFFSET, MAX_ACCEL_SIZE));
+    unsigned int existing_current_level =
+        eeprom_read_uint16(_settings_position(CURRENT_LEVEL_OFFSET, CURRENT_LEVEL_SIZE));
 
     if (existing_max_speed != max_speed) {
         eeprom_write_uint16(
@@ -106,6 +116,10 @@ void settings_flush_debounced_values()
     if (existing_max_accel != max_accel) {
         eeprom_write_int16(
             _settings_position(MAX_ACCEL_OFFSET, MAX_ACCEL_SIZE), max_accel);   
+    }
+    if (existing_current_level != current_level) {
+        eeprom_write_uint16(
+           _settings_position(CURRENT_LEVEL_OFFSET, CURRENT_LEVEL_SIZE), current_level);
     }
 }
 
@@ -220,13 +234,13 @@ int settings_process_accel_out(int val)
            val / 8;
 }
 
-int settings_get_current_level()
-{
-    return eeprom_read_int16(CURRENT_LEVEL_OFFSET);
+unsigned int settings_get_current_level()
+{   
+    return settings_state.debounced_current_level;
 }
 
 
 void settings_set_current_level(unsigned int val)
 {
-    eeprom_write_int16(CURRENT_LEVEL_OFFSET, val);
+    settings_state.debounced_current_level = val;
 }

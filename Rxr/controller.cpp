@@ -119,9 +119,14 @@ bool controller_try_sleep()
     return false;
 }
 
-void controller_set_current_level(int current_level)
+unsigned int controller_get_current_level() {
+    return state.current_level;
+}
+
+void controller_set_current_level(unsigned int current_level)
 {   
-    if(current_level == 0)
+    state.current_level = current_level;
+    if(state.current_level == 0)
     {
       motor_trq1_off();
     } else {
