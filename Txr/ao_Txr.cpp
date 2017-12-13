@@ -391,6 +391,8 @@ QP::QState Txr::on(Txr *const me, QP::QEvt const *const e)
                 settings_get_max_speed());
             PACKET_SEND(PACKET_ACCEL_SET, accel_set,
                 settings_get_max_accel() / ENCODER_STEPS_PER_CLICK);
+            PACKET_SEND(PACKET_CURRENT_LEVEL_SET, current_level_set,
+                settings_get_current_level());
 
             int channel = settings_get_channel();
             if (channel != me->previous_channel_) {

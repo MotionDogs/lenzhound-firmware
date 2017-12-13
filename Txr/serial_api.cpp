@@ -306,7 +306,7 @@ void _serial_api_process_command(int length)
         _serial_api_print_ok(cmd);
     } break;
     case (SERIAL_CURRENT_LEVEL_GET): {
-        _print_i16(cmd, settings_get_current_level());
+        _print_u16(cmd, settings_get_current_level());
     } break;
     case (SERIAL_CURRENT_LEVEL_SET): {
         settings_set_current_level(_parse_u16(in));
