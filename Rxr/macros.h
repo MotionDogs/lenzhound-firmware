@@ -14,19 +14,12 @@
 // antena pins
 #define ANT_CTRL1(verb)     ( verb(F,0) )
 #define ANT_CTRL2(verb)     ( verb(F,1) )
- 
-// easydriver pin macros
-#define MS1_PIN(verb)       ( verb(D,2) )
-#define MS2_PIN(verb)       ( verb(B,5) )
-#define STEP_PIN(verb)      ( verb(D,6) )
-#define DIR_PIN(verb)       ( verb(C,7) )
-#define SLEEP_PIN(verb)     ( verb(D,3) )
-#define ENABLE_PIN(verb)    ( verb(D,7) )
 
-// drv8880 pins
-#define TRQ1_PIN(verb)      ( verb(F,4) )
-#define SLEEP2_PIN(verb)    ( verb(F,5) )
-#define STEP2_PIN(verb)     ( verb(F,6) )
-#define DIR2_PIN(verb)      ( verb(F,7) )
+// dcdrv pins
+#define DCSPEED_PIN(verb)   ( verb(B,5) )
+#define DCIN1_PIN(verb)     ( verb(D,6) )
+#define DCIN2_PIN(verb)     ( verb(D,7) )
+#define ENCA_PIN(verb)      ( verb(D,0) )
+#define ENCB_PIN(verb)      ( verb(D,1) )
 
 #endif // rxr_macros_h

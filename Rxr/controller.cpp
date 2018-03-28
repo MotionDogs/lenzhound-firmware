@@ -1,22 +1,11 @@
 #include "controller.h"
 #include "constants.h"
 #include "util.h"
+#include <Encoder.h>
+
+static Encoder encoder(5, 6);
 
 controller_state_t state = {0};
-
-void _controller_sleep()
-{
-    state.sleeping = true;
-    state.run_count = 0;
-
-    motor_sleep();
-}
-
-void _controller_wake_up()
-{
-    state.sleeping = false;
-    motor_wake();
-}
 
 void controller_init()
 {
@@ -32,8 +21,6 @@ void controller_init()
     state.run_count = 0;
     state.sleeping = true;
     state.initial_position_set = false;
-    _controller_sleep();
-    motor_set_steps(EIGHTH_STEPS);
     state.current_level = 0;
 }
 
@@ -58,7 +45,6 @@ void controller_initialize_position(long position)
 void controller_move_to_position(long position)
 {
     if (position != state.target_position) {
-        _controller_wake_up();
         state.run_count = 0;
     }
     state.target_position = position;
@@ -102,125 +88,115 @@ long controller_get_decel_threshold()
         state.decel_denominator);
 }
 
-bool controller_try_sleep()
-{
-    if (state.motor_position != state.target_position) {
-        state.run_count = 0;
-        return false;
-    }
-    if (state.sleeping) {
-        return true;
-    }
-    if (state.run_count > MOTOR_SLEEP_THRESHOLD) {
-        _controller_sleep();
-        return true;
-    }
-    state.run_count++;
-    return false;
-}
-
 unsigned int controller_get_current_level() {
     return state.current_level;
 }
 
 void controller_set_current_level(unsigned int current_level)
-{   
+{
     state.current_level = current_level;
     if(state.current_level == 0)
     {
-      motor_trq1_off();
+    //  motor_trq1_off();
     } else {
-      motor_trq1_on();
+    //  motor_trq1_on();
     }
 }
 
 void controller_run()
 {
-    if (controller_try_sleep()) {
-        return;
-    }
     long steps_to_go = abs32(state.target_position - state.calculated_position);
+    
+    long motor_speed = map(state.velocity,-8192,8192,0,255);
+
+ //  NOTE(doug): inverted elements are highlighted
+ //  CASE: POSITIVE -------------------------------------------------------------
+     if (state.direction) {
+ //                                     |
+ //                                     v
+         if ((state.calculated_position > state.target_position) ||
+             (steps_to_go <= controller_get_decel_threshold())) {
+ //                         |
+ //                         v
+             state.velocity -= state.accel;
+ //                                           |
+ //                                           v
+         } else if (state.calculated_position < state.target_position) {
+ //                             |                  |
+ //                             v                  v
+             state.velocity = min32(state.velocity + state.accel,
+ //              |
+ //              v
+                 state.max_speed);
+         }
+
+         state.calculated_position += state.velocity;
+ //                               |
+ //                               v
+         if (state.motor_position < state.calculated_position &&
+             state.motor_position != state.target_position) {
+ //                               |
+ //                               v
+             //state.motor_position += FIXED_ONE;
+             state.motor_position = encoder.read();
+            
+             motor_run(motor_speed);
+         }
+ //                         |
+ //                         v
+         if (state.velocity < 0) {
+ //                            |
+ //                            v
+             state.direction = 0;
+ //                            |
+ //                            v
+             motor_set_dir_backward();
+             motor_stop();
+         }
+ //  CASE: NEGATIVE -------------------------------------------------------------
+     } else {
+ //                                     |
+ //                                     v
+         if ((state.calculated_position < state.target_position) ||
+             (steps_to_go <= controller_get_decel_threshold())) {
+ //                         |
+ //                         v
+             state.velocity += state.accel;
+ //                                           |
+ //                                           v
+         } else if (state.calculated_position > state.target_position) {
+ //                             |                  |
+ //                             v                  v
+             state.velocity = max32(state.velocity - state.accel,
+ //              |
+ //              v
+                 -state.max_speed);
+         }
+         state.calculated_position += state.velocity;
+ //                               |
+ //                               v
+         if (state.motor_position > state.calculated_position &&
+             state.motor_position != state.target_position) {
+ //                               |
+ //                               v
+             //state.motor_position -= FIXED_ONE;
+             state.motor_position = encoder.read();
+            motor_run(motor_speed);
+         }
+ //                         |
+ //                         v
+         if (state.velocity > 0) {
+ //                            |
+ //                            v
+             state.direction = 1;
+ //                            |
+ //                            v
+             motor_set_dir_forward();
+             motor_stop();
+         }
 
 
-//  NOTE(doug): inverted elements are highlighted
-//  CASE: POSITIVE -------------------------------------------------------------
-    if (state.direction) {
-//                                     |
-//                                     v
-        if ((state.calculated_position > state.target_position) ||
-            (steps_to_go <= controller_get_decel_threshold())) {
-//                         |
-//                         v
-            state.velocity -= state.accel;
-//                                           |
-//                                           v
-        } else if (state.calculated_position < state.target_position) {
-//                             |                  | 
-//                             v                  v
-            state.velocity = min32(state.velocity + state.accel,
-//              |
-//              v
-                state.max_speed);
-        }
-        state.calculated_position += state.velocity;
-//                               |
-//                               v
-        if (state.motor_position < state.calculated_position &&
-            state.motor_position != state.target_position) {
-//                               |
-//                               v
-            state.motor_position += FIXED_ONE;
-            motor_pulse();
-        }
-//                         |
-//                         v
-        if (state.velocity < 0) {
-//                            |
-//                            v
-            state.direction = 0;
-//                            |
-//                            v
-            motor_set_dir_backward();
-        }
-//  CASE: NEGATIVE -------------------------------------------------------------
-    } else {
-//                                     |
-//                                     v
-        if ((state.calculated_position < state.target_position) ||
-            (steps_to_go <= controller_get_decel_threshold())) {
-//                         |
-//                         v
-            state.velocity += state.accel;
-//                                           |
-//                                           v
-        } else if (state.calculated_position > state.target_position) {
-//                             |                  | 
-//                             v                  v
-            state.velocity = max32(state.velocity - state.accel,
-//              |
-//              v
-                -state.max_speed);
-        }
-        state.calculated_position += state.velocity;
-//                               |
-//                               v
-        if (state.motor_position > state.calculated_position &&
-            state.motor_position != state.target_position) {
-//                               |
-//                               v
-            state.motor_position -= FIXED_ONE;
-            motor_pulse();
-        }
-//                         |
-//                         v
-        if (state.velocity > 0) {
-//                            |
-//                            v
-            state.direction = 1;
-//                            |
-//                            v
-            motor_set_dir_forward();
-        }
-    }
-//  END ------------------------------------------------------------------------
+     }
+ //  END ------------------------------------------------------------------------
+    Serial.println(motor_speed);
 }

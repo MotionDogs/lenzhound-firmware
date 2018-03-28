@@ -252,7 +252,7 @@ void _serial_api_process_command(int length)
     case (SERIAL_CURRENT_LEVEL_SET): {
         unsigned int current_level = _parse_u16(in);
         controller_set_current_level(current_level);
-        _serial_api_print_ok(cmd);  
+        _serial_api_print_ok(cmd);
     } break;
     case (SERIAL_FACTORY_RESET): {
         settings_reset_to_defaults();

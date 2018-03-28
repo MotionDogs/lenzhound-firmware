@@ -249,7 +249,7 @@ void _process_packet(radio_packet_t packet)
             controller_move_to_position(position);
         }
 
-        _queue_print_i32(SERIAL_TARGET_POSITION_GET, position);
+        //_queue_print_i32(SERIAL_TARGET_POSITION_GET, position);
 
         // NOTE(doug): for debugging:
         // _send_ok(type);
