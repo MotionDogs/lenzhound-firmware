@@ -5,7 +5,7 @@ const int SERIAL_BAUD = 57600;
 
 // ISR constants
 const long SECONDS_TO_MICROSECONDS = 1000000L;
-const long ISR_CALLS_PER_SECOND    = 6000L;
+const long ISR_CALLS_PER_SECOND    = 60L;
 const long ISR_PERIOD              = SECONDS_TO_MICROSECONDS/ISR_CALLS_PER_SECOND;
 
 // Motor constants

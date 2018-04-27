@@ -22,4 +22,11 @@
 #define ENCA_PIN(verb)      ( verb(D,0) )
 #define ENCB_PIN(verb)      ( verb(D,1) )
 
+// dcdrv pins Teensy Mapping
+#define dcspeed 10
+#define dcin1   11
+#define dcin2   12
+#define enca    5
+#define encb    6
+
 #endif // rxr_macros_h

@@ -46,7 +46,7 @@ TEST(MotorController, HitsItsTarget) {
   controller.set_accel(50);
   controller.set_velocity(6000);
   controller.set_velocity_percent(100);
-  controller.move_to_position(i32_to_fixed(target));
+  controller.move_to_position(target);
 
   // make sure we don't go over target
   context.boundary_ = target;
@@ -64,7 +64,7 @@ TEST(MotorController, HandlesSlowSpeeds) {
   controller.set_accel(50);
   controller.set_velocity(1);
   controller.set_velocity_percent(100);
-  controller.move_to_position(i32_to_fixed(target));
+  controller.move_to_position(target);
 
   // make sure we don't go over target
   context.boundary_ = target;
@@ -83,7 +83,7 @@ TEST(MotorController, DoesNotChangeConcavity) {
   controller.set_velocity(48000);
   controller.set_velocity_percent(100);
   controller.set_accel_percent(100);
-  controller.move_to_position(i32_to_fixed(target));
+  controller.move_to_position(target);
 
   context.boundary_ = target;
 

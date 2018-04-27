@@ -9,6 +9,8 @@
 // for more details.
 //****************************************************************************
 
+#define IS_STEPPER_MOTOR 0
+
 #include <SPI.h>
 #include <Mirf.h>
 #include <MirfHardwareSpiDriver.h>
@@ -25,6 +27,7 @@
 #include "controller.h"
 #include "serial_api.h"
 #include "radio.h"
+
 
 void timer_interrupt()
 {

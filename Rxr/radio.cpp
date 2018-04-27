@@ -213,7 +213,7 @@ void _process_packet(radio_packet_t packet)
         unsigned int current_level = packet.current_level_print.val;
         _queue_print_u16(SERIAL_CURRENT_LEVEL_GET, current_level);
         _send_ok(type);
-    } break;    
+    } break;
     case PACKET_PROFILE_ID_GET: {
     } break;
     case PACKET_PROFILE_ID_SET: {
@@ -236,12 +236,12 @@ void _process_packet(radio_packet_t packet)
         }
     } break;
     case PACKET_TARGET_POSITION_GET: {
-        long position = fixed_to_i32(controller_get_target_position());
+        long position = controller_get_target_position();
         PACKET_SEND(PACKET_TARGET_POSITION_PRINT,
             target_position_print, position);
     } break;
     case PACKET_TARGET_POSITION_SET: {
-        long position = i32_to_fixed(packet.target_position_set.val);
+        long position = packet.target_position_set.val;
 
         if (!controller_is_position_initialized()) {
             controller_initialize_position(position);
@@ -249,10 +249,10 @@ void _process_packet(radio_packet_t packet)
             controller_move_to_position(position);
         }
 
-        //_queue_print_i32(SERIAL_TARGET_POSITION_GET, position);
+        _queue_print_i32(SERIAL_TARGET_POSITION_GET, position);
 
         // NOTE(doug): for debugging:
-        // _send_ok(type);
+         _send_ok(type);
     } break;
     case PACKET_TARGET_POSITION_PRINT: {
         _queue_print_i32(SERIAL_TARGET_POSITION_GET,
@@ -330,7 +330,7 @@ void radio_run()
         // buffer[sizeof(radio_packet_t) * 3 + 1] = 0;
 
         // Serial.print(buffer);
-    
+
         // if (packet.version == RADIO_VERSION) {
         //     radio_state.version_match = 1;
         _process_packet(packet);

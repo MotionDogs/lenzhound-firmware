@@ -1,9 +1,7 @@
+#if IS_STEPPER_MOTOR
 #include "controller.h"
 #include "constants.h"
 #include "util.h"
-#include <Encoder.h>
-
-static Encoder encoder(5, 6);
 
 controller_state_t state = {0};
 
@@ -22,6 +20,10 @@ void controller_init()
     state.sleeping = true;
     state.initial_position_set = false;
     state.current_level = 0;
+
+    servo.myPID->SetTunings(0.1,0.15,0.05);
+    servo.setPWMSkip(50);
+    servo.setAccuracy(20);
 }
 
 void controller_uninitialize_position()
@@ -44,6 +46,7 @@ void controller_initialize_position(long position)
 
 void controller_move_to_position(long position)
 {
+    position = i32_to_fixed(position);
     if (position != state.target_position) {
         state.run_count = 0;
     }
@@ -52,7 +55,7 @@ void controller_move_to_position(long position)
 
 long controller_get_target_position()
 {
-    return state.target_position;
+    return fixed_to_i32(state.target_position);
 }
 
 void controller_set_mode(int mode)
@@ -106,8 +109,6 @@ void controller_set_current_level(unsigned int current_level)
 void controller_run()
 {
     long steps_to_go = abs32(state.target_position - state.calculated_position);
-    
-    long motor_speed = map(state.velocity,-8192,8192,0,255);
 
  //  NOTE(doug): inverted elements are highlighted
  //  CASE: POSITIVE -------------------------------------------------------------
@@ -137,10 +138,9 @@ void controller_run()
              state.motor_position != state.target_position) {
  //                               |
  //                               v
-             //state.motor_position += FIXED_ONE;
-             state.motor_position = encoder.read();
-            
-             motor_run(motor_speed);
+             state.motor_position += FIXED_ONE;
+
+             servo.move(state.target_position);
          }
  //                         |
  //                         v
@@ -151,7 +151,6 @@ void controller_run()
  //                            |
  //                            v
              motor_set_dir_backward();
-             motor_stop();
          }
  //  CASE: NEGATIVE -------------------------------------------------------------
      } else {
@@ -179,9 +178,9 @@ void controller_run()
              state.motor_position != state.target_position) {
  //                               |
  //                               v
-             //state.motor_position -= FIXED_ONE;
-             state.motor_position = encoder.read();
-            motor_run(motor_speed);
+             state.motor_position -= FIXED_ONE;
+
+             servo.move(state.target_position);
          }
  //                         |
  //                         v
@@ -192,11 +191,11 @@ void controller_run()
  //                            |
  //                            v
              motor_set_dir_forward();
-             motor_stop();
          }
 
 
      }
  //  END ------------------------------------------------------------------------
-    Serial.println(motor_speed);
 }
+
+#endif
