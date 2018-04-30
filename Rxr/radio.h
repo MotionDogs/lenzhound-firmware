@@ -51,7 +51,10 @@ enum {
     PACKET_RE_INIT_POSITION         = 35,
     PACKET_CURRENT_LEVEL_GET        = 36,
     PACKET_CURRENT_LEVEL_SET        = 37,
-    PACKET_CURRENT_LEVEL_PRINT      = 38,    
+    PACKET_CURRENT_LEVEL_PRINT      = 38,
+    PACKET_MOTOR_DRIVER_GET         = 39,
+    PACKET_MOTOR_DRIVER_SET         = 40,
+    PACKET_MOTOR_DRIVER_PRINT       = 41,
     PACKET_OK                       = 120,
 };
 
@@ -130,7 +133,10 @@ struct radio_packet_t {
         empty_packet_t re_init_position;
         empty_packet_t current_level_get;
         u16_packet_t current_level_set;
-        u16_packet_t current_level_print;        
+        u16_packet_t current_level_print;
+        empty_packet_t motor_driver_get;
+        u16_packet_t motor_driver_set;
+        u16_packet_t motor_driver_print;
         ok_packet_t ok;
     };
 };

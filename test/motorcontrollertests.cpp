@@ -31,9 +31,13 @@ void motor_set_dir_forward() {
 void motor_set_dir_backward() {
   context.direction_ = -1;
 }
-void motor_sleep() {
+void motor_sleep_a3967() {
 }
-void motor_wake() {
+void motor_sleep_drv8880() {
+}
+void motor_wake_a3967() {
+}
+void motor_wake_drv8880() {
 }
 void motor_set_steps(int steps) {
 }

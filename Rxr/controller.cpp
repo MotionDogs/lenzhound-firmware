@@ -9,13 +9,21 @@ void _controller_sleep()
     state.sleeping = true;
     state.run_count = 0;
 
-    motor_sleep();
-}
+    if(state.motor_driver == 0){
+      motor_sleep_a3967();
+    } else {
+      motor_sleep_drv8880();
+    }}
 
 void _controller_wake_up()
 {
     state.sleeping = false;
-    motor_wake();
+
+    if(state.motor_driver == 0){
+      motor_wake_a3967();
+    } else {
+      motor_wake_drv8880();
+    }
 }
 
 void controller_init()
@@ -32,9 +40,10 @@ void controller_init()
     state.run_count = 0;
     state.sleeping = true;
     state.initial_position_set = false;
+    state.current_level = 0;
+    state.motor_driver = 1;
     _controller_sleep();
     motor_set_steps(EIGHTH_STEPS);
-    state.current_level = 0;
 }
 
 void controller_uninitialize_position()
@@ -124,13 +133,28 @@ unsigned int controller_get_current_level() {
 }
 
 void controller_set_current_level(unsigned int current_level)
-{   
+{
     state.current_level = current_level;
     if(state.current_level == 0)
     {
       motor_trq1_off();
     } else {
       motor_trq1_on();
+    }
+}
+
+unsigned int controller_get_motor_driver() {
+    return state.motor_driver;
+}
+
+void controller_set_motor_driver(unsigned int motor_driver)
+{
+    state.motor_driver = motor_driver;
+    if(state.motor_driver == 0)
+    {
+      motor_driver_a3967();
+    } else {
+      motor_driver_drv8880();
     }
 }
 
@@ -155,7 +179,7 @@ void controller_run()
 //                                           |
 //                                           v
         } else if (state.calculated_position < state.target_position) {
-//                             |                  | 
+//                             |                  |
 //                             v                  v
             state.velocity = min32(state.velocity + state.accel,
 //              |
@@ -194,7 +218,7 @@ void controller_run()
 //                                           |
 //                                           v
         } else if (state.calculated_position > state.target_position) {
-//                             |                  | 
+//                             |                  |
 //                             v                  v
             state.velocity = max32(state.velocity - state.accel,
 //              |

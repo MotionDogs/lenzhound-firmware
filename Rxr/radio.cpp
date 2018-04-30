@@ -213,7 +213,20 @@ void _process_packet(radio_packet_t packet)
         unsigned int current_level = packet.current_level_print.val;
         _queue_print_u16(SERIAL_CURRENT_LEVEL_GET, current_level);
         _send_ok(type);
-    } break;    
+    } break;
+    case PACKET_MOTOR_DRIVER_GET: {
+        unsigned int motor_driver = controller_get_motor_driver();
+        PACKET_SEND(PACKET_MOTOR_DRIVER_GET, motor_driver_print, motor_driver);
+    } break;
+    case PACKET_MOTOR_DRIVER_SET: {
+        controller_set_motor_driver(packet.motor_driver_set.val);
+        _send_ok(type);
+    } break;
+    case PACKET_MOTOR_DRIVER_PRINT: {
+        unsigned int motor_driver = packet.motor_driver_print.val;
+        _queue_print_u16(SERIAL_MOTOR_DRIVER_GET, motor_driver);
+        _send_ok(type);
+    } break;
     case PACKET_PROFILE_ID_GET: {
     } break;
     case PACKET_PROFILE_ID_SET: {
@@ -330,7 +343,7 @@ void radio_run()
         // buffer[sizeof(radio_packet_t) * 3 + 1] = 0;
 
         // Serial.print(buffer);
-    
+
         // if (packet.version == RADIO_VERSION) {
         //     radio_state.version_match = 1;
         _process_packet(packet);

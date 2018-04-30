@@ -252,7 +252,16 @@ void _serial_api_process_command(int length)
     case (SERIAL_CURRENT_LEVEL_SET): {
         unsigned int current_level = _parse_u16(in);
         controller_set_current_level(current_level);
-        _serial_api_print_ok(cmd);  
+        _serial_api_print_ok(cmd);
+    } break;
+    case (SERIAL_MOTOR_DRIVER_GET): {
+      unsigned int motor_driver = controller_get_motor_driver();
+      _print_u16(cmd, motor_driver);
+    } break;
+    case (SERIAL_MOTOR_DRIVER_SET): {
+      unsigned int motor_driver = _parse_u16(in);
+      controller_set_motor_driver(motor_driver);
+      _serial_api_print_ok(cmd);
     } break;
     case (SERIAL_FACTORY_RESET): {
         settings_reset_to_defaults();

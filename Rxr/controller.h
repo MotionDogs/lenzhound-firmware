@@ -17,6 +17,7 @@ struct controller_state_t {
   long sleeping;
   bool initial_position_set;
   unsigned int current_level;
+  unsigned int motor_driver;
 };
 
 void controller_init();
@@ -32,6 +33,8 @@ long controller_get_accel();
 void controller_set_mode(int mode);
 bool controller_is_position_initialized();
 void controller_set_current_level(unsigned int current_level);
-unsigned int  controller_get_current_level();
+unsigned int controller_get_current_level();
+void controller_set_motor_driver(unsigned int motor_driver);
+unsigned int controller_get_motor_driver();
 
 #endif //lenzhound_motor_controller_h

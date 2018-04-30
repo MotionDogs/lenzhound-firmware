@@ -13,8 +13,8 @@ struct serial_api_state_t {
     int out_index;
 };
 
-// Used letters - A B C D E F G I L M N O P Q R S T U W X Y
-// Unused letters - J K Z
+// Used letters - A B C D E F G I J L M N O P Q R S T U W X Y
+// Unused letters - K Z
 
 
 enum {
@@ -54,6 +54,8 @@ enum {
     SERIAL_IGNORE               = '_',
     SERIAL_CURRENT_LEVEL_GET    = 'f',
     SERIAL_CURRENT_LEVEL_SET    = 'F',
+    SERIAL_MOTOR_DRIVER_GET     = 'j',
+    SERIAL_MOTOR_DRIVER_SET     = 'J',    
 };
 
 struct serial_api_echo_command_t {
