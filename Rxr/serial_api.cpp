@@ -255,13 +255,13 @@ void _serial_api_process_command(int length)
         _serial_api_print_ok(cmd);
     } break;
     case (SERIAL_MOTOR_DRIVER_GET): {
-      unsigned int motor_driver = controller_get_motor_driver();
-      _print_u16(cmd, motor_driver);
+        _print_i16(cmd, settings_get_motor_driver());
     } break;
     case (SERIAL_MOTOR_DRIVER_SET): {
-      unsigned int motor_driver = _parse_u16(in);
-      controller_set_motor_driver(motor_driver);
-      _serial_api_print_ok(cmd);
+        unsigned int motor_driver = _parse_u16(in);
+        settings_set_motor_driver(motor_driver);
+        controller_set_motor_driver(motor_driver);
+        _serial_api_print_ok(cmd);
     } break;
     case (SERIAL_FACTORY_RESET): {
         settings_reset_to_defaults();

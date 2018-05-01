@@ -51,7 +51,7 @@ void setup()
     SET_MODE(SLEEP2_PIN, OUT);
     SET_MODE(STEP2_PIN, OUT);
     SET_MODE(DIR2_PIN, OUT);
-    SET_MODE(TRQ1_PIN, OUT); 
+    SET_MODE(TRQ1_PIN, OUT);
 
     ANT_CTRL1(CLR);
     ANT_CTRL2(SET);
@@ -61,6 +61,7 @@ void setup()
     controller_set_accel(1);
     controller_set_speed(1);
     controller_set_current_level(0);
+    controller_set_motor_driver(settings_get_motor_driver());
 
     Timer1.initialize();
     Timer1.attachInterrupt(timer_interrupt, ISR_PERIOD);
