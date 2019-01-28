@@ -58,6 +58,7 @@ enum {
 #define PACKET_SIZE         6
 #define PACKET_STRING_LEN   (PACKET_SIZE - 1)
 
+#pragma pack(push, 1)
 struct empty_packet_t {
     char type;
 };
@@ -133,6 +134,8 @@ struct radio_packet_t {
         ok_packet_t ok;
     };
 };
+
+#pragma pack(pop)
 
 struct serial_api_state_t;
 

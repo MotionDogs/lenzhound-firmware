@@ -3,39 +3,29 @@
 #include "radio.h"
 #include "Arduino.h"
 #include <SPI.h>
-#include <Mirf.h>
-#include <nRF24L01.h>
-#include <MirfHardwareSpiDriver.h>
+#include <RF24.h>
 #include "bsp.h"
 #include "config.h"
 #include "eeprom_assert.h"
 
 #define HEARTBEAT_INTERVAL_MILLIS 2000
 
+RF24 radio(8,7);
+byte addresses[][6] = {"clie1","serv1"};
 radio_state_t radio_state = {0};
 
 bool _is_radio_available()
 {
-    return !Mirf.isSending();
+    return true;
 }
 
 bool _get_radio_packet(void *buffer)
 {
-    if (!Mirf.isSending() && Mirf.dataReady()) {
-        uint8_t *buf = (uint8_t *)buffer;
-        Mirf.getData(buf);
-        return true;
-    } else {
-        return false;
-    }
 }
 
-void _send_radio_packet(void *buffer)
+void _send_radio_packet(void *buffer, size_t size)
 {
-    Mirf.setTADDR((uint8_t *)TRANSMIT_ADDRESS);
-    Mirf.send((uint8_t *)buffer);
-    while (Mirf.isSending()) {
-    }
+    radio.write(buffer, size);
 }
 
 #define PRINT_PACKET_STRING(serial_cmd, name) do {\
@@ -57,13 +47,19 @@ void radio_queue_message(radio_packet_t packet)
 
 void radio_init()
 {
-    Mirf.spi = &MirfHardwareSpi;
-    Mirf.init();
-    Mirf.setRADDR((uint8_t *)RECEIVE_ADDRESS);
-    Mirf.payload = sizeof(radio_packet_t);
+    radio.begin();
 
-    int channel = settings_get_channel();
-    radio_set_channel(channel, true);
+    // Set the PA Level low to prevent power supply related issues since this is a
+    // getting_started sketch, and the likelihood of close proximity of the devices. RF24_PA_MAX is default.
+    radio.setRetries(5, 15);
+    radio.setChannel(1);
+    radio.enableDynamicPayloads();
+    radio.setPALevel( RF24_PA_HIGH ) ;
+    radio.setDataRate( RF24_250KBPS ) ;
+  
+    // Transmitting node
+    radio.openWritingPipe(addresses[1]);
+    radio.openReadingPipe(1,addresses[0]);
 }
 
 void radio_run()
@@ -75,33 +71,16 @@ void radio_run()
     if (_is_radio_available() && radio_state.read_index != radio_state.write_index) {
         radio_packet_t *out_packet = &radio_state.buffer[radio_state.read_index++];
         radio_state.read_index %= RADIO_OUT_BUFFER_SIZE;
-        _send_radio_packet(out_packet);
+        _send_radio_packet(out_packet, sizeof(radio_packet_t));
     }
 }
 
 void radio_set_channel(int channel, bool force)
 {
-    radio_packet_t packet = {0};
-    while (Mirf.isSending()) {
-    }
-    while (_get_radio_packet(&packet)) {
-    }
-    if (force || Mirf.channel != channel) {
-        char reg[] = { RF_DEFAULT, 0 };
-
-        if (channel >= 1 && channel <= 82) {
-            Mirf.channel = channel;
-        }
-
-        Mirf.writeRegister(RF_SETUP, (uint8_t *)reg, 1);
-        Mirf.config();   
-    }
+    radio.setChannel(channel);
 }
 
 bool radio_is_alive()
 {
-    uint8_t addr[mirf_ADDR_LEN];
-
-    Mirf.readRegister(TX_ADDR, addr, mirf_ADDR_LEN);
-    return memcmp(addr, (uint8_t *)TRANSMIT_ADDRESS, mirf_ADDR_LEN) == 0;
+    return true;
 }
