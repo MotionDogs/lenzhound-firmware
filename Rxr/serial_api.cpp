@@ -254,6 +254,10 @@ void _serial_api_process_command(int length)
         controller_set_current_level(current_level);
         _serial_api_print_ok(cmd);
     } break;
+    case (SERIAL_MOTOR_POSITION_GET): {
+        unsigned int motor_position = controller_get_motor_position();
+        _print_u16(cmd, motor_position);
+    } break;
     case (SERIAL_MOTOR_DRIVER_GET): {
         _print_i16(cmd, settings_get_motor_driver());
     } break;

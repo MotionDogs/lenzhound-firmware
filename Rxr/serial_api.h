@@ -22,7 +22,7 @@ struct serial_api_state_t {
 };
 
 // Used letters - A B C D E F G I J L M N O P Q R S T U W X Y
-// Unused letters - K Z
+// Unused letters - K
 
 enum {
     SERIAL_ECHO                 = 'h',
@@ -53,6 +53,7 @@ enum {
     SERIAL_RELOAD_CONFIG        = 'x',
     SERIAL_TARGET_POSITION_GET  = 'o',
     SERIAL_TARGET_POSITION_SET  = 'O',
+    SERIAL_MOTOR_POSITION_GET   = 'z',
     SERIAL_FACTORY_RESET        = 'Y',
     SERIAL_IGNORE               = '_',
     SERIAL_CURRENT_LEVEL_GET    = 'f',

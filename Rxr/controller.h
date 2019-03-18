@@ -28,6 +28,7 @@ void controller_uninitialize_position();
 void controller_set_speed(long speed);
 void controller_set_accel(long accel);
 long controller_get_target_position();
+long controller_get_motor_position();
 long controller_get_speed();
 long controller_get_accel();
 void controller_set_mode(int mode);

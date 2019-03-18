@@ -78,6 +78,11 @@ long controller_get_target_position()
     return state.target_position;
 }
 
+long controller_get_motor_position()
+{
+    return state.motor_position;
+}
+
 void controller_set_mode(int mode)
 {
     state.mode = mode;
